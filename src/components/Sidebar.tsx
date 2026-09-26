@@ -321,7 +321,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </span>
                   </div>
                   <div className="text-[10px] text-amber-400 font-mono">
-                    {credits?.totalRemaining || 850} credits
+                    {credits?.totalRemaining !== undefined ? credits.totalRemaining : 50} credits
                   </div>
                 </div>
               </div>

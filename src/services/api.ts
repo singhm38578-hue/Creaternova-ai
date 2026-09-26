@@ -211,9 +211,18 @@ export const studioApi = {
 
   // Credits & Wallet
   credits: {
-    getWallet: () => fetchApi<{ wallet: any; config: any }>('/api/credits/wallet'),
+    getWallet: () => fetchApi<{ wallet: any; config: any; plans: any }>('/api/credits/wallet'),
     getConfig: () => fetchApi<{ config: any }>('/api/credits/config'),
     getUsage: () => fetchApi<{ logs: any[]; wallet: any }>('/api/credits/usage'),
+    getTransactions: () => fetchApi<{ transactions: any[] }>('/api/credits/transactions'),
+    debit: (params: { cost: number; operation: string; projectId?: string }) =>
+      fetchApi<{ success: boolean; balanceBefore: number; balanceAfter: number; transactionId: string }>(
+        '/api/credits/debit',
+        {
+          method: 'POST',
+          body: JSON.stringify(params),
+        }
+      ),
     replenishDemo: () => fetchApi<{ wallet: any; success: boolean }>('/api/credits/replenish-demo', { method: 'POST' }),
   },
 

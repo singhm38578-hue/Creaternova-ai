@@ -25,6 +25,7 @@ import {
   limit,
   serverTimestamp,
   getDocFromServer,
+  onSnapshot,
   Firestore
 } from 'firebase/firestore';
 import {
@@ -153,6 +154,8 @@ export interface FirestoreUserProfile {
   plan: 'free' | 'pro' | 'creator' | 'business';
   billingCycle: 'monthly' | 'yearly';
   credits: number;
+  creditBalance: number;
+  creditResetDate: string;
   monthlyAllocation: number;
   preferredLanguage: string;
   creatorNiche?: string;
@@ -163,6 +166,7 @@ export interface FirestoreUserProfile {
 
 export async function initUserProfile(uid: string, data: { name: string; email: string; photoURL?: string }) {
   const now = new Date().toISOString();
+  const resetDate = new Date(Date.now() + 30 * 86400000).toISOString();
   const profile: FirestoreUserProfile = {
     uid,
     name: data.name,
@@ -171,7 +175,9 @@ export async function initUserProfile(uid: string, data: { name: string; email: 
     role: data.email.includes('admin') ? 'admin' : 'user',
     plan: 'free',
     billingCycle: 'monthly',
-    credits: 50, // Free launch tier credit quota
+    credits: 50,
+    creditBalance: 50,
+    creditResetDate: resetDate,
     monthlyAllocation: 50,
     preferredLanguage: 'English',
     creatorNiche: 'Content Creation',
@@ -198,11 +204,14 @@ export async function initUserProfile(uid: string, data: { name: string; email: 
 
   // Record initial grant transaction
   await recordCreditTransaction(uid, {
-    type: 'grant',
+    type: 'monthly_allocation',
     amount: 50,
-    operation: 'initial_signup_grant',
-    description: 'Welcome to CreatorNova AI! Starter credit grant',
+    balanceBefore: 0,
     balanceAfter: 50,
+    operation: 'initial_free_allocation',
+    projectId: null,
+    status: 'completed',
+    createdAt: now,
   });
 
   return profile;
@@ -211,7 +220,32 @@ export async function initUserProfile(uid: string, data: { name: string; email: 
 export async function getUserProfile(uid: string): Promise<FirestoreUserProfile | null> {
   const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return null;
-  return snap.data() as FirestoreUserProfile;
+  const data = snap.data() as any;
+  return {
+    ...data,
+    creditBalance: typeof data.creditBalance === 'number' ? data.creditBalance : (data.credits || 50),
+    creditResetDate: data.creditResetDate || new Date(Date.now() + 30 * 86400000).toISOString(),
+  } as FirestoreUserProfile;
+}
+
+export function subscribeToUserWallet(uid: string, onUpdate: (profile: FirestoreUserProfile) => void) {
+  const userRef = doc(db, 'users', uid);
+  return onSnapshot(
+    userRef,
+    (snap: any) => {
+      if (snap.exists()) {
+        const data = snap.data() as any;
+        onUpdate({
+          ...data,
+          creditBalance: typeof data.creditBalance === 'number' ? data.creditBalance : (data.credits || 50),
+          creditResetDate: data.creditResetDate || new Date(Date.now() + 30 * 86400000).toISOString(),
+        } as FirestoreUserProfile);
+      }
+    },
+    (err: any) => {
+      console.warn('Wallet onSnapshot listener warning:', err?.message || err);
+    }
+  );
 }
 
 export async function updateUserProfile(uid: string, updates: Partial<FirestoreUserProfile>) {
@@ -229,38 +263,47 @@ export async function updateUserProfile(uid: string, updates: Partial<FirestoreU
 export interface CreditTransactionRecord {
   id?: string;
   userId: string;
-  type: 'deduction' | 'grant' | 'replenish' | 'refund';
+  type: 'monthly_allocation' | 'generation_debit' | 'refund' | 'bonus' | 'admin_adjustment';
   amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
   operation: string;
-  description: string;
-  projectId?: string;
-  balanceAfter?: number;
-  timestamp: string;
+  projectId?: string | null;
+  status: 'completed' | 'refunded' | 'failed';
+  createdAt: string;
 }
 
 export async function recordCreditTransaction(
   uid: string,
-  tx: Omit<CreditTransactionRecord, 'userId' | 'timestamp'>
+  tx: Omit<CreditTransactionRecord, 'userId'>
 ) {
-  const txId = `tx_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const txId = tx.id || `tx_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const fullTx: CreditTransactionRecord = {
     ...tx,
     id: txId,
     userId: uid,
-    timestamp: new Date().toISOString(),
+    createdAt: tx.createdAt || new Date().toISOString(),
   };
   await setDoc(doc(db, 'users', uid, 'creditTransactions', txId), fullTx);
   return fullTx;
 }
 
 export async function getCreditTransactions(uid: string, max: number = 50): Promise<CreditTransactionRecord[]> {
-  const q = query(
-    collection(db, 'users', uid, 'creditTransactions'),
-    orderBy('timestamp', 'desc'),
-    limit(max)
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => d.data() as CreditTransactionRecord);
+  try {
+    const q = query(
+      collection(db, 'users', uid, 'creditTransactions'),
+      orderBy('createdAt', 'desc'),
+      limit(max)
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => d.data() as CreditTransactionRecord);
+  } catch (e) {
+    // If index or field pending, fallback to un-ordered query
+    const q = query(collection(db, 'users', uid, 'creditTransactions'), limit(max));
+    const snap = await getDocs(q);
+    const items = snap.docs.map((d) => d.data() as CreditTransactionRecord);
+    return items.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+  }
 }
 
 // -------------------------------------------------------------

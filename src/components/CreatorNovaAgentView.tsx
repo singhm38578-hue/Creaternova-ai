@@ -655,7 +655,7 @@ export const CreatorNovaAgentView: React.FC<CreatorNovaAgentViewProps> = ({
         description={`CreatorNova Agent will execute multi-content generation for "${pendingExecutionPlan?.goal}". This will generate complete scripts, scene directives, visual prompts, SEO, thumbnails, and schedule them to your Content Calendar.`}
         details={{
           creditsCost: pendingExecutionPlan?.estimatedCredits || 2,
-          remainingCredits: credits?.totalRemaining ?? 850,
+          remainingCredits: credits?.totalRemaining ?? 50,
           targetName: pendingExecutionPlan?.goal,
         }}
         confirmButtonText="Review & Confirm Generation"

@@ -2,6 +2,7 @@ import express from 'express';
 import crypto from 'crypto';
 import { GoogleGenAI } from '@google/genai';
 import { dbManager } from './db.ts';
+import { CreditWalletService } from './creditService.ts';
 
 const router = express.Router();
 
@@ -42,8 +43,28 @@ function getRequestUser(req: express.Request) {
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    const parts = token.split('.');
+    if (parts.length === 3) {
+      try {
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+        const uid = payload.user_id || payload.sub;
+        if (uid) {
+          return {
+            id: uid,
+            uid,
+            name: payload.name || payload.email?.split('@')[0] || 'Creator',
+            email: payload.email || '',
+            role: payload.email?.includes('admin') || payload.role === 'admin' ? 'admin' : 'user',
+            plan: 'free',
+            authToken: token,
+          };
+        }
+      } catch (e) {
+        // continue
+      }
+    }
     const user = dbManager.authenticateToken(token);
-    if (user) return user;
+    if (user) return { ...user, authToken: token };
   }
   // Default to primary creator user for demo/testing
   return dbManager.getUserById('user-creator-default');
@@ -302,13 +323,13 @@ router.post('/agent/execute-plan', async (req, res) => {
     if (!plan) return res.status(404).json({ error: 'Plan not found' });
 
     // Step 1: Check credit balance safety check
-    const credits = dbManager.getUserCredits(user.id);
-    if (credits.totalRemaining < plan.estimatedCredits) {
+    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+    if (wallet.creditBalance < plan.estimatedCredits) {
       return res.status(402).json({
         error: 'INSUFFICIENT_CREDITS',
-        message: `Plan execution requires ${plan.estimatedCredits} credits, but you have ${credits.totalRemaining} remaining. Please upgrade your plan or replenish credits.`,
+        message: 'Not enough credits',
         required: plan.estimatedCredits,
-        remaining: credits.totalRemaining,
+        available: wallet.creditBalance,
       });
     }
 
@@ -695,12 +716,12 @@ Return ONLY a JSON array with exactly ${count} objects:
     }
 
     // Step 5: Deduct credits accurately from user wallet
-    const deduction = dbManager.deductUserCredits(
-      user.id,
-      'text',
-      plan.estimatedCredits,
-      `Agent Plan Execution: "${plan.goal}" (${count} videos generated)`
-    );
+    const debitResult = await CreditWalletService.debitCreditsAtomic({
+      userId: user.id,
+      cost: plan.estimatedCredits,
+      operation: `agent_plan_execution: ${plan.goal.slice(0, 30)}`,
+      authToken: (user as any).authToken,
+    });
 
     // Step 6: Update Tasks in task queue
     const tasks = dbManager.getAgentTasks(user.id).filter((t) => t.planId === planId);
@@ -737,7 +758,7 @@ Return ONLY a JSON array with exactly ${count} objects:
       plan: updatedPlan,
       generatedProjects: createdProjects,
       scheduledCalendarItems,
-      creditsRemaining: deduction.balance.totalRemaining,
+      creditsRemaining: debitResult.balanceAfter,
       deductedCredits: plan.estimatedCredits,
     });
   } catch (err: any) {

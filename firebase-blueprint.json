@@ -13,6 +13,8 @@
         "plan": { "type": "string", "enum": ["free", "pro", "creator", "business"], "description": "Subscription tier" },
         "billingCycle": { "type": "string", "enum": ["monthly", "yearly"], "description": "Billing cycle" },
         "credits": { "type": "number", "description": "Current available credits balance" },
+        "creditBalance": { "type": "number", "description": "Authoritative Firestore-backed credit wallet balance" },
+        "creditResetDate": { "type": "string", "format": "date-time", "description": "Timestamp for next monthly credit replenishment" },
         "preferredLanguage": { "type": "string", "description": "Preferred UI and content language" },
         "creatorNiche": { "type": "string", "description": "Primary channel focus or niche" },
         "defaultPlatform": { "type": "string", "description": "Default social content platform" },
@@ -174,20 +176,21 @@
     },
     "CreditTransaction": {
       "title": "CreditTransaction",
-      "description": "Auditable log of credit deductions and grants",
+      "description": "Auditable log of credit deductions, allocations, and refunds",
       "type": "object",
       "properties": {
         "id": { "type": "string", "description": "Transaction identifier" },
         "userId": { "type": "string", "description": "Owner user UID" },
-        "type": { "type": "string", "enum": ["deduction", "grant", "replenish", "refund"], "description": "Transaction type" },
+        "type": { "type": "string", "enum": ["monthly_allocation", "generation_debit", "refund", "bonus", "admin_adjustment"], "description": "Transaction type" },
         "amount": { "type": "number", "description": "Credits amount" },
-        "operation": { "type": "string", "description": "Operation code (e.g. idea_generation, script_generation)" },
-        "description": { "type": "string", "description": "Human-readable memo" },
-        "projectId": { "type": "string", "description": "Associated project ID" },
+        "balanceBefore": { "type": "number", "description": "Wallet balance before transaction" },
         "balanceAfter": { "type": "number", "description": "Resulting credit wallet balance" },
-        "timestamp": { "type": "string", "format": "date-time", "description": "Execution timestamp" }
+        "operation": { "type": "string", "description": "Operation code (e.g. idea_generation, script_generation, scene_generation, seo_pack, thumbnail_image, voice, video, initial_free_allocation)" },
+        "projectId": { "type": "string", "description": "Associated project ID if applicable" },
+        "status": { "type": "string", "enum": ["completed", "refunded", "failed"], "description": "Transaction status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Execution timestamp" }
       },
-      "required": ["id", "userId", "type", "amount", "operation", "timestamp"]
+      "required": ["id", "userId", "type", "amount", "balanceBefore", "balanceAfter", "operation", "status", "createdAt"]
     },
     "MediaAsset": {
       "title": "MediaAsset",

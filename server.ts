@@ -52,14 +52,51 @@ function extractJsonFromText(rawText: string) {
 
 import { dbManager } from './server/db.ts';
 import agentRouter from './server/agentRoutes.ts';
+import { CreditWalletService } from './server/creditService.ts';
+import { GENERATION_CREDIT_COSTS, PLAN_DEFINITIONS } from './src/config/creditCosts.ts';
 
 // Helper to extract authenticated user or null
 function getAuthenticatedUser(req: express.Request) {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return null;
-  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-  if (!token) return null;
-  return dbManager.authenticateToken(token);
+  const token = authHeader ? authHeader.replace(/^Bearer\s+/i, '').trim() : null;
+
+  if (token) {
+    // 1. Check if token is a Firebase ID Token (JWT with 3 parts)
+    const parts = token.split('.');
+    if (parts.length === 3) {
+      try {
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+        if (payload.user_id || payload.sub) {
+          const uid = payload.user_id || payload.sub;
+          return {
+            id: uid,
+            uid,
+            name: payload.name || payload.email?.split('@')[0] || 'Creator',
+            email: payload.email || '',
+            role: payload.email?.includes('admin') || payload.role === 'admin' ? 'admin' : 'user',
+            plan: 'free',
+            authToken: token,
+          };
+        }
+      } catch (e) {
+        // continue
+      }
+    }
+
+    // 2. Check local session token
+    const sessionUser = dbManager.authenticateToken(token);
+    if (sessionUser) {
+      return { ...sessionUser, authToken: token };
+    }
+  }
+
+  // 3. Check x-user-uid header if provided in demo/dev
+  const xUid = req.headers['x-user-uid'];
+  if (typeof xUid === 'string' && xUid) {
+    return { id: xUid, uid: xUid, name: 'Creator', email: '', role: 'user', plan: 'free', authToken: token || undefined };
+  }
+
+  return null;
 }
 
 // Middleware requiring authentication
@@ -202,7 +239,7 @@ app.get('/api/auth/me', (req, res) => {
     return res.status(401).json({ error: 'UNAUTHORIZED' });
   }
 
-  const { passwordHash, ...safeUser } = user;
+  const { passwordHash, ...safeUser } = user as any;
   const brandKit = dbManager.getBrandKit(user.id);
   const credits = dbManager.getUserCredits(user.id);
   const creditConfig = dbManager.getCreditConfig();
@@ -353,39 +390,118 @@ app.post('/api/projects/:id/duplicate', (req, res) => {
 // CREDITS & USAGE DASHBOARD ENDPOINTS
 // -------------------------------------------------------------
 
-// Credit Wallet
-app.get('/api/credits/wallet', (req, res) => {
+// Credit Wallet (Firestore backed)
+app.get('/api/credits/wallet', async (req, res) => {
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
-  const wallet = dbManager.getUserCredits(user.id);
-  const config = dbManager.getCreditConfig();
-  return res.json({ wallet, config });
+  // Perform monthly credit reset check (resets to plan's monthly allocation if 30-day period reached)
+  const walletData = await CreditWalletService.resetMonthlyCredits(user.id, (user as any).authToken);
+  const planInfo = PLAN_DEFINITIONS[walletData.plan] || PLAN_DEFINITIONS.free;
+  return res.json({
+    wallet: {
+      plan: walletData.plan,
+      creditBalance: walletData.creditBalance,
+      totalRemaining: walletData.creditBalance,
+      textCredits: Math.floor(walletData.creditBalance * 0.4),
+      imageCredits: Math.floor(walletData.creditBalance * 0.3),
+      voiceCredits: Math.floor(walletData.creditBalance * 0.2),
+      videoCredits: Math.floor(walletData.creditBalance * 0.1),
+      monthlyAllocation: planInfo.monthlyCredits,
+      lastResetDate: walletData.creditResetDate,
+    },
+    config: GENERATION_CREDIT_COSTS,
+    plans: PLAN_DEFINITIONS,
+  });
 });
 
-// Credit Config (Estimated Costs)
+// Credit Config (Centralized Costs)
 app.get('/api/credits/config', (req, res) => {
-  const config = dbManager.getCreditConfig();
-  return res.json({ config });
+  return res.json({ config: GENERATION_CREDIT_COSTS, plans: PLAN_DEFINITIONS });
 });
 
-// Usage History
-app.get('/api/credits/usage', (req, res) => {
+// Credit Transactions Ledger (from Firestore)
+app.get('/api/credits/transactions', async (req, res) => {
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
-  const logs = dbManager.getUserUsageLogs(user.id);
-  const wallet = dbManager.getUserCredits(user.id);
-  return res.json({ logs, wallet });
+  const transactions = await CreditWalletService.getTransactions(user.id, (user as any).authToken);
+  return res.json({ transactions });
+});
+
+// Atomic Credit Debit Endpoint
+app.post('/api/credits/debit', async (req, res) => {
+  const user = getAuthenticatedUser(req);
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const { cost, operation = 'generation_debit', projectId = null } = req.body;
+  if (typeof cost !== 'number' || cost <= 0) {
+    return res.status(400).json({ error: 'Valid positive cost required' });
+  }
+
+  try {
+    const result = await CreditWalletService.debitCreditsAtomic({
+      userId: user.id,
+      cost,
+      operation,
+      projectId,
+      authToken: (user as any).authToken,
+    });
+    return res.json(result);
+  } catch (err: any) {
+    if (err.message?.includes('INSUFFICIENT_CREDITS')) {
+      const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+      return res.status(402).json({
+        error: 'INSUFFICIENT_CREDITS',
+        message: 'Not enough credits',
+        required: cost,
+        available: wallet.creditBalance,
+      });
+    }
+    return res.status(500).json({ error: err.message || 'Debit failed' });
+  }
+});
+
+// Usage History (combined transactions + legacy logs)
+app.get('/api/credits/usage', async (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const walletData = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+  const transactions = await CreditWalletService.getTransactions(user.id, (user as any).authToken);
+  const logs = transactions.map((t) => ({
+    id: t.id,
+    userId: t.userId,
+    type: 'text',
+    amount: t.amount,
+    description: t.operation,
+    timestamp: t.createdAt,
+    billingPeriod: new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+  }));
+  return res.json({ logs, wallet: { totalRemaining: walletData.creditBalance, monthlyAllocation: 50 } });
 });
 
 // Replenish Demo Credits
-app.post('/api/credits/replenish-demo', (req, res) => {
+app.post('/api/credits/replenish-demo', async (req, res) => {
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
-  const fresh = dbManager.replenishUserCredits(user.id);
-  return res.json({ wallet: fresh, success: true });
+  const updatedWallet = await CreditWalletService.replenishDemoCredits(user.id, (user as any).authToken, 500);
+  const planInfo = PLAN_DEFINITIONS[updatedWallet.plan] || PLAN_DEFINITIONS.free;
+  return res.json({
+    wallet: {
+      plan: updatedWallet.plan,
+      creditBalance: updatedWallet.creditBalance,
+      totalRemaining: updatedWallet.creditBalance,
+      textCredits: Math.floor(updatedWallet.creditBalance * 0.4),
+      imageCredits: Math.floor(updatedWallet.creditBalance * 0.3),
+      voiceCredits: Math.floor(updatedWallet.creditBalance * 0.2),
+      videoCredits: Math.floor(updatedWallet.creditBalance * 0.1),
+      monthlyAllocation: planInfo.monthlyCredits,
+      lastResetDate: updatedWallet.creditResetDate,
+    },
+    success: true,
+  });
 });
 
 // -------------------------------------------------------------
@@ -410,7 +526,7 @@ app.get('/api/billing/subscription', (req, res) => {
   const plans = dbManager.getPricingPlans();
   return res.json({
     plan: user.plan,
-    billingCycle: user.billingCycle,
+    billingCycle: (user as any).billingCycle || 'monthly',
     status: 'active',
     renewalDate: new Date(Date.now() + 25 * 86400000).toISOString(),
     creditsRemaining: wallet.totalRemaining,
@@ -548,15 +664,15 @@ app.post('/api/generate-content-pack', async (req, res) => {
   }
 
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const cost = 10;
   if (user) {
-    const config = dbManager.getCreditConfig();
-    const wallet = dbManager.getUserCredits(user.id);
-    if (wallet.totalRemaining < config.textCost) {
+    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+    if (wallet.creditBalance < cost) {
       return res.status(402).json({
         error: 'INSUFFICIENT_CREDITS',
-        message: 'Not enough credits for this generation.',
-        required: config.textCost,
-        remaining: wallet.totalRemaining,
+        message: 'Not enough credits',
+        required: cost,
+        available: wallet.creditBalance,
       });
     }
   }
@@ -701,8 +817,12 @@ Your output MUST be a single, valid JSON object with the following exact keys an
     const parsed = extractJsonFromText(response.text || '{}');
     parsed.createdAt = new Date().toISOString();
     if (user) {
-      const config = dbManager.getCreditConfig();
-      dbManager.deductUserCredits(user.id, 'text', config.textCost, `Generated Content Pack: "${projectName}"`);
+      await CreditWalletService.debitCreditsAtomic({
+        userId: user.id,
+        cost,
+        operation: 'content_pack_generation',
+        authToken: (user as any).authToken,
+      });
     }
     return res.json({ contentPack: parsed });
   } catch (error: any) {
@@ -910,6 +1030,20 @@ app.post('/api/generate-ideas', async (req, res) => {
     return res.status(400).json({ error: 'Topic is required' });
   }
 
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const cost = GENERATION_CREDIT_COSTS.ideaGeneration;
+  if (user) {
+    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+    if (wallet.creditBalance < cost) {
+      return res.status(402).json({
+        error: 'INSUFFICIENT_CREDITS',
+        message: 'Not enough credits',
+        required: cost,
+        available: wallet.creditBalance,
+      });
+    }
+  }
+
   const prompt = `You are a viral YouTube, TikTok, and content creation strategist for CreatorNova AI.
 Generate ${count} killer, high-CTR content ideas for:
 Topic/Niche: "${topic}"
@@ -950,6 +1084,14 @@ Return ONLY valid JSON array with objects in this exact structure:
     });
 
     const parsed = extractJsonFromText(response.text || '[]');
+    if (user) {
+      await CreditWalletService.debitCreditsAtomic({
+        userId: user.id,
+        cost,
+        operation: 'idea_generation',
+        authToken: (user as any).authToken,
+      });
+    }
     return res.json({ ideas: Array.isArray(parsed) ? parsed : [parsed] });
   } catch (error: any) {
     console.error('Error generating ideas:', error?.message || error);
@@ -993,6 +1135,20 @@ app.post('/api/generate-script', async (req, res) => {
   const { title, format, targetAudience, tone, pacing = 'balanced', hostFormat = 'solo', duration = '3-5 minutes' } = req.body;
   if (!title) {
     return res.status(400).json({ error: 'Title is required' });
+  }
+
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const cost = GENERATION_CREDIT_COSTS.scriptGeneration;
+  if (user) {
+    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+    if (wallet.creditBalance < cost) {
+      return res.status(402).json({
+        error: 'INSUFFICIENT_CREDITS',
+        message: 'Not enough credits',
+        required: cost,
+        available: wallet.creditBalance,
+      });
+    }
   }
 
   const prompt = `You are an Emmy-nominated YouTube and social media scriptwriter for CreatorNova AI.
@@ -1053,6 +1209,14 @@ Return ONLY valid JSON with this exact structure:
 
     const parsed = extractJsonFromText(response.text || '{}');
     parsed.lastUpdated = new Date().toISOString();
+    if (user) {
+      await CreditWalletService.debitCreditsAtomic({
+        userId: user.id,
+        cost,
+        operation: 'script_generation',
+        authToken: (user as any).authToken,
+      });
+    }
     return res.json({ script: parsed });
   } catch (error: any) {
     console.error('Error generating script:', error?.message || error);
@@ -1175,6 +1339,20 @@ app.post('/api/generate-scenes', async (req, res) => {
     return res.status(400).json({ error: 'Title or scriptText is required' });
   }
 
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const cost = GENERATION_CREDIT_COSTS.sceneGeneration;
+  if (user) {
+    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+    if (wallet.creditBalance < cost) {
+      return res.status(402).json({
+        error: 'INSUFFICIENT_CREDITS',
+        message: 'Not enough credits',
+        required: cost,
+        available: wallet.creditBalance,
+      });
+    }
+  }
+
   const prompt = `You are a visionary cinematographer, storyboard artist, and video editor for CreatorNova AI.
 Break down this video into ${sceneCount} detailed cinematic storyboard scenes for production:
 Title: "${title || 'Untitled'}"
@@ -1225,6 +1403,14 @@ Return ONLY valid JSON array of objects:
     });
 
     const parsed = extractJsonFromText(response.text || '[]');
+    if (user) {
+      await CreditWalletService.debitCreditsAtomic({
+        userId: user.id,
+        cost,
+        operation: 'scene_generation',
+        authToken: (user as any).authToken,
+      });
+    }
     return res.json({ scenes: Array.isArray(parsed) ? parsed : [parsed] });
   } catch (error: any) {
     console.error('Error generating scenes:', error?.message || error);
@@ -1301,6 +1487,20 @@ app.post('/api/generate-seo', async (req, res) => {
   const { title, topic, scriptText, targetAudience } = req.body;
   const mainSubject = title || topic || 'Creative Content';
 
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const cost = GENERATION_CREDIT_COSTS.seoPack;
+  if (user) {
+    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+    if (wallet.creditBalance < cost) {
+      return res.status(402).json({
+        error: 'INSUFFICIENT_CREDITS',
+        message: 'Not enough credits',
+        required: cost,
+        available: wallet.creditBalance,
+      });
+    }
+  }
+
   const prompt = `You are a top YouTube & TikTok SEO algorithm specialist for CreatorNova AI.
 Create a comprehensive, high-ranking SEO optimization package for:
 Title/Topic: "${mainSubject}"
@@ -1352,6 +1552,14 @@ Return ONLY valid JSON in this exact structure:
     });
 
     const parsed = extractJsonFromText(response.text || '{}');
+    if (user) {
+      await CreditWalletService.debitCreditsAtomic({
+        userId: user.id,
+        cost,
+        operation: 'seo_pack',
+        authToken: (user as any).authToken,
+      });
+    }
     return res.json({ seo: parsed });
   } catch (error: any) {
     console.error('Error generating SEO:', error?.message || error);
@@ -1436,6 +1644,21 @@ Return ONLY valid JSON:
 // 7. Generate Thumbnail Creative Concept & Strategy
 app.post('/api/generate-thumbnail-prompt', async (req, res) => {
   const { title, topic, tone } = req.body;
+
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const cost = GENERATION_CREDIT_COSTS.thumbnailImage;
+  if (user) {
+    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+    if (wallet.creditBalance < cost) {
+      return res.status(402).json({
+        error: 'INSUFFICIENT_CREDITS',
+        message: 'Not enough credits',
+        required: cost,
+        available: wallet.creditBalance,
+      });
+    }
+  }
+
   const prompt = `You are a legendary YouTube thumbnail designer who has generated over 1 billion views.
 Analyze this video:
 Title: "${title || topic}"
@@ -1477,6 +1700,14 @@ Return ONLY valid JSON array:
     });
 
     const parsed = extractJsonFromText(response.text || '[]');
+    if (user) {
+      await CreditWalletService.debitCreditsAtomic({
+        userId: user.id,
+        cost,
+        operation: 'thumbnail_prompt_generation',
+        authToken: (user as any).authToken,
+      });
+    }
     return res.json({ concepts: Array.isArray(parsed) ? parsed : [parsed] });
   } catch (error: any) {
     return res.json({
@@ -1505,6 +1736,20 @@ Return ONLY valid JSON array:
 // 8. Enhanced Thumbnail Studio Prompt Generation
 app.post('/api/generate-thumbnail-prompt-enhanced', async (req, res) => {
   const { topic, title, targetAudience, thumbnailConcept, visualStyle = 'Cinematic', aspectRatio = '16:9' } = req.body;
+
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const cost = GENERATION_CREDIT_COSTS.thumbnailImage;
+  if (user) {
+    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+    if (wallet.creditBalance < cost) {
+      return res.status(402).json({
+        error: 'INSUFFICIENT_CREDITS',
+        message: 'Not enough credits',
+        required: cost,
+        available: wallet.creditBalance,
+      });
+    }
+  }
 
   const prompt = `You are the lead thumbnail artist and creative director for CreatorNova AI.
 Generate a high-converting, production-ready AI image generator prompt and visual formula for:
@@ -1542,6 +1787,14 @@ Return ONLY valid JSON in this exact structure:
     });
 
     const parsed = extractJsonFromText(response.text || '{}');
+    if (user) {
+      await CreditWalletService.debitCreditsAtomic({
+        userId: user.id,
+        cost,
+        operation: 'thumbnail_enhanced_prompt_generation',
+        authToken: (user as any).authToken,
+      });
+    }
     return res.json({ result: parsed });
   } catch (error: any) {
     console.error('Error generating enhanced thumbnail prompt:', error?.message || error);
@@ -1564,6 +1817,20 @@ Return ONLY valid JSON in this exact structure:
 // 9. Scene Media Prompt with Visual Identity Consistency
 app.post('/api/generate-scene-media-prompt', async (req, res) => {
   const { sceneNumber, visualDescription, characterAction, visualIdentity } = req.body;
+
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const cost = GENERATION_CREDIT_COSTS.sceneGeneration;
+  if (user) {
+    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
+    if (wallet.creditBalance < cost) {
+      return res.status(402).json({
+        error: 'INSUFFICIENT_CREDITS',
+        message: 'Not enough credits',
+        required: cost,
+        available: wallet.creditBalance,
+      });
+    }
+  }
 
   const prompt = `You are a film director ensuring strict visual continuity across video scenes for CreatorNova AI.
 Generate a cohesive AI video/image generator prompt for:
@@ -1601,6 +1868,14 @@ Return ONLY a JSON object:
     });
 
     const parsed = extractJsonFromText(response.text || '{}');
+    if (user) {
+      await CreditWalletService.debitCreditsAtomic({
+        userId: user.id,
+        cost,
+        operation: 'scene_media_prompt_generation',
+        authToken: (user as any).authToken,
+      });
+    }
     return res.json({ result: parsed });
   } catch (error: any) {
     return res.json({

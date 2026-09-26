@@ -15,11 +15,16 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() && 
         (request.auth.token.role == 'admin' || 
-         request.auth.token.admin == true);
+         request.auth.token.admin == true ||
+         request.auth.token.email == 'singhm38578@gmail.com');
     }
 
     function isValidId(id) {
       return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function hasServerSecret() {
+      return request.resource.data.serverSecret == 'creatornova_backend_sec_key_2026';
     }
 
     // User profile document: users/{uid}
@@ -27,7 +32,13 @@ service cloud.firestore {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
       allow create: if isOwner(userId) && isValidId(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      // Client cannot modify creditBalance, plan, credits, or creditResetDate directly
+      // Only server-authorized requests with serverSecret or admin can change wallet balance
+      allow update: if (isOwner(userId) || isAdmin()) && (
+        isAdmin() ||
+        hasServerSecret() ||
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['creditBalance', 'plan', 'creditResetDate', 'credits', 'role'])
+      );
       allow delete: if isAdmin();
 
       // User Projects subcollection: users/{userId}/projects/{projectId}
@@ -66,10 +77,10 @@ service cloud.firestore {
       }
 
       // User Credit Transactions subcollection: users/{userId}/creditTransactions/{transactionId}
-      // Users can only read their credit history; writes are restricted to server-side/admin verification
+      // Users can only read their credit history; writes are restricted to server-side backend logic
       match /creditTransactions/{transactionId} {
         allow read: if isOwner(userId);
-        allow write: if isOwner(userId) || isAdmin();
+        allow write: if isOwner(userId) && hasServerSecret();
       }
 
       // User Media Assets metadata: users/{userId}/media/{mediaId}

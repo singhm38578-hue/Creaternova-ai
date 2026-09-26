@@ -37,7 +37,7 @@ export const CreditBadgeDropdown: React.FC<CreditBadgeDropdownProps> = ({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  const totalRemaining = credits?.totalRemaining || 850;
+  const totalRemaining = credits?.totalRemaining !== undefined ? credits.totalRemaining : 50;
 
   return (
     <div className="relative" ref={dropdownRef}>

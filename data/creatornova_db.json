@@ -56,9 +56,9 @@
       "imageCredits": 300,
       "voiceCredits": 200,
       "videoCredits": 100,
-      "totalRemaining": 1000,
+      "totalRemaining": 1500,
       "monthlyAllocation": 1000,
-      "lastResetDate": "2026-09-25T11:34:33.390Z"
+      "lastResetDate": "2026-10-26T09:13:43.301Z"
     },
     "user-admin-default": {
       "userId": "user-admin-default",
@@ -1392,5 +1392,356 @@
       "description": "Scheduled \"7 Mind-Blowing Facts About Black Holes\" to Content Calendar",
       "timestamp": "2026-09-24T11:43:24.591Z"
     }
-  ]
+  ],
+  "pricingPlans": {
+    "free": {
+      "id": "free",
+      "name": "FREE",
+      "tagline": "For users testing CreatorNova AI",
+      "monthlyCredits": 50,
+      "projectsLimit": 5,
+      "description": "Test viral ideas, scripts, and basic scene generation at zero cost.",
+      "features": [
+        "50 monthly credits",
+        "5 projects",
+        "AI idea generation",
+        "Basic script generation",
+        "Basic SEO",
+        "Limited scene generation"
+      ],
+      "popular": false,
+      "isActive": true,
+      "regionalPrices": {
+        "INR": {
+          "currency": "INR",
+          "symbol": "₹",
+          "monthly": 0,
+          "yearly": 0
+        },
+        "USD": {
+          "currency": "USD",
+          "symbol": "$",
+          "monthly": 0,
+          "yearly": 0
+        },
+        "EUR": {
+          "currency": "EUR",
+          "symbol": "€",
+          "monthly": 0,
+          "yearly": 0
+        },
+        "GBP": {
+          "currency": "GBP",
+          "symbol": "£",
+          "monthly": 0,
+          "yearly": 0
+        },
+        "JPY": {
+          "currency": "JPY",
+          "symbol": "¥",
+          "monthly": 0,
+          "yearly": 0
+        }
+      }
+    },
+    "pro": {
+      "id": "pro",
+      "name": "PRO",
+      "tagline": "For individual creators wanting higher limits & speed",
+      "monthlyCredits": 1000,
+      "projectsLimit": 50,
+      "description": "Full studio access, advanced AI scripts, and brand kit memory.",
+      "features": [
+        "1,000 monthly credits",
+        "50 projects",
+        "Advanced AI scripts",
+        "Scene generator",
+        "SEO tools",
+        "Thumbnail prompt generator",
+        "Basic AI Agent",
+        "Brand Kit",
+        "Multiple languages"
+      ],
+      "popular": false,
+      "isActive": true,
+      "regionalPrices": {
+        "INR": {
+          "currency": "INR",
+          "symbol": "₹",
+          "monthly": 299,
+          "yearly": 2990
+        },
+        "USD": {
+          "currency": "USD",
+          "symbol": "$",
+          "monthly": 9,
+          "yearly": 90
+        },
+        "EUR": {
+          "currency": "EUR",
+          "symbol": "€",
+          "monthly": 8,
+          "yearly": 80
+        },
+        "GBP": {
+          "currency": "GBP",
+          "symbol": "£",
+          "monthly": 7,
+          "yearly": 70
+        },
+        "JPY": {
+          "currency": "JPY",
+          "symbol": "¥",
+          "monthly": 1400,
+          "yearly": 14000
+        }
+      }
+    },
+    "creator": {
+      "id": "creator",
+      "name": "CREATOR",
+      "badge": "MOST POPULAR",
+      "tagline": "For high-volume creators needing automated pipelines",
+      "monthlyCredits": 4000,
+      "projectsLimit": -1,
+      "description": "Autonomous AI Creator Agent, Content Calendar, Series Creator, and Character Library.",
+      "features": [
+        "4,000 monthly credits",
+        "Unlimited text projects (fair-use)",
+        "AI Creator Agent",
+        "Content Calendar",
+        "Series Creator",
+        "Advanced SEO",
+        "Thumbnail generation when supported",
+        "Voice generation when supported",
+        "Character Library",
+        "Content repurposing",
+        "Priority generation"
+      ],
+      "popular": true,
+      "isActive": true,
+      "regionalPrices": {
+        "INR": {
+          "currency": "INR",
+          "symbol": "₹",
+          "monthly": 799,
+          "yearly": 7990
+        },
+        "USD": {
+          "currency": "USD",
+          "symbol": "$",
+          "monthly": 24,
+          "yearly": 240
+        },
+        "EUR": {
+          "currency": "EUR",
+          "symbol": "€",
+          "monthly": 22,
+          "yearly": 220
+        },
+        "GBP": {
+          "currency": "GBP",
+          "symbol": "£",
+          "monthly": 19,
+          "yearly": 190
+        },
+        "JPY": {
+          "currency": "JPY",
+          "symbol": "¥",
+          "monthly": 3600,
+          "yearly": 36000
+        }
+      }
+    },
+    "business": {
+      "id": "business",
+      "name": "BUSINESS",
+      "tagline": "For agencies, creator businesses, and multi-channel studios",
+      "monthlyCredits": 12000,
+      "projectsLimit": -1,
+      "description": "Everything in Creator plus multiple brand kits, higher limits, and priority support.",
+      "features": [
+        "12,000 monthly credits",
+        "Everything in Creator",
+        "Multiple Brand Kits",
+        "Team-ready architecture",
+        "Higher generation limits",
+        "Advanced automation",
+        "Business content workflows",
+        "Priority support",
+        "Commercial creator workflows"
+      ],
+      "popular": false,
+      "isActive": true,
+      "regionalPrices": {
+        "INR": {
+          "currency": "INR",
+          "symbol": "₹",
+          "monthly": 1999,
+          "yearly": 19990
+        },
+        "USD": {
+          "currency": "USD",
+          "symbol": "$",
+          "monthly": 59,
+          "yearly": 590
+        },
+        "EUR": {
+          "currency": "EUR",
+          "symbol": "€",
+          "monthly": 55,
+          "yearly": 550
+        },
+        "GBP": {
+          "currency": "GBP",
+          "symbol": "£",
+          "monthly": 49,
+          "yearly": 490
+        },
+        "JPY": {
+          "currency": "JPY",
+          "symbol": "¥",
+          "monthly": 8900,
+          "yearly": 89000
+        }
+      }
+    }
+  },
+  "creditPacks": {
+    "pack-100": {
+      "id": "pack-100",
+      "name": "100 Credits",
+      "credits": 100,
+      "available": true,
+      "prices": {
+        "INR": {
+          "currency": "INR",
+          "symbol": "₹",
+          "amount": 99
+        },
+        "USD": {
+          "currency": "USD",
+          "symbol": "$",
+          "amount": 3
+        },
+        "EUR": {
+          "currency": "EUR",
+          "symbol": "€",
+          "amount": 3
+        },
+        "GBP": {
+          "currency": "GBP",
+          "symbol": "£",
+          "amount": 2.5
+        },
+        "JPY": {
+          "currency": "JPY",
+          "symbol": "¥",
+          "amount": 450
+        }
+      }
+    },
+    "pack-500": {
+      "id": "pack-500",
+      "name": "500 Credits",
+      "credits": 500,
+      "available": true,
+      "prices": {
+        "INR": {
+          "currency": "INR",
+          "symbol": "₹",
+          "amount": 399
+        },
+        "USD": {
+          "currency": "USD",
+          "symbol": "$",
+          "amount": 12
+        },
+        "EUR": {
+          "currency": "EUR",
+          "symbol": "€",
+          "amount": 11
+        },
+        "GBP": {
+          "currency": "GBP",
+          "symbol": "£",
+          "amount": 9.5
+        },
+        "JPY": {
+          "currency": "JPY",
+          "symbol": "¥",
+          "amount": 1800
+        }
+      }
+    },
+    "pack-1000": {
+      "id": "pack-1000",
+      "name": "1,000 Credits",
+      "credits": 1000,
+      "badge": "MOST POPULAR",
+      "available": true,
+      "prices": {
+        "INR": {
+          "currency": "INR",
+          "symbol": "₹",
+          "amount": 699
+        },
+        "USD": {
+          "currency": "USD",
+          "symbol": "$",
+          "amount": 20
+        },
+        "EUR": {
+          "currency": "EUR",
+          "symbol": "€",
+          "amount": 19
+        },
+        "GBP": {
+          "currency": "GBP",
+          "symbol": "£",
+          "amount": 16
+        },
+        "JPY": {
+          "currency": "JPY",
+          "symbol": "¥",
+          "amount": 3000
+        }
+      }
+    },
+    "pack-5000": {
+      "id": "pack-5000",
+      "name": "5,000 Credits",
+      "credits": 5000,
+      "badge": "BEST VALUE",
+      "available": true,
+      "prices": {
+        "INR": {
+          "currency": "INR",
+          "symbol": "₹",
+          "amount": 2999
+        },
+        "USD": {
+          "currency": "USD",
+          "symbol": "$",
+          "amount": 85
+        },
+        "EUR": {
+          "currency": "EUR",
+          "symbol": "€",
+          "amount": 80
+        },
+        "GBP": {
+          "currency": "GBP",
+          "symbol": "£",
+          "amount": 70
+        },
+        "JPY": {
+          "currency": "JPY",
+          "symbol": "¥",
+          "amount": 12500
+        }
+      }
+    }
+  },
+  "paymentOrders": {}
 }

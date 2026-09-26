@@ -1,20 +1,24 @@
 import { CreditBalance } from '../types/content';
+import { GENERATION_CREDIT_COSTS, INITIAL_FREE_PLAN_CREDITS } from '../config/creditCosts';
 
-const CREDITS_STORAGE_KEY = 'creatornova_credits_v1';
+const CREDITS_STORAGE_KEY = 'creatornova_credits_v2';
 
 export const CREDIT_COSTS = {
-  text: 5,
-  image: 20,
-  voice: 15,
-  video: 50,
+  idea: GENERATION_CREDIT_COSTS.ideaGeneration,
+  script: GENERATION_CREDIT_COSTS.scriptGeneration,
+  scene: GENERATION_CREDIT_COSTS.sceneGeneration,
+  seo: GENERATION_CREDIT_COSTS.seoPack,
+  image: GENERATION_CREDIT_COSTS.thumbnailImage,
+  voice: GENERATION_CREDIT_COSTS.voice,
+  video: GENERATION_CREDIT_COSTS.video.baseCost,
 };
 
 const DEFAULT_BALANCE: CreditBalance = {
-  textCredits: 200,
-  imageCredits: 100,
-  voiceCredits: 120,
-  videoCredits: 50,
-  totalRemaining: 470,
+  textCredits: Math.floor(INITIAL_FREE_PLAN_CREDITS * 0.4),
+  imageCredits: Math.floor(INITIAL_FREE_PLAN_CREDITS * 0.3),
+  voiceCredits: Math.floor(INITIAL_FREE_PLAN_CREDITS * 0.2),
+  videoCredits: Math.floor(INITIAL_FREE_PLAN_CREDITS * 0.1),
+  totalRemaining: INITIAL_FREE_PLAN_CREDITS,
 };
 
 export function getCreditBalance(): CreditBalance {
@@ -43,15 +47,14 @@ export function deductCredits(type: 'text' | 'image' | 'voice' | 'video', amount
     const current = balance[key] as number;
 
     if (current < amount) {
-      return false; // Insufficient credits
+      if (balance.totalRemaining < amount) return false;
     }
 
     const updated = {
       ...balance,
-      [key]: current - amount,
+      [key]: Math.max(0, current - amount),
+      totalRemaining: Math.max(0, balance.totalRemaining - amount),
     };
-    updated.totalRemaining =
-      updated.textCredits + updated.imageCredits + updated.voiceCredits + updated.videoCredits;
 
     localStorage.setItem(CREDITS_STORAGE_KEY, JSON.stringify(updated));
     return true;

@@ -50,7 +50,9 @@ import {
   MediaStatus
 } from '../types/content';
 import { studioApi } from '../services/api';
-import { getCreditBalance, deductCredits, CREDIT_COSTS } from '../services/credits';
+import { useAuth } from '../contexts/AuthContext';
+import { GENERATION_CREDIT_COSTS } from '../config/creditCosts';
+import { CREDIT_COSTS } from '../services/credits';
 
 interface AIMediaStudioProps {
   project: Project;
@@ -68,8 +70,8 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
     'pipeline' | 'thumbnail' | 'voiceover' | 'scenes' | 'timeline' | 'captions' | 'music' | 'preview'
   >('pipeline');
 
-  // Credits state
-  const [creditBalance, setCreditBalance] = useState(getCreditBalance());
+  // Credits state from authoritative backend context
+  const { credits, creditConfig, openInsufficientCreditModal, refreshCredits } = useAuth();
   const [creditWarning, setCreditWarning] = useState<string | null>(null);
 
   // Error handling state
@@ -365,12 +367,11 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
 
   // Handle Thumbnail Prompt Generation with Credits
   const handleGenerateThumbnailPrompt = async () => {
-    // Credit check
-    if (!deductCredits('image', CREDIT_COSTS.image)) {
-      setCreditWarning(`You need ${CREDIT_COSTS.image} Image Credits. Current: ${creditBalance.imageCredits}`);
+    const cost = creditConfig?.imageCost || GENERATION_CREDIT_COSTS.thumbnailImage;
+    if (credits && credits.totalRemaining < cost) {
+      openInsufficientCreditModal(cost);
       return;
     }
-    setCreditBalance(getCreditBalance());
     setCreditWarning(null);
     setErrorMessage(null);
     setIsGeneratingThumbnailPrompt(true);
@@ -393,8 +394,13 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
         saveMediaStudioToProject({
           thumbnailPrompt: res.result.prompt,
         });
+        refreshCredits();
       }
     } catch (err: any) {
+      if (err.code === 'INSUFFICIENT_CREDITS' || err.status === 402) {
+        openInsufficientCreditModal(cost);
+        return;
+      }
       console.error('Thumbnail prompt generation error:', err);
       setErrorMessage('Generation failed. Your project is safe.');
       setFailedActionContext(() => handleGenerateThumbnailPrompt);
@@ -405,11 +411,11 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
 
   // Generate Consistent Scene Prompt using Visual Identity with Credits
   const handleGenerateConsistentScenePrompt = async (sceneNumber: number) => {
-    if (!deductCredits('image', CREDIT_COSTS.image)) {
-      setCreditWarning(`You need ${CREDIT_COSTS.image} Image Credits. Current: ${creditBalance.imageCredits}`);
+    const cost = creditConfig?.sceneCost || GENERATION_CREDIT_COSTS.sceneGeneration;
+    if (credits && credits.totalRemaining < cost) {
+      openInsufficientCreditModal(cost);
       return;
     }
-    setCreditBalance(getCreditBalance());
     setCreditWarning(null);
     setErrorMessage(null);
     setGeneratingSceneId(`scene-${sceneNumber}`);
@@ -438,8 +444,13 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
         });
         setScenes(updatedScenes);
         saveMediaStudioToProject({ scenes: updatedScenes });
+        refreshCredits();
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.code === 'INSUFFICIENT_CREDITS' || err.status === 402) {
+        openInsufficientCreditModal(cost);
+        return;
+      }
       setErrorMessage('Generation failed. Your project is safe.');
       setFailedActionContext(() => () => handleGenerateConsistentScenePrompt(sceneNumber));
     } finally {
@@ -565,24 +576,26 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
               <Coins className="w-3.5 h-3.5 text-amber-400" />
               Creator Credits
             </span>
-            <span className="font-mono font-bold text-amber-300">{creditBalance.totalRemaining}</span>
+            <span className="font-mono font-bold text-amber-300">
+              {credits?.totalRemaining !== undefined ? credits.totalRemaining : 50}
+            </span>
           </div>
           <div className="grid grid-cols-4 gap-1 text-[10px] text-center font-mono">
             <div className="bg-slate-950 p-1 rounded border border-slate-800">
               <span className="text-slate-500 block">TXT</span>
-              <span className="text-slate-200 font-bold">{creditBalance.textCredits}</span>
+              <span className="text-slate-200 font-bold">{credits?.textCredits || 0}</span>
             </div>
             <div className="bg-slate-950 p-1 rounded border border-slate-800">
               <span className="text-slate-500 block">IMG</span>
-              <span className="text-purple-300 font-bold">{creditBalance.imageCredits}</span>
+              <span className="text-purple-300 font-bold">{credits?.imageCredits || 0}</span>
             </div>
             <div className="bg-slate-950 p-1 rounded border border-slate-800">
               <span className="text-slate-500 block">VOX</span>
-              <span className="text-cyan-300 font-bold">{creditBalance.voiceCredits}</span>
+              <span className="text-cyan-300 font-bold">{credits?.voiceCredits || 0}</span>
             </div>
             <div className="bg-slate-950 p-1 rounded border border-slate-800">
               <span className="text-slate-500 block">VID</span>
-              <span className="text-red-300 font-bold">{creditBalance.videoCredits}</span>
+              <span className="text-red-300 font-bold">{credits?.videoCredits || 0}</span>
             </div>
           </div>
         </div>

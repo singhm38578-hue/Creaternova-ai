@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, BrandKit, CreditWallet, CreditConfig } from '../types/auth';
 import { studioApi } from '../services/api';
+import { GENERATION_CREDIT_COSTS, PLAN_DEFINITIONS, INITIAL_FREE_PLAN_CREDITS } from '../config/creditCosts';
 import {
   auth,
   isFirebaseConfigured,
@@ -16,6 +17,7 @@ import {
   getFirestoreBrandKit,
   saveFirestoreBrandKit,
   recordCreditTransaction,
+  subscribeToUserWallet,
   FirestoreUserProfile
 } from '../services/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
@@ -79,15 +81,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
   const [credits, setCredits] = useState<CreditWallet | null>(null);
   const [creditConfig, setCreditConfig] = useState<CreditConfig | null>({
-    textCost: 1,
-    scriptCost: 2,
-    seoCost: 2,
-    sceneCost: 3,
-    imageCost: 5,
-    voiceCost: 10,
-    videoCost: 20,
-    videoBaseCost: 15,
-    videoCostPer15s: 5,
+    textCost: GENERATION_CREDIT_COSTS.ideaGeneration,
+    scriptCost: GENERATION_CREDIT_COSTS.scriptGeneration,
+    seoCost: GENERATION_CREDIT_COSTS.seoPack,
+    sceneCost: GENERATION_CREDIT_COSTS.sceneGeneration,
+    imageCost: GENERATION_CREDIT_COSTS.thumbnailImage,
+    voiceCost: GENERATION_CREDIT_COSTS.voice,
+    videoCost: GENERATION_CREDIT_COSTS.video.baseCost,
+    videoBaseCost: GENERATION_CREDIT_COSTS.video.baseCost,
+    videoCostPer15s: GENERATION_CREDIT_COSTS.video.costPer15s,
+    videoModelMultipliers: GENERATION_CREDIT_COSTS.video.modelMultipliers,
     updatedAt: new Date().toISOString(),
   });
 
@@ -155,14 +158,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
 
           setUser(safeUser);
+          const realBalance = profile.creditBalance !== undefined ? profile.creditBalance : (profile.credits || 50);
           setCredits({
-            textCredits: Math.floor(profile.credits * 0.4),
-            imageCredits: Math.floor(profile.credits * 0.3),
-            voiceCredits: Math.floor(profile.credits * 0.2),
-            videoCredits: Math.floor(profile.credits * 0.1),
-            totalRemaining: profile.credits,
-            monthlyAllocation: profile.monthlyAllocation || profile.credits,
-            lastResetDate: profile.updatedAt,
+            textCredits: Math.floor(realBalance * 0.4),
+            imageCredits: Math.floor(realBalance * 0.3),
+            voiceCredits: Math.floor(realBalance * 0.2),
+            videoCredits: Math.floor(realBalance * 0.1),
+            totalRemaining: realBalance,
+            monthlyAllocation: profile.monthlyAllocation || 50,
+            lastResetDate: profile.creditResetDate || profile.updatedAt,
+          });
+
+          // Live Firestore wallet synchronization
+          subscribeToUserWallet(fbUser.uid, (liveProfile) => {
+            const liveBal = liveProfile.creditBalance !== undefined ? liveProfile.creditBalance : (liveProfile.credits || 50);
+            setCredits({
+              textCredits: Math.floor(liveBal * 0.4),
+              imageCredits: Math.floor(liveBal * 0.3),
+              voiceCredits: Math.floor(liveBal * 0.2),
+              videoCredits: Math.floor(liveBal * 0.1),
+              totalRemaining: liveBal,
+              monthlyAllocation: liveProfile.monthlyAllocation || 50,
+              lastResetDate: liveProfile.creditResetDate || liveProfile.updatedAt,
+            });
           });
 
           // Fetch Brand Kit
@@ -340,14 +358,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (user && isFirebaseConfigured) {
         const profile = await getUserProfile(user.id);
         if (profile) {
+          const liveBal = profile.creditBalance !== undefined ? profile.creditBalance : (profile.credits || 50);
           setCredits({
-            textCredits: Math.floor(profile.credits * 0.4),
-            imageCredits: Math.floor(profile.credits * 0.3),
-            voiceCredits: Math.floor(profile.credits * 0.2),
-            videoCredits: Math.floor(profile.credits * 0.1),
-            totalRemaining: profile.credits,
-            monthlyAllocation: profile.monthlyAllocation || profile.credits,
-            lastResetDate: profile.updatedAt,
+            textCredits: Math.floor(liveBal * 0.4),
+            imageCredits: Math.floor(liveBal * 0.3),
+            voiceCredits: Math.floor(liveBal * 0.2),
+            videoCredits: Math.floor(liveBal * 0.1),
+            totalRemaining: liveBal,
+            monthlyAllocation: profile.monthlyAllocation || 50,
+            lastResetDate: profile.creditResetDate || profile.updatedAt,
           });
           return;
         }
@@ -367,14 +386,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCredits(res.wallet);
       }
       if (user && isFirebaseConfigured) {
-        await updateFirestoreUserProfile(user.id, { credits: res.wallet?.totalRemaining || 850 });
-        await recordCreditTransaction(user.id, {
-          type: 'replenish',
-          amount: 500,
-          operation: 'demo_replenish',
-          description: 'Developer sandbox credit replenishment',
-          balanceAfter: res.wallet?.totalRemaining || 850,
-        });
+        await refreshCredits();
       }
     } catch (e) {
       console.error('Failed replenishing credits:', e);
