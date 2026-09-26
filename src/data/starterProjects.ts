@@ -1,4 +1,4 @@
-import { Project } from '../types/content';
+import type { Project } from '../types/content.ts';
 
 export const STARTER_PROJECTS: Project[] = [
   {

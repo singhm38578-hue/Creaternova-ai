@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { STARTER_PROJECTS } from '../src/data/starterProjects.js';
+import { STARTER_PROJECTS } from '../src/data/starterProjects.ts';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'creatornova_db.json');
