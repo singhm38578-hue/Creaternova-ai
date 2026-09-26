@@ -1,0 +1,87 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.role == 'admin' || 
+         request.auth.token.admin == true);
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User profile document: users/{uid}
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && isValidId(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+
+      // User Projects subcollection: users/{userId}/projects/{projectId}
+      match /projects/{projectId} {
+        allow read, write: if isOwner(userId) && isValidId(projectId);
+      }
+
+      // User Agent Plans subcollection: users/{userId}/agentPlans/{planId}
+      match /agentPlans/{planId} {
+        allow read, write: if isOwner(userId) && isValidId(planId);
+      }
+
+      // User Agent Tasks subcollection: users/{userId}/agentTasks/{taskId}
+      match /agentTasks/{taskId} {
+        allow read, write: if isOwner(userId) && isValidId(taskId);
+      }
+
+      // User Content Calendar subcollection: users/{userId}/calendar/{calendarId}
+      match /calendar/{calendarId} {
+        allow read, write: if isOwner(userId) && isValidId(calendarId);
+      }
+
+      // User Series subcollection: users/{userId}/series/{seriesId}
+      match /series/{seriesId} {
+        allow read, write: if isOwner(userId) && isValidId(seriesId);
+      }
+
+      // User Characters Library subcollection: users/{userId}/characters/{characterId}
+      match /characters/{characterId} {
+        allow read, write: if isOwner(userId) && isValidId(characterId);
+      }
+
+      // User Brand Kits subcollection: users/{userId}/brandKits/{brandKitId}
+      match /brandKits/{brandKitId} {
+        allow read, write: if isOwner(userId) && isValidId(brandKitId);
+      }
+
+      // User Credit Transactions subcollection: users/{userId}/creditTransactions/{transactionId}
+      // Users can only read their credit history; writes are restricted to server-side/admin verification
+      match /creditTransactions/{transactionId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId) || isAdmin();
+      }
+
+      // User Media Assets metadata: users/{userId}/media/{mediaId}
+      match /media/{mediaId} {
+        allow read, write: if isOwner(userId) && isValidId(mediaId);
+      }
+    }
+
+    // Platform global configs: readable by authenticated users, writable only by admins
+    match /platformConfig/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}

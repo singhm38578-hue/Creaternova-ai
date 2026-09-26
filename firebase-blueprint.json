@@ -1,0 +1,253 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account profile and subscription metadata",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique Firebase Authentication user ID" },
+        "name": { "type": "string", "description": "Display name of the user" },
+        "email": { "type": "string", "format": "email", "description": "User email address" },
+        "photoURL": { "type": "string", "description": "Avatar image URL" },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "User access role" },
+        "plan": { "type": "string", "enum": ["free", "pro", "creator", "business"], "description": "Subscription tier" },
+        "billingCycle": { "type": "string", "enum": ["monthly", "yearly"], "description": "Billing cycle" },
+        "credits": { "type": "number", "description": "Current available credits balance" },
+        "preferredLanguage": { "type": "string", "description": "Preferred UI and content language" },
+        "creatorNiche": { "type": "string", "description": "Primary channel focus or niche" },
+        "defaultPlatform": { "type": "string", "description": "Default social content platform" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when account was created" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp when account was last updated" }
+      },
+      "required": ["uid", "email", "role", "plan", "credits", "createdAt", "updatedAt"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Creator studio production project storing full screenplay, storyboards, SEO, and thumbnails",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique project identifier" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "projectName": { "type": "string", "description": "Project title" },
+        "topic": { "type": "string", "description": "Core subject or topic" },
+        "platform": { "type": "string", "description": "Target publishing platform" },
+        "contentType": { "type": "string", "description": "Format category" },
+        "language": { "type": "string", "description": "Script and spoken dialogue language" },
+        "duration": { "type": "string", "description": "Target runtime duration" },
+        "targetAudience": { "type": "string", "description": "Demographic or viewer persona" },
+        "status": { "type": "string", "enum": ["draft", "scripted", "storyboarded", "media_ready", "scheduled", "completed"], "description": "Project progression status" },
+        "contentIdea": { "type": "object", "description": "Core concept and value takeaway" },
+        "hook": { "type": "object", "description": "Opening 0-3 second retention hook" },
+        "script": { "type": "object", "description": "Full screenplay dialogue, beats, and cues" },
+        "scenes": { "type": "array", "description": "Multi-beat camera shotlist and visual direction" },
+        "seo": { "type": "object", "description": "High-CTR titles, keywords, hashtags, and description" },
+        "thumbnail": { "type": "object", "description": "Visual headline, focal point, and generative prompt" },
+        "repurposing": { "type": "object", "description": "Cross-platform adaptation variants" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp created" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp last autosaved" }
+      },
+      "required": ["id", "userId", "projectName", "topic", "platform", "language", "status", "createdAt", "updatedAt"]
+    },
+    "AgentPlan": {
+      "title": "AgentPlan",
+      "description": "CreatorNova AI Agent pre-execution proposal and multi-piece generated project plan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Plan identifier" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "goal": { "type": "string", "description": "High-level content objective" },
+        "command": { "type": "string", "description": "Original natural language command" },
+        "numberOfVideos": { "type": "number", "description": "Count of pieces generated" },
+        "platform": { "type": "string", "description": "Target platform" },
+        "language": { "type": "string", "description": "Target language" },
+        "status": { "type": "string", "enum": ["proposed", "approved", "generating", "completed", "cancelled"], "description": "Plan lifecycle state" },
+        "estimatedOperations": { "type": "number", "description": "Count of atomic operations" },
+        "estimatedCredits": { "type": "number", "description": "Expected credit expenditure" },
+        "expectedOutputs": { "type": "array", "description": "List of expected project artifacts" },
+        "tasks": { "type": "array", "description": "Decomposed task list" },
+        "generatedProjects": { "type": "array", "description": "Multi-day production roster" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["id", "userId", "goal", "numberOfVideos", "platform", "language", "status", "estimatedCredits", "createdAt", "updatedAt"]
+    },
+    "AgentTask": {
+      "title": "AgentTask",
+      "description": "Background or queueable task managed by CreatorNova Agent",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Task ID" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "planId": { "type": "string", "description": "Associated plan ID" },
+        "projectId": { "type": "string", "description": "Target project ID" },
+        "title": { "type": "string", "description": "Action name" },
+        "description": { "type": "string", "description": "Detailed task step" },
+        "type": { "type": "string", "description": "Operation classification" },
+        "creditCost": { "type": "number", "description": "Credit cost for this task" },
+        "status": { "type": "string", "enum": ["Queued", "Working", "Completed", "Failed", "Needs Approval"], "description": "Current processing state" },
+        "requiresApproval": { "type": "boolean", "description": "Requires human confirmation before proceeding" },
+        "resultSummary": { "type": "string", "description": "Output message" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Queue timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["id", "userId", "title", "status", "createdAt", "updatedAt"]
+    },
+    "CalendarItem": {
+      "title": "CalendarItem",
+      "description": "Content release scheduled in the Content Calendar",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Calendar record identifier" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "projectId": { "type": "string", "description": "Linked project ID" },
+        "title": { "type": "string", "description": "Content item title" },
+        "platform": { "type": "string", "description": "Release platform" },
+        "scheduledDate": { "type": "string", "description": "Release date (YYYY-MM-DD)" },
+        "scheduledTime": { "type": "string", "description": "Release time (HH:mm)" },
+        "status": { "type": "string", "enum": ["Idea", "Script Ready", "Media Pending", "Ready", "Published"], "description": "Production and publishing status" },
+        "language": { "type": "string", "description": "Content language" },
+        "notes": { "type": "string", "description": "Creator notes" },
+        "externalPublishStatus": { "type": "object", "description": "Real verified publishing status from external platform API" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["id", "userId", "title", "platform", "scheduledDate", "status", "createdAt", "updatedAt"]
+    },
+    "Series": {
+      "title": "Series",
+      "description": "Multi-episode content series definition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Series identifier" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "seriesName": { "type": "string", "description": "Name of the episodic series" },
+        "topic": { "type": "string", "description": "Overarching series premise" },
+        "numberOfEpisodes": { "type": "number", "description": "Target episode count" },
+        "platform": { "type": "string", "description": "Platform for the series" },
+        "duration": { "type": "string", "description": "Duration per episode" },
+        "language": { "type": "string", "description": "Language of the series" },
+        "episodeIdeas": { "type": "array", "description": "List of planned episode breakdowns" },
+        "recurringElements": { "type": "string", "description": "Signature character or visual elements" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["id", "userId", "seriesName", "topic", "numberOfEpisodes", "platform", "createdAt", "updatedAt"]
+    },
+    "Character": {
+      "title": "Character",
+      "description": "Recurring character profile for visual consistency in scenes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Character identifier" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "name": { "type": "string", "description": "Character name" },
+        "role": { "type": "string", "description": "Role or persona" },
+        "visualDescription": { "type": "string", "description": "Appearance, features, and style" },
+        "clothing": { "type": "string", "description": "Signature attire" },
+        "mainColors": { "type": "array", "description": "Hex colors" },
+        "personality": { "type": "string", "description": "Personality traits" },
+        "voiceStyle": { "type": "string", "description": "Tone and cadence" },
+        "avatarUrl": { "type": "string", "description": "Preview portrait URL" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["id", "userId", "name", "visualDescription", "createdAt", "updatedAt"]
+    },
+    "BrandKit": {
+      "title": "BrandKit",
+      "description": "Creator channel identity, audience, style guidelines, and default CTA",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "channelName": { "type": "string", "description": "Channel or studio brand name" },
+        "channelNiche": { "type": "string", "description": "Content niche" },
+        "targetAudience": { "type": "string", "description": "Audience demographics" },
+        "preferredLanguage": { "type": "string", "description": "Default content language" },
+        "preferredVisualStyle": { "type": "string", "description": "Visual direction" },
+        "defaultVideoStyle": { "type": "string", "description": "Pacing and shot composition" },
+        "toneOfVoice": { "type": "string", "description": "Script tone" },
+        "recurringCharacterDescription": { "type": "string", "description": "Host/mascot description" },
+        "preferredCta": { "type": "string", "description": "Default call to action" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp updated" }
+      },
+      "required": ["userId", "channelName", "channelNiche", "updatedAt"]
+    },
+    "CreditTransaction": {
+      "title": "CreditTransaction",
+      "description": "Auditable log of credit deductions and grants",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Transaction identifier" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "type": { "type": "string", "enum": ["deduction", "grant", "replenish", "refund"], "description": "Transaction type" },
+        "amount": { "type": "number", "description": "Credits amount" },
+        "operation": { "type": "string", "description": "Operation code (e.g. idea_generation, script_generation)" },
+        "description": { "type": "string", "description": "Human-readable memo" },
+        "projectId": { "type": "string", "description": "Associated project ID" },
+        "balanceAfter": { "type": "number", "description": "Resulting credit wallet balance" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Execution timestamp" }
+      },
+      "required": ["id", "userId", "type", "amount", "operation", "timestamp"]
+    },
+    "MediaAsset": {
+      "title": "MediaAsset",
+      "description": "Metadata for user-uploaded or AI-rendered audio, image, and video assets",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Asset identifier" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "projectId": { "type": "string", "description": "Associated project ID" },
+        "type": { "type": "string", "enum": ["thumbnail", "image", "voice", "video"], "description": "Asset type" },
+        "storagePath": { "type": "string", "description": "Firebase Storage reference path" },
+        "downloadUrl": { "type": "string", "description": "Public download URL" },
+        "fileName": { "type": "string", "description": "Original file name" },
+        "mimeType": { "type": "string", "description": "File MIME type" },
+        "sizeBytes": { "type": "number", "description": "File size in bytes" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["id", "userId", "type", "storagePath", "downloadUrl", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "Stores user profile and account subscription data"
+    },
+    "/users/{uid}/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Stores private user production projects, scripts, scenes, and assets"
+    },
+    "/users/{uid}/agentPlans/{planId}": {
+      "schema": "AgentPlan",
+      "description": "Stores AI Agent pre-execution plans and generated multi-piece rosters"
+    },
+    "/users/{uid}/agentTasks/{taskId}": {
+      "schema": "AgentTask",
+      "description": "Stores agent task queue status and approvals"
+    },
+    "/users/{uid}/calendar/{calendarId}": {
+      "schema": "CalendarItem",
+      "description": "Stores content calendar release schedule"
+    },
+    "/users/{uid}/series/{seriesId}": {
+      "schema": "Series",
+      "description": "Stores multi-episode series projects"
+    },
+    "/users/{uid}/characters/{characterId}": {
+      "schema": "Character",
+      "description": "Stores character consistency library entries"
+    },
+    "/users/{uid}/brandKits/{brandKitId}": {
+      "schema": "BrandKit",
+      "description": "Stores channel brand kit profiles"
+    },
+    "/users/{uid}/creditTransactions/{transactionId}": {
+      "schema": "CreditTransaction",
+      "description": "Stores user credit wallet transactions"
+    },
+    "/users/{uid}/media/{mediaId}": {
+      "schema": "MediaAsset",
+      "description": "Stores user uploaded and generated media asset metadata"
+    }
+  }
+}

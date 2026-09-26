@@ -1,0 +1,8 @@
+{
+  "name": "CreatorNova AI",
+  "description": "All-in-one AI content studio for creators: generate viral ideas, write full scripts, storyboard scenes, craft high-CTR thumbnails, optimize SEO, and localize content across languages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

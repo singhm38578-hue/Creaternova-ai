@@ -1,0 +1,1396 @@
+{
+  "users": {
+    "user-creator-default": {
+      "id": "user-creator-default",
+      "name": "Alex Rivera",
+      "email": "creator@creatornova.ai",
+      "passwordHash": "c0504195230e00e6b085aeb39b59c7804aa31c071a15754a27aae3d6e3bfcd6b",
+      "role": "user",
+      "profileImage": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "preferredLanguage": "English",
+      "creatorNiche": "Science & Educational Animation",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "pro",
+      "billingCycle": "monthly",
+      "createdAt": "2026-08-26T11:27:41.982Z",
+      "onboardingCompleted": true
+    },
+    "user-admin-default": {
+      "id": "user-admin-default",
+      "name": "System Admin",
+      "email": "admin@creatornova.ai",
+      "passwordHash": "bdbac113bed52f68610ecd140015955bb3a3a0fd8bd9dc92dcff3714c382d40e",
+      "role": "admin",
+      "profileImage": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "preferredLanguage": "English",
+      "creatorNiche": "Platform Administration",
+      "defaultPlatform": "YouTube Long Video",
+      "defaultContentLanguage": "English",
+      "plan": "business",
+      "billingCycle": "yearly",
+      "createdAt": "2026-07-27T11:27:41.982Z",
+      "onboardingCompleted": true
+    }
+  },
+  "sessions": {},
+  "brandKits": {
+    "user-creator-default": {
+      "userId": "user-creator-default",
+      "channelName": "Cosmic Explorers",
+      "channelNiche": "Space & Modern Science Facts",
+      "targetAudience": "Students & Curious Minds (12-25)",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic High-Contrast",
+      "defaultVideoStyle": "Fast-Paced Shorts with Zoom Cues",
+      "toneOfVoice": "Energetic, Curious & Authoritative",
+      "recurringCharacterDescription": "Dr. Nova, an energetic robotic cosmic guide with deep violet plating and glowing cyan eyes",
+      "preferredCta": "Subscribe to Cosmic Explorers for weekly mind-blowing facts!",
+      "updatedAt": "2026-09-25T11:27:41.982Z"
+    }
+  },
+  "credits": {
+    "user-creator-default": {
+      "userId": "user-creator-default",
+      "textCredits": 400,
+      "imageCredits": 300,
+      "voiceCredits": 200,
+      "videoCredits": 100,
+      "totalRemaining": 1000,
+      "monthlyAllocation": 1000,
+      "lastResetDate": "2026-09-25T11:34:33.390Z"
+    },
+    "user-admin-default": {
+      "userId": "user-admin-default",
+      "textCredits": 4000,
+      "imageCredits": 3000,
+      "voiceCredits": 2000,
+      "videoCredits": 1000,
+      "totalRemaining": 10000,
+      "monthlyAllocation": 10000,
+      "lastResetDate": "2026-09-25T11:27:41.982Z"
+    }
+  },
+  "creditConfig": {
+    "textCost": 2,
+    "imageCost": 5,
+    "voiceCost": 3,
+    "videoCost": 20,
+    "updatedAt": "2026-09-25T11:27:41.981Z"
+  },
+  "usageLogs": [
+    {
+      "id": "log-1790336073390",
+      "userId": "user-creator-default",
+      "type": "text",
+      "amount": 1000,
+      "description": "Plan Credits Reset / Refill (PRO Tier)",
+      "timestamp": "2026-09-25T11:34:33.390Z",
+      "billingPeriod": "Sep 2026"
+    },
+    {
+      "id": "log-1",
+      "userId": "user-creator-default",
+      "type": "text",
+      "amount": 2,
+      "description": "Generated complete script for \"Space Facts Short\"",
+      "timestamp": "2026-09-25T07:27:41.982Z",
+      "billingPeriod": "Sept 2026"
+    },
+    {
+      "id": "log-2",
+      "userId": "user-creator-default",
+      "type": "image",
+      "amount": 5,
+      "description": "Rendered 4K Thumbnail for \"Kids Colors Video\"",
+      "timestamp": "2026-09-25T03:27:41.982Z",
+      "billingPeriod": "Sept 2026"
+    },
+    {
+      "id": "log-3",
+      "userId": "user-creator-default",
+      "type": "voice",
+      "amount": 3,
+      "description": "Synthesized voiceover track for Scene Breakdown",
+      "timestamp": "2026-09-24T21:27:41.982Z",
+      "billingPeriod": "Sept 2026"
+    }
+  ],
+  "projects": {
+    "project-kids-colors": {
+      "id": "project-kids-colors",
+      "name": "Kids Colors Video",
+      "topic": "Learning Colors with Fun Magic Paint & Sing-along Toys",
+      "format": "educational",
+      "targetAudience": "Toddlers & Preschoolers (Ages 2-5) and Parents",
+      "tone": "playful_kids",
+      "createdAt": "2026-09-20T10:00:00Z",
+      "updatedAt": "2026-09-24T14:30:00Z",
+      "ideas": [
+        {
+          "id": "idea-kc-1",
+          "title": "The Magic Color Paintbox Adventure",
+          "hook": "Watch! What happens when Red and Yellow mix together? Surprise!",
+          "viralityScore": 94,
+          "format": "educational",
+          "durationEstimate": "4-5 minutes",
+          "angle": "Interactive question-and-answer nursery rhyme song",
+          "targetAudience": "Toddlers & Preschoolers",
+          "coreTakeaway": "Learn Primary colors (Red, Blue, Yellow) and Secondary (Orange, Green, Purple)",
+          "suggestedVisualHook": "A colorful paint splash splatters on screen with cartoon giggles and twinkling stars",
+          "retentionTip": "Repeat catchy rhyme chorus every 45 seconds with claps"
+        },
+        {
+          "id": "idea-kc-2",
+          "title": "Color Monster Hungry for Red, Blue & Green",
+          "hook": "Nom nom nom! The friendly fuzzy monster only eats things that are BLUE!",
+          "viralityScore": 89,
+          "format": "educational",
+          "durationEstimate": "3 minutes",
+          "angle": "Gamified sorting challenge with animated fuzzy character",
+          "targetAudience": "Ages 2-4",
+          "coreTakeaway": "Object association with colors (Blue blueberries, Red apples)",
+          "suggestedVisualHook": "Funny monster opens huge mouth with silly sound effects",
+          "retentionTip": "Pause 3 seconds for kids to point at the screen before the monster eats"
+        }
+      ],
+      "script": {
+        "title": "Magic Colors Adventure: Sing, Splash & Learn!",
+        "format": "educational",
+        "estimatedDuration": "4:15 min",
+        "wordCount": 420,
+        "hookSummary": "Vibrant bouncy splash animation with cheerful character greeting and musical ding",
+        "tone": "playful_kids",
+        "callToAction": "Give this video a BIG thumbs up and tap Subscribe for more fun learning songs with CreatorNova Kids!",
+        "lastUpdated": "2026-09-24T14:20:00Z",
+        "beats": [
+          {
+            "id": "beat-kc-1",
+            "timestamp": "0:00 - 0:15",
+            "speaker": "Host Barnaby",
+            "sectionType": "hook",
+            "directionCue": "[Upbeat, warm, smiling directly at camera with waving hand]",
+            "dialogue": "Hi little superstars! Welcome to our magical playground! Today, we are going on a super fun color quest. Are you ready? Look at my magic paintbrush! *poof*",
+            "visualCue": "Animated sparkle dust erupts around a golden paintbrush. Bright title card zooms into screen with xylophone chime.",
+            "durationSec": 15
+          },
+          {
+            "id": "beat-kc-2",
+            "timestamp": "0:15 - 0:45",
+            "speaker": "Sing-along Voice",
+            "sectionType": "intro",
+            "directionCue": "[Melodic nursery rhythm, steady 100 BPM clap beat]",
+            "dialogue": "Red is the apple sweet and bright! Red is the fire truck shining light! Can you find something red near you? Show me, show me, what can you do?",
+            "visualCue": "Huge juicy cartoon apple drops onto a red velvet cushion. Red fire truck drives across bottom with soft friendly siren sound.",
+            "durationSec": 30
+          },
+          {
+            "id": "beat-kc-3",
+            "timestamp": "0:45 - 1:30",
+            "speaker": "Host Barnaby",
+            "sectionType": "core_beat",
+            "directionCue": "[Playful curiosity, tilting head and pointing up]",
+            "dialogue": "Now look up high at the open sky! What color is it? It's BLUE! Big blue ocean, blue blue whale! Let's swim with the little blue dolphin! Splish, splash, splosh!",
+            "visualCue": "Screen transitions to playful cartoon underwater scene. Bubble pop sounds appear on each word. Blue whale smiles and winks.",
+            "durationSec": 45
+          },
+          {
+            "id": "beat-kc-4",
+            "timestamp": "1:30 - 2:20",
+            "speaker": "Host & Animated Pals",
+            "sectionType": "core_beat",
+            "directionCue": "[Excited crescendo, cheerful bounce]",
+            "dialogue": "Here comes sunshine, bright and mellow... Hello, hello, beautiful YELLOW! Like yellow bananas, yellow bees, and pretty yellow flowers in the gentle breeze!",
+            "visualCue": "Smiling cartoon sun with sunglasses appears. Cute bumblebee dances a figure 8 in the air.",
+            "durationSec": 50
+          },
+          {
+            "id": "beat-kc-5",
+            "timestamp": "2:20 - 3:15",
+            "speaker": "Host Barnaby",
+            "sectionType": "climax",
+            "directionCue": "[Magic whispering suspense, then explosive joy]",
+            "dialogue": "Now for the magic trick! What happens if we take YELLOW... and mix it with BLUE? Stir it up! Stir, stir, stir! Look, it turned into GREEN! Just like a hopping frog! Ribbit!",
+            "visualCue": "Two paint drops swirl together in center screen into a vibrant green puddle. Little cartoon frog hops out with funny cartoon spring sound.",
+            "durationSec": 55
+          },
+          {
+            "id": "beat-kc-6",
+            "timestamp": "3:15 - 4:15",
+            "speaker": "Host Barnaby",
+            "sectionType": "outro",
+            "directionCue": "[Warm congratulatory tone, hands clapping rhythmically]",
+            "dialogue": "You did it! You know Red, Blue, Yellow, and Green! You are a certified Color Master! Give yourselves a huge clap! Clap clap clap!",
+            "visualCue": "Confetti and rainbow burst fill the screen. Big smiling badge \"Color Champ\" pops up.",
+            "durationSec": 60
+          }
+        ],
+        "rawFullText": "Hi little superstars! Welcome to our magical playground! Today, we are going on a super fun color quest. Are you ready? Look at my magic paintbrush! *poof*\n\nRed is the apple sweet and bright! Red is the fire truck shining light! Can you find something red near you? Show me, show me, what can you do?\n\nNow look up high at the open sky! What color is it? It's BLUE! Big blue ocean, blue blue whale! Let's swim with the little blue dolphin! Splish, splash, splosh!\n\nHere comes sunshine, bright and mellow... Hello, hello, beautiful YELLOW! Like yellow bananas, yellow bees, and pretty yellow flowers in the gentle breeze!\n\nNow for the magic trick! What happens if we take YELLOW... and mix it with BLUE? Stir it up! Stir, stir, stir! Look, it turned into GREEN! Just like a hopping frog! Ribbit!\n\nYou did it! You know Red, Blue, Yellow, and Green! You are a certified Color Master! Give yourselves a huge clap! Clap clap clap!"
+      },
+      "scenes": [
+        {
+          "id": "scene-kc-1",
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:15",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Bright cheerful host in pastel studio holding an oversized glowing magical paintbrush. Background is gentle rainbow pastel clouds.",
+          "audioSfx": "Whimsical glockenspiel intro, soft magic sparkle chime, gentle greeting laugh.",
+          "onScreenText": "✨ MAGIC COLORS ADVENTURE! 🎨",
+          "lightingMood": "High-key, soft vibrant studio lighting with zero harsh shadows.",
+          "brollKeywords": [
+            "bright colors",
+            "sparkle animation",
+            "kids playroom",
+            "rainbow graphics"
+          ]
+        },
+        {
+          "id": "scene-kc-2",
+          "sceneNumber": 2,
+          "timestampRange": "0:15 - 0:45",
+          "shotType": "Close Up",
+          "cameraAngle": "Low Angle",
+          "visualDescription": "Vibrant 3D cartoon apple bouncing onto screen, followed by a cute smiling red fire truck with spinning wheels.",
+          "audioSfx": "Boing sound effect, friendly toy siren chime, gentle rhythmic clapping.",
+          "onScreenText": "❤️ RED! (Apples & Firetrucks)",
+          "lightingMood": "Warm saturated primary red glow.",
+          "brollKeywords": [
+            "red apple 3d",
+            "toy fire truck cartoon",
+            "kids dance music"
+          ]
+        },
+        {
+          "id": "scene-kc-3",
+          "sceneNumber": 3,
+          "timestampRange": "0:45 - 1:30",
+          "shotType": "Wide Shot",
+          "cameraAngle": "Dynamic Tracking",
+          "visualDescription": "Camera pans across animated ocean waves with a happy blue baby whale and dolphin doing synchronized backflips.",
+          "audioSfx": "Gentle water splash, cartoon bubble pops on touch, bubbly cheerful harp.",
+          "onScreenText": "💙 BLUE! (Ocean & Sky)",
+          "lightingMood": "Crisp azure blue sky & shimmering water highlights.",
+          "brollKeywords": [
+            "blue ocean cartoon",
+            "smiling whale 3d",
+            "underwater bubbles animation"
+          ]
+        },
+        {
+          "id": "scene-kc-4",
+          "sceneNumber": 4,
+          "timestampRange": "1:30 - 2:20",
+          "shotType": "Medium Shot",
+          "cameraAngle": "High Angle",
+          "visualDescription": "Sunny meadow with a dancing smiling cartoon sun and cute bees hovering over sunflowers.",
+          "audioSfx": "Happy whistle melody, soft buzzing cute sound, warm acoustic ukulele.",
+          "onScreenText": "💛 YELLOW! (Sunshine & Bananas)",
+          "lightingMood": "Golden cheerful morning sunlight.",
+          "brollKeywords": [
+            "yellow sunflowers animation",
+            "cute cartoon bee",
+            "smiling cartoon sun"
+          ]
+        },
+        {
+          "id": "scene-kc-5",
+          "sceneNumber": 5,
+          "timestampRange": "2:20 - 3:15",
+          "shotType": "Macro",
+          "cameraAngle": "Bird Eye",
+          "visualDescription": "Two giant glowing paint drops (Blue & Yellow) swirl in slow motion, merging into radiant Emerald Green. Green frog hops onto center.",
+          "audioSfx": "Whirling vortex sound, magical harp crescendo, funny spring boing + cartoon ribbit.",
+          "onScreenText": "💛 + 💙 = 💚 GREEN MAGIC!",
+          "lightingMood": "Neon vibrant color transition with glow aura.",
+          "brollKeywords": [
+            "paint mixing macro slowmo",
+            "color transition effect",
+            "cartoon green frog"
+          ]
+        },
+        {
+          "id": "scene-kc-6",
+          "sceneNumber": 6,
+          "timestampRange": "3:15 - 4:15",
+          "shotType": "Wide Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Full cast of colorful animal characters celebration dance party with streaming confetti and clapping balloons.",
+          "audioSfx": "Party horn toot, celebratory fanfare, kids laughing and clapping.",
+          "onScreenText": "🏆 YOU ARE A COLOR CHAMPION! 🌟",
+          "lightingMood": "Festive rainbow celebration sparkle lighting.",
+          "brollKeywords": [
+            "confetti celebration",
+            "kids certificate badge",
+            "happy dancing characters"
+          ]
+        }
+      ],
+      "seo": {
+        "titles": [
+          {
+            "title": "Learn Colors Song for Toddlers! 🎨 Magic Paint Adventure (Ages 2-5)",
+            "score": 98,
+            "category": "Curiosity Gap",
+            "characterCount": 66
+          },
+          {
+            "title": "Red, Blue, Yellow, Green! Fun Sing-Along Color Quest for Kids",
+            "score": 92,
+            "category": "How-To",
+            "characterCount": 62
+          },
+          {
+            "title": "Magic Paint Trick: What Happens When Yellow Meets Blue? 😲",
+            "score": 95,
+            "category": "Emotional / Shock",
+            "characterCount": 60
+          },
+          {
+            "title": "Top 4 Colors Every Toddler Must Know! Preschool Learning Song",
+            "score": 88,
+            "category": "Listicle",
+            "characterCount": 62
+          },
+          {
+            "title": "Barnaby’s Color Quest: The Best Educational Video for Preschoolers",
+            "score": 85,
+            "category": "Story Driven",
+            "characterCount": 67
+          }
+        ],
+        "description": "🎨 Join Host Barnaby on a magical color adventure designed for toddlers and preschoolers! In this fun, upbeat sing-along video, kids will learn primary colors (Red, Blue, Yellow) and discover how mixing yellow and blue makes vibrant green!\n\n⏱️ TIMESTAMPS:\n0:00 - Introduction & Magic Paintbrush\n0:15 - Learning the Color RED (Apples & Firetrucks)\n0:45 - Learning the Color BLUE (Ocean & Dolphins)\n1:30 - Learning the Color YELLOW (Sunshine & Bananas)\n2:20 - The Magic Color Mix Trick (Yellow + Blue = Green!)\n3:15 - Color Champion Celebration & Rhyme Dance\n\n🔔 Subscribe to CreatorNova Kids for weekly educational adventures!",
+        "primaryKeywords": [
+          "learn colors for toddlers",
+          "colors song for kids",
+          "preschool color learning",
+          "nursery rhymes colors"
+        ],
+        "longTailKeywords": [
+          "how to teach colors to 2 year olds",
+          "magic color mixing for preschool",
+          "sing along color song for kindergarten"
+        ],
+        "tags": [
+          "learn colors",
+          "colors for kids",
+          "toddler learning video",
+          "preschool education",
+          "nursery rhymes",
+          "kids songs",
+          "magic paint",
+          "educational cartoons",
+          "color mixing for kids",
+          "baby sensory video"
+        ],
+        "hashtags": [
+          "#LearnColors",
+          "#KidsSongs",
+          "#PreschoolLearning",
+          "#ToddlerActivities",
+          "#NurseryRhymes"
+        ],
+        "seoHealthScore": 96,
+        "targetAudience": "Parents of Toddlers (Ages 1-5), Early Childhood Educators",
+        "category": "Education / Kids Content"
+      },
+      "thumbnail": {
+        "headline": "LEARN COLORS!",
+        "subheadline": "Magic Paint Trick 🎨",
+        "badgeText": "TODDLERS FAV!",
+        "templateTheme": "vibrant_kids",
+        "aspectRatio": "16:9",
+        "textColor": "#FFFFFF",
+        "accentColor": "#F59E0B",
+        "bgColor1": "#3B82F6",
+        "bgColor2": "#EC4899",
+        "fontSize": 56,
+        "showVignette": false,
+        "showGlow": true,
+        "emojis": [
+          "🎨",
+          "🌟",
+          "👶",
+          "✨"
+        ],
+        "compositionAngle": "Vibrant split rainbow background with happy cartoon host holding glowing oversized brush",
+        "aiConceptPrompt": "Ultra-vibrant 3D Pixar style character holding giant paintbrush splashing glowing red and blue paint, giant bold friendly typography \"LEARN COLORS!\" with soft round letters, cute smiling cartoon animals in corners"
+      },
+      "translations": [
+        {
+          "id": "trans-kc-es",
+          "targetLanguage": "Spanish (Español)",
+          "languageCode": "es",
+          "mode": "cultural",
+          "originalSnippet": "Hi little superstars! Welcome to our magical playground! Today, we are going on a super fun color quest.",
+          "translatedText": "¡Hola pequeñas superestrellas! ¡Bienvenidos a nuestro parque mágico! Hoy nos vamos a una divertida aventura de colores. ¿Están listos?",
+          "culturalNotes": "Used warm welcoming Latin American preschool phrasing (\"pequeñas superestrellas\") that feels joyful and natural for Spanish-speaking kids.",
+          "speechPacingTip": "Speak with lively bouncy intonation at ~110 words per minute with pauses for child response.",
+          "translatedAt": "2026-09-24T14:25:00Z"
+        },
+        {
+          "id": "trans-kc-hi",
+          "targetLanguage": "Hindi (हिंदी)",
+          "languageCode": "hi",
+          "mode": "cultural",
+          "originalSnippet": "Hi little superstars! Welcome to our magical playground! Today, we are going on a super fun color quest.",
+          "translatedText": "नमस्ते प्यारे नन्हे दोस्तों! हमारे जादुई खेल के मैदान में आपका स्वागत है! आज हम रंगों की एक बहुत ही मज़ेदार यात्रा पर जा रहे हैं!",
+          "culturalNotes": "Localized \"little superstars\" to culturally beloved \"प्यारे नन्हे दोस्तों\" (lovely little friends), keeping high energy and warmth.",
+          "speechPacingTip": "Melodic preschool tone with clear articulation of color names (लाल, नीला, पीला, हरा).",
+          "translatedAt": "2026-09-24T14:26:00Z"
+        }
+      ],
+      "userId": "user-creator-default"
+    },
+    "project-space-facts": {
+      "id": "project-space-facts",
+      "name": "Space Facts Short",
+      "topic": "Mind-Blowing Secrets of Supermassive Black Holes & Spaghettification",
+      "format": "youtube_short",
+      "targetAudience": "Sci-fi fans, Curious Minds, Gen Z science lovers (Ages 14-35)",
+      "tone": "suspense_mystery",
+      "createdAt": "2026-09-22T08:15:00Z",
+      "updatedAt": "2026-09-24T16:00:00Z",
+      "ideas": [
+        {
+          "id": "idea-sf-1",
+          "title": "What Actually Happens If You Fall Into A Black Hole?",
+          "hook": "If you step past this invisible line in space, time literally stops for everyone else watching you.",
+          "viralityScore": 99,
+          "format": "youtube_short",
+          "durationEstimate": "55 seconds",
+          "angle": "Visceral first-person physics horror scenario (\"Spaghettification\")",
+          "targetAudience": "Curiosity & Science audience",
+          "coreTakeaway": "Event horizon time dilation and tidal gravitational stretching explained in simple visual terms",
+          "suggestedVisualHook": "Camera plunges at lightspeed into an immense swirling pitch-black vortex with glowing orange accretion disk",
+          "retentionTip": "Keep cut frequency under 2.5 seconds with low bass rumble that builds tension until the 45-second reveal"
+        },
+        {
+          "id": "idea-sf-2",
+          "title": "The Largest Thing In The Known Universe (TON 618)",
+          "hook": "This monster is 66 billion times heavier than our entire Sun. If you parked it in our solar system, Neptune would be swallowed in seconds.",
+          "viralityScore": 96,
+          "format": "tiktok",
+          "durationEstimate": "45 seconds",
+          "angle": "Scale comparison of cosmic dread",
+          "targetAudience": "Tech & Sci-fi enthusiasts",
+          "coreTakeaway": "The terrifying scale of ultramassive black hole TON 618",
+          "suggestedVisualHook": "Earth shrinks to a microscopic dot next to TON 618’s event horizon",
+          "retentionTip": "Use fast zoom out scale animations with heart beat sound effects"
+        }
+      ],
+      "script": {
+        "title": "Falling Into A Black Hole: The 60-Second Reality",
+        "format": "youtube_short",
+        "estimatedDuration": "0:54 min",
+        "wordCount": 145,
+        "hookSummary": "Rapid zoom into swirling event horizon with deep sub-bass drop and chilling spoken line",
+        "tone": "suspense_mystery",
+        "callToAction": "Would you dare jump in? Drop your answer in the comments and subscribe for daily cosmic mysteries!",
+        "lastUpdated": "2026-09-24T15:45:00Z",
+        "beats": [
+          {
+            "id": "beat-sf-1",
+            "timestamp": "0:00 - 0:05",
+            "speaker": "Narrator",
+            "sectionType": "hook",
+            "directionCue": "[Deep, chilling, urgent whisper]",
+            "dialogue": "If you fell into a black hole right now, you wouldn't die the way you think.",
+            "visualCue": "Extreme close up of an astronaut helmet visor reflecting a twisting pitch-black sphere circled in incandescent plasma.",
+            "durationSec": 5
+          },
+          {
+            "id": "beat-sf-2",
+            "timestamp": "0:05 - 0:18",
+            "speaker": "Narrator",
+            "sectionType": "intro",
+            "directionCue": "[Measured, intense, building pace]",
+            "dialogue": "As you approach the event horizon, the point of no return, time begins to fracture. To your friends watching from a spaceship, your movements slow down until you freeze completely.",
+            "visualCue": "Ghostly freeze-frame effect on the falling astronaut. Clocks spinning backwards in digital overlay.",
+            "durationSec": 13
+          },
+          {
+            "id": "beat-sf-3",
+            "timestamp": "0:18 - 0:34",
+            "speaker": "Narrator",
+            "sectionType": "core_beat",
+            "directionCue": "[Visceral tension, slight acceleration]",
+            "dialogue": "Their signal redshifts into darkness. But to you? Time feels totally normal. Until gravity strikes. The pull on your feet is billions of times stronger than on your head. Astrophysicists call this... Spaghettification.",
+            "visualCue": "Diagrammatic wireframe body stretching into a razor-thin luminous string of atoms towards the gravitational center.",
+            "durationSec": 16
+          },
+          {
+            "id": "beat-sf-4",
+            "timestamp": "0:34 - 0:48",
+            "speaker": "Narrator",
+            "sectionType": "climax",
+            "directionCue": "[Awe-inspiring cosmic revelation]",
+            "dialogue": "You are pulled into an atomic thread. And right before the singularity crushes you, you see the entire future of the universe play out in front of your eyes like a time-lapsed film reel.",
+            "visualCue": "Blinding cosmic flash! Galaxies colliding and stars exploding in hyper-fast forward in a 360-degree spherical panorama.",
+            "durationSec": 14
+          },
+          {
+            "id": "beat-sf-5",
+            "timestamp": "0:48 - 0:54",
+            "speaker": "Narrator",
+            "sectionType": "cta",
+            "directionCue": "[Sharp punchy delivery]",
+            "dialogue": "Would you look? Hit follow for more cosmic mind-benders.",
+            "visualCue": "Black screen cut. Single pulsating neon text prompt: \"WOULD YOU JUMP?\" with pulsing subscribe bell.",
+            "durationSec": 6
+          }
+        ],
+        "rawFullText": "If you fell into a black hole right now, you wouldn't die the way you think.\n\nAs you approach the event horizon, the point of no return, time begins to fracture. To your friends watching from a spaceship, your movements slow down until you freeze completely.\n\nTheir signal redshifts into darkness. But to you? Time feels totally normal. Until gravity strikes. The pull on your feet is billions of times stronger than on your head. Astrophysicists call this... Spaghettification.\n\nYou are pulled into an atomic thread. And right before the singularity crushes you, you see the entire future of the universe play out in front of your eyes like a time-lapsed film reel.\n\nWould you look? Hit follow for more cosmic mind-benders."
+      },
+      "scenes": [
+        {
+          "id": "scene-sf-1",
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "shotType": "Close Up",
+          "cameraAngle": "Low Angle",
+          "visualDescription": "Astronaut gold visor reflection showing the fiery swirl of Sagittarius A*. Camera violently shakes as if pulled by extreme gravity.",
+          "audioSfx": "Heavy deep sub-bass drop (30Hz), muffled breathing inside space helmet, distant gravitational hum.",
+          "onScreenText": "⚠️ YOU FELL IN.",
+          "lightingMood": "Dark stark cosmic contrast, blinding orange accretion glow against pure void.",
+          "brollKeywords": [
+            "black hole accretion disk",
+            "astronaut helmet reflection",
+            "cinematic space sci-fi"
+          ]
+        },
+        {
+          "id": "scene-sf-2",
+          "sceneNumber": 2,
+          "timestampRange": "0:05 - 0:18",
+          "shotType": "Wide Shot",
+          "cameraAngle": "Bird Eye",
+          "visualDescription": "Spaceship in background watching the falling body. The astronaut slows into a glowing crimson ghostly silhouette frozen on the event horizon.",
+          "audioSfx": "Ticking clock that slows down until it stretches into an infinite echo tone.",
+          "onScreenText": "⏳ TIME LITERALLY STOPS",
+          "lightingMood": "Eerie red-shifted neon glow.",
+          "brollKeywords": [
+            "time dilation visual effect",
+            "interstellar event horizon",
+            "deep space nebula"
+          ]
+        },
+        {
+          "id": "scene-sf-3",
+          "sceneNumber": 3,
+          "timestampRange": "0:18 - 0:34",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Dynamic Tracking",
+          "visualDescription": "Scientific wireframe 3D anatomical silhouette stretching vertically into a microscopic strand of glowing quantum particles.",
+          "audioSfx": "Tearing sound, digital glitch riser, rising synthesized Shepard tone.",
+          "onScreenText": "🍝 SPAGHETTIFICATION",
+          "lightingMood": "Cyan and ultraviolet ionizing radiation glow.",
+          "brollKeywords": [
+            "spaghettification physics simulation",
+            "quantum particle stream",
+            "gravitational lensing"
+          ]
+        },
+        {
+          "id": "scene-sf-4",
+          "sceneNumber": 4,
+          "timestampRange": "0:34 - 0:48",
+          "shotType": "POV",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Looking outward from inside the singularity: billions of galaxies, dying stars, and cosmic webs speed up into a blinding kaleidoscope dome of light.",
+          "audioSfx": "Heavenly orchestral chord mixed with high-frequency cosmic wind.",
+          "onScreenText": "🌌 THE ENTIRE FUTURE OF TIME",
+          "lightingMood": "Blinding white-hot singularity flash.",
+          "brollKeywords": [
+            "cosmic universe timelapse",
+            "galaxy supercluster explosion",
+            "singularity perspective"
+          ]
+        },
+        {
+          "id": "scene-sf-5",
+          "sceneNumber": 5,
+          "timestampRange": "0:48 - 0:54",
+          "shotType": "Extreme Wide",
+          "cameraAngle": "Low Angle",
+          "visualDescription": "Instant snap to pitch black. Kinetic typography slides in with neon purple border.",
+          "audioSfx": "Heartbeat thump, quick whoosh, bell ping.",
+          "onScreenText": "WOULD YOU JUMP? 💬",
+          "lightingMood": "Pure pitch black with electric neon violet glow.",
+          "brollKeywords": [
+            "neon call to action",
+            "kinetic typography short",
+            "black hole end card"
+          ]
+        }
+      ],
+      "seo": {
+        "titles": [
+          {
+            "title": "What If You Fell Into A Black Hole? (DO NOT WATCH AT NIGHT) 🕳️",
+            "score": 99,
+            "category": "Curiosity Gap",
+            "characterCount": 66
+          },
+          {
+            "title": "The Horrifying Physics of Spaghettification Explained in 60s",
+            "score": 94,
+            "category": "Emotional / Shock",
+            "characterCount": 60
+          },
+          {
+            "title": "Why Time Freezes When You Touch a Black Hole ⏱️ #SpaceShorts",
+            "score": 91,
+            "category": "How-To",
+            "characterCount": 61
+          },
+          {
+            "title": "3 Terrifying Things That Happen Inside The Event Horizon",
+            "score": 89,
+            "category": "Listicle",
+            "characterCount": 56
+          },
+          {
+            "title": "The Last Thing You Would See Before A Black Hole Crushes You",
+            "score": 93,
+            "category": "Story Driven",
+            "characterCount": 61
+          }
+        ],
+        "description": "What actually happens to your body and time itself if you fall past the event horizon of a supermassive black hole? Here is the chilling 60-second physics breakdown of time dilation, gravitational redshifting, and spaghettification.\n\n🚀 Subscribe to CreatorNova Cosmos for daily mind-bending space shorts!\n\n#Space #BlackHole #Science #Physics #Astrophysics #Shorts #Cosmos #Astronomy",
+        "primaryKeywords": [
+          "what happens in a black hole",
+          "spaghettification explained",
+          "black hole time dilation",
+          "space facts shorts"
+        ],
+        "longTailKeywords": [
+          "can you survive falling into a black hole",
+          "what does a black hole look like from inside",
+          "interstellar black hole physics simplified"
+        ],
+        "tags": [
+          "black hole",
+          "spaghettification",
+          "space facts",
+          "science shorts",
+          "astrophysics",
+          "event horizon",
+          "time dilation",
+          "singularity",
+          "interstellar",
+          "cosmic horror",
+          "shorts"
+        ],
+        "hashtags": [
+          "#SpaceFacts",
+          "#BlackHole",
+          "#Shorts",
+          "#Astrophysics",
+          "#MindBlowing",
+          "#SciFi"
+        ],
+        "seoHealthScore": 98,
+        "targetAudience": "Sci-fi fans, Physics students, High school & college learners, TikTok science lovers",
+        "category": "Science & Technology / Shorts"
+      },
+      "thumbnail": {
+        "headline": "DO NOT JUMP IN!",
+        "subheadline": "Inside The Void 🕳️",
+        "badgeText": "HORRIFYING",
+        "templateTheme": "cosmic_dark",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8B5CF6",
+        "bgColor1": "#0F172A",
+        "bgColor2": "#581C87",
+        "fontSize": 52,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🕳️",
+          "⚠️",
+          "😱",
+          "🌌"
+        ],
+        "compositionAngle": "Dramatic vertical abyss with glowing neon violet singularity and terrified astronaut reflection",
+        "aiConceptPrompt": "Cinematic hyper-realistic vertical frame: an astronaut in a high-tech spacesuit floating on the precipice of a colossal black hole with a blinding glowing violet and gold accretion disk, extreme volumetric lighting, 8k resolution octane render"
+      },
+      "translations": [
+        {
+          "id": "trans-sf-es",
+          "targetLanguage": "Spanish (Español)",
+          "languageCode": "es",
+          "mode": "dubbing",
+          "originalSnippet": "If you fell into a black hole right now, you wouldn't die the way you think.",
+          "translatedText": "Si cayeras en un agujero negro ahora mismo, no morirías como crees.",
+          "culturalNotes": "Crisp short syllabic count tailored for fast TikTok voiceover sync.",
+          "speechPacingTip": "Rapid punchy delivery with dramatic pause before \"no morirías\".",
+          "translatedAt": "2026-09-24T15:50:00Z"
+        },
+        {
+          "id": "trans-sf-fr",
+          "targetLanguage": "French (Français)",
+          "languageCode": "fr",
+          "mode": "cultural",
+          "originalSnippet": "Astrophysicists call this... Spaghettification.",
+          "translatedText": "Les astrophysiciens appellent cela... la spaghettification.",
+          "culturalNotes": "Preserved the universally recognized scientific term with French pronunciation emphasis.",
+          "speechPacingTip": "Whispered mysterious cadence.",
+          "translatedAt": "2026-09-24T15:52:00Z"
+        }
+      ],
+      "userId": "user-creator-default"
+    },
+    "project-animal-rhymes": {
+      "id": "project-animal-rhymes",
+      "name": "Animal Rhymes",
+      "topic": "Wild Jungle Animal Sounds, Rhymes & Rhythmic Dance for Toddlers",
+      "format": "youtube_long",
+      "targetAudience": "Babies, Toddlers, Kindergarteners & Nursery Classes (Ages 1-6)",
+      "tone": "playful_kids",
+      "createdAt": "2026-09-18T11:20:00Z",
+      "updatedAt": "2026-09-24T12:10:00Z",
+      "ideas": [
+        {
+          "id": "idea-ar-1",
+          "title": "Who Lives in the Jungle? Tap, Roar & Stomp!",
+          "hook": "Listen closely... who is making that gigantic ROAR behind the banana tree?",
+          "viralityScore": 92,
+          "format": "youtube_long",
+          "durationEstimate": "5-6 minutes",
+          "angle": "Guess-the-animal sound game with rhythmic dance moves",
+          "targetAudience": "Preschool & Kindergarten",
+          "coreTakeaway": "Recognize Lion roar, Elephant trumpet, Monkey chattering, and Frog ribbit",
+          "suggestedVisualHook": "Giant cartoon green leaves rustle with glowing eyes winking in rhythm to an upbeat drum",
+          "retentionTip": "Invite kids to stand up and do the animal dance move with the on-screen animated mascot"
+        }
+      ],
+      "script": {
+        "title": "Jungle Animal Rhyme Safari: Stomp, Roar & Dance!",
+        "format": "youtube_long",
+        "estimatedDuration": "5:10 min",
+        "wordCount": 490,
+        "hookSummary": "Rustling safari bushes with rhythmic bongo drums and peek-a-boo animal game",
+        "tone": "playful_kids",
+        "callToAction": "Which animal sound was your favorite? Tell us in the comments and subscribe for new nursery rhyme adventures every Saturday!",
+        "lastUpdated": "2026-09-24T12:00:00Z",
+        "beats": [
+          {
+            "id": "beat-ar-1",
+            "timestamp": "0:00 - 0:20",
+            "speaker": "Safari Ranger Maya",
+            "sectionType": "hook",
+            "directionCue": "[Enthusiastic explorer voice, putting binoculars to eyes]",
+            "dialogue": "Jungle explorers, grab your hats! Welcome to the Great Green Safari! Listen closely... *thump thump thump*... what huge animal is stomping this way?",
+            "visualCue": "Animated safari jeep drives into a lush tropical forest with swinging vines and smiling tropical birds.",
+            "durationSec": 20
+          },
+          {
+            "id": "beat-ar-2",
+            "timestamp": "0:20 - 1:10",
+            "speaker": "Safari Ranger Maya",
+            "sectionType": "intro",
+            "directionCue": "[Deep rhythmic singing, stomping feet in place]",
+            "dialogue": "Big grey ears and a trunk so long! The friendly elephant sings his song! Stomp your feet, 1, 2, 3! Trumpet loud like you are free! *pawooo!*",
+            "visualCue": "Cute chubby cartoon elephant sprays water from trunk into a rainbow arc. On-screen footprints glow as elephant stomps.",
+            "durationSec": 50
+          },
+          {
+            "id": "beat-ar-3",
+            "timestamp": "1:10 - 2:15",
+            "speaker": "Maya & Monkey Mascots",
+            "sectionType": "core_beat",
+            "directionCue": "[Silly, energetic, bouncing side to side]",
+            "dialogue": "Look up in the trees so high! Swinging monkeys touch the sky! Ooh-ooh-aah-aah, giggle and grin! Peel your banana and throw it in!",
+            "visualCue": "Trio of playful brown monkeys swing from vine to vine, catching golden bananas and balancing them on their heads.",
+            "durationSec": 65
+          },
+          {
+            "id": "beat-ar-4",
+            "timestamp": "2:15 - 3:30",
+            "speaker": "Safari Ranger Maya",
+            "sectionType": "core_beat",
+            "directionCue": "[Dramatically sneaking on tiptoes, finger on lips]",
+            "dialogue": "Shhh... tip toe, tip toe on the ground... King of the jungle makes a sound! Golden mane and regal stride... Give your biggest ROAR with pride! *ROOOAAR!*",
+            "visualCue": "Fluffy golden lion cub with a tiny crown pops out from behind a tall fern, letting out a cute comedic lion roar.",
+            "durationSec": 75
+          },
+          {
+            "id": "beat-ar-5",
+            "timestamp": "3:30 - 4:30",
+            "speaker": "Maya & All Animals",
+            "sectionType": "climax",
+            "directionCue": "[Grand safari dance party, all voices chorus]",
+            "dialogue": "Now all together in the jungle beat! Move your hands and move your feet! Elephants stomp, monkeys swing, lions roar and parrots sing! We are the Jungle Family!",
+            "visualCue": "Split screen showing all animals dancing together in sync with musical notes floating around.",
+            "durationSec": 60
+          },
+          {
+            "id": "beat-ar-6",
+            "timestamp": "4:30 - 5:10",
+            "speaker": "Safari Ranger Maya",
+            "sectionType": "cta",
+            "directionCue": "[Warm smiling wave with puppy eyes]",
+            "dialogue": "What an amazing safari adventure! You were the best jungle dancers ever. See you next time, little explorers! Bye-bye!",
+            "visualCue": "Sunset over the jungle canopy with gentle fireflies and closing cartoon iris circle.",
+            "durationSec": 40
+          }
+        ],
+        "rawFullText": "Jungle explorers, grab your hats! Welcome to the Great Green Safari! Listen closely... *thump thump thump*... what huge animal is stomping this way?\n\nBig grey ears and a trunk so long! The friendly elephant sings his song! Stomp your feet, 1, 2, 3! Trumpet loud like you are free! *pawooo!*\n\nLook up in the trees so high! Swinging monkeys touch the sky! Ooh-ooh-aah-aah, giggle and grin! Peel your banana and throw it in!\n\nShhh... tip toe, tip toe on the ground... King of the jungle makes a sound! Golden mane and regal stride... Give your biggest ROAR with pride! *ROOOAAR!*\n\nNow all together in the jungle beat! Move your hands and move your feet! Elephants stomp, monkeys swing, lions roar and parrots sing! We are the Jungle Family!\n\nWhat an amazing safari adventure! You were the best jungle dancers ever. See you next time, little explorers! Bye-bye!"
+      },
+      "scenes": [
+        {
+          "id": "scene-ar-1",
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:20",
+          "shotType": "Wide Shot",
+          "cameraAngle": "Low Angle",
+          "visualDescription": "Vibrant green cartoon jungle with colorful flowers blooming. A vintage yellow safari jeep enters with Ranger Maya waving smiling.",
+          "audioSfx": "Bongo drum groove, exotic bird chirping, friendly jeep horn honk.",
+          "onScreenText": "🌿 GREAT JUNGLE SAFARI! 🦁",
+          "lightingMood": "Lush tropical morning sun with dappled canopy shadows.",
+          "brollKeywords": [
+            "jungle animation kids",
+            "safari jeep cartoon",
+            "tropical forest trees"
+          ]
+        },
+        {
+          "id": "scene-ar-2",
+          "sceneNumber": 2,
+          "timestampRange": "0:20 - 1:10",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Gentle baby elephant walking in rhythm, spraying sparkling water drops from its trunk that create a mini rainbow.",
+          "audioSfx": "Playful elephant trumpet sound, rhythmic stomping beats, water sprinkle glissando.",
+          "onScreenText": "🐘 ELEPHANT STOMP! (1, 2, 3)",
+          "lightingMood": "Vibrant warm daylight with water sparkle particle effects.",
+          "brollKeywords": [
+            "cute baby elephant 3d",
+            "elephant trunk water spray",
+            "nursery dance stomp"
+          ]
+        },
+        {
+          "id": "scene-ar-3",
+          "sceneNumber": 3,
+          "timestampRange": "1:10 - 2:15",
+          "shotType": "Wide Shot",
+          "cameraAngle": "Dynamic Tracking",
+          "visualDescription": "Monkeys swinging on vines doing somersaults and playfully passing bananas to each other in mid-air.",
+          "audioSfx": "Funny cartoon monkey chatter, whoosh swings, comedic slide whistle.",
+          "onScreenText": "🐒 MONKEY SWING! (Ooh-Ooh Aah-Aah)",
+          "lightingMood": "High canopy green glow with golden sunlight rays.",
+          "brollKeywords": [
+            "monkeys swinging cartoon",
+            "banana animation",
+            "kids silly animal dance"
+          ]
+        },
+        {
+          "id": "scene-ar-4",
+          "sceneNumber": 4,
+          "timestampRange": "2:15 - 3:30",
+          "shotType": "Close Up",
+          "cameraAngle": "Low Angle",
+          "visualDescription": "Fluffy golden lion cub with giant friendly brown eyes and royal gold crown playfully roaring at camera.",
+          "audioSfx": "Cute baby roar sound, dramatic drum roll, twinkling crown sparkles.",
+          "onScreenText": "👑 LION ROAR! (ROOOAAR!)",
+          "lightingMood": "Golden hour amber glow with dramatic cute hero rim light.",
+          "brollKeywords": [
+            "baby lion roar 3d",
+            "lion king cub cartoon",
+            "preschool animal sounds"
+          ]
+        },
+        {
+          "id": "scene-ar-5",
+          "sceneNumber": 5,
+          "timestampRange": "3:30 - 4:30",
+          "shotType": "Wide Shot",
+          "cameraAngle": "Bird Eye",
+          "visualDescription": "Grand finale: all jungle animals doing a synchronized line dance on a fallen tree bridge with flying butterflies.",
+          "audioSfx": "Full brass and marimba celebration music, clapping rhythm, party whistles.",
+          "onScreenText": "🎉 JUNGLE DANCE PARTY! 🐾",
+          "lightingMood": "Festive warm sunset colors with glowing fireflies.",
+          "brollKeywords": [
+            "animals dance party",
+            "kids celebration chorus",
+            "jungle sunset cartoon"
+          ]
+        }
+      ],
+      "seo": {
+        "titles": [
+          {
+            "title": "Animal Sounds Song for Kids! 🦁 Jungle Rhymes & Dancing Animals",
+            "score": 97,
+            "category": "Curiosity Gap",
+            "characterCount": 65
+          },
+          {
+            "title": "Elephant Stomp & Lion Roar! The Ultimate Safari Nursery Rhyme",
+            "score": 93,
+            "category": "How-To",
+            "characterCount": 61
+          },
+          {
+            "title": "Can You Make All 5 Jungle Animal Sounds? Toddler Challenge! 🐒",
+            "score": 95,
+            "category": "Emotional / Shock",
+            "characterCount": 63
+          },
+          {
+            "title": "Top 5 Fun Animal Rhymes for Kindergarten & Preschool Singing",
+            "score": 87,
+            "category": "Listicle",
+            "characterCount": 60
+          },
+          {
+            "title": "Safari Ranger Maya’s Jungle Adventure: Learn Animals by Sound",
+            "score": 89,
+            "category": "Story Driven",
+            "characterCount": 62
+          }
+        ],
+        "description": "🦁 Welcome to the Great Jungle Safari! Join Ranger Maya as we stomp with the elephants, swing with the silly monkeys, and roar with the king of the jungle! This fun animal rhymes song helps toddlers and preschool kids recognize animals and practice rhythm and motor skills through dancing.\n\n🎵 LYRICS & TIMESTAMPS:\n0:00 - Jungle Safari Intro\n0:20 - The Elephant Stomp Song\n1:10 - The Silly Monkey Swing\n2:15 - The Royal Lion Roar\n3:30 - Jungle Dance Party Finale\n\n👶 Perfect for preschool classrooms, daycare circle time, and family dance parties at home!\n\n#AnimalSongs #KidsRhymes #JungleAnimals #PreschoolLearning #ToddlerDance",
+        "primaryKeywords": [
+          "animal sounds song for kids",
+          "jungle rhymes for toddlers",
+          "preschool animal dance",
+          "elephant lion monkey songs"
+        ],
+        "longTailKeywords": [
+          "how to teach animal sounds to toddlers",
+          "interactive nursery rhymes with dancing",
+          "fun safari songs for kindergarten circle time"
+        ],
+        "tags": [
+          "animal sounds",
+          "jungle song",
+          "kids nursery rhymes",
+          "toddler songs",
+          "elephant stomp",
+          "lion roar",
+          "preschool activities",
+          "sing along kids",
+          "safari for kids",
+          "baby sensory"
+        ],
+        "hashtags": [
+          "#AnimalSounds",
+          "#KidsSongs",
+          "#PreschoolRhymes",
+          "#SafariAdventure",
+          "#ToddlerLearning"
+        ],
+        "seoHealthScore": 97,
+        "targetAudience": "Parents, Daycare Providers, Preschool Teachers, Kindergarten Educators",
+        "category": "Education / Children"
+      },
+      "thumbnail": {
+        "headline": "ANIMAL SOUNDS!",
+        "subheadline": "Roar, Stomp & Sing 🦁",
+        "badgeText": "KIDS LOVE IT!",
+        "templateTheme": "vibrant_kids",
+        "aspectRatio": "16:9",
+        "textColor": "#FFFFFF",
+        "accentColor": "#10B981",
+        "bgColor1": "#059669",
+        "bgColor2": "#D97706",
+        "fontSize": 54,
+        "showVignette": false,
+        "showGlow": true,
+        "emojis": [
+          "🦁",
+          "🐘",
+          "🐒",
+          "🌴"
+        ],
+        "compositionAngle": "Smiling baby lion and cheerful baby elephant wearing party hats against tropical jungle backdrop",
+        "aiConceptPrompt": "Ultra cute 3D animated baby lion and elephant waving in a lush magical tropical jungle, giant bright bubble text saying \"ANIMAL SOUNDS!\", sparkles, bright playful colors"
+      },
+      "translations": [
+        {
+          "id": "trans-ar-es",
+          "targetLanguage": "Spanish (Español)",
+          "languageCode": "es",
+          "mode": "cultural",
+          "originalSnippet": "Big grey ears and a trunk so long! The friendly elephant sings his song! Stomp your feet, 1, 2, 3!",
+          "translatedText": "¡Orejas grandes y una trompa genial! ¡El elefante canta su canción especial! ¡Pisotea fuerte, un, dos, tres!",
+          "culturalNotes": "Adapted rhythmic meter for Spanish rhyme cadence with natural preschool phrasing.",
+          "speechPacingTip": "Rhythmic, lively beat at ~105 BPM with clear clapping rhythm.",
+          "translatedAt": "2026-09-24T12:05:00Z"
+        }
+      ],
+      "userId": "user-creator-default"
+    }
+  },
+  "resetTokens": {},
+  "agentPlans": {
+    "plan-1790336633615-11123e": {
+      "id": "plan-1790336633615-11123e",
+      "userId": "user-creator-default",
+      "goal": "Create 7 YouTube Shorts for \"Create 7 days of YouTube Shorts about space facts.\"",
+      "prompt": "Create 7 days of YouTube Shorts about space facts.",
+      "platform": "YouTube Shorts",
+      "language": "English",
+      "numberOfVideos": 7,
+      "estimatedOperations": 42,
+      "estimatedCredits": 14,
+      "expectedOutputs": [
+        "7 High-Engagement Content Angles",
+        "7 3-Second Retention Hooks",
+        "7 Full Production Scripts",
+        "7 Scene Breakdowns with Visual Cues",
+        "7 SEO Metadata & Tag Packs",
+        "7 Psychological Thumbnail Layouts",
+        "Automated Sync to Content Calendar"
+      ],
+      "tasks": [
+        {
+          "id": "step-1",
+          "stepNumber": 1,
+          "title": "Research & Diversify Topics",
+          "description": "Brainstorm distinct non-overlapping angles with high virality potential",
+          "type": "research_topics",
+          "estimatedCredits": 2,
+          "status": "Queued"
+        },
+        {
+          "id": "step-2",
+          "stepNumber": 2,
+          "title": "Craft 3-Second Retention Hooks",
+          "description": "Create psychological curiosity hooks to prevent audience swiping",
+          "type": "create_hooks",
+          "estimatedCredits": 2,
+          "status": "Queued"
+        },
+        {
+          "id": "step-3",
+          "stepNumber": 3,
+          "title": "Write Full Production Scripts",
+          "description": "Draft teleprompter-ready scripts with visual direction cues",
+          "type": "write_scripts",
+          "estimatedCredits": 6,
+          "status": "Queued"
+        },
+        {
+          "id": "step-4",
+          "stepNumber": 4,
+          "title": "Breakdown Scene Directives",
+          "description": "Generate camera shots, lighting cues, and audio SFX",
+          "type": "scene_breakdowns",
+          "estimatedCredits": 2,
+          "status": "Queued"
+        },
+        {
+          "id": "step-5",
+          "stepNumber": 5,
+          "title": "Formulate SEO & Hashtag Packs",
+          "description": "Generate high-CTR titles, ranking tags, and descriptions",
+          "type": "seo_packs",
+          "estimatedCredits": 2,
+          "status": "Queued"
+        },
+        {
+          "id": "step-6",
+          "stepNumber": 6,
+          "title": "Design Thumbnail Concepts",
+          "description": "Formulate visual contrast formulas and headline banners",
+          "type": "thumbnail_concepts",
+          "estimatedCredits": 2,
+          "status": "Queued"
+        },
+        {
+          "id": "step-7",
+          "stepNumber": 7,
+          "title": "Schedule to Content Calendar",
+          "description": "Map items sequentially onto upcoming publication schedule",
+          "type": "calendar_schedule",
+          "estimatedCredits": 2,
+          "status": "Queued"
+        }
+      ],
+      "status": "draft",
+      "useBrandKit": true,
+      "generatedProjects": [],
+      "createdAt": "2026-09-25T11:43:53.615Z",
+      "updatedAt": "2026-09-25T11:43:53.615Z"
+    }
+  },
+  "agentTasks": {
+    "task-1790336633616-ca1be8": {
+      "id": "task-1790336633616-ca1be8",
+      "userId": "user-creator-default",
+      "planId": "plan-1790336633615-11123e",
+      "title": "Research & Diversify Topics (Create 7 YouTube Shorts for \"Create 7 days of YouTube Shorts about space facts.\")",
+      "description": "Brainstorm distinct non-overlapping angles with high virality potential",
+      "type": "research_topics",
+      "creditCost": 2,
+      "status": "Queued",
+      "requiresApproval": false,
+      "isAsyncBackground": false,
+      "createdAt": "2026-09-25T11:43:53.616Z",
+      "updatedAt": "2026-09-25T11:43:53.616Z"
+    },
+    "task-1790336633616-09b8eb": {
+      "id": "task-1790336633616-09b8eb",
+      "userId": "user-creator-default",
+      "planId": "plan-1790336633615-11123e",
+      "title": "Craft 3-Second Retention Hooks (Create 7 YouTube Shorts for \"Create 7 days of YouTube Shorts about space facts.\")",
+      "description": "Create psychological curiosity hooks to prevent audience swiping",
+      "type": "create_hooks",
+      "creditCost": 2,
+      "status": "Queued",
+      "requiresApproval": false,
+      "isAsyncBackground": false,
+      "createdAt": "2026-09-25T11:43:53.616Z",
+      "updatedAt": "2026-09-25T11:43:53.616Z"
+    },
+    "task-1790336633617-d0329b": {
+      "id": "task-1790336633617-d0329b",
+      "userId": "user-creator-default",
+      "planId": "plan-1790336633615-11123e",
+      "title": "Write Full Production Scripts (Create 7 YouTube Shorts for \"Create 7 days of YouTube Shorts about space facts.\")",
+      "description": "Draft teleprompter-ready scripts with visual direction cues",
+      "type": "write_scripts",
+      "creditCost": 6,
+      "status": "Queued",
+      "requiresApproval": false,
+      "isAsyncBackground": false,
+      "createdAt": "2026-09-25T11:43:53.617Z",
+      "updatedAt": "2026-09-25T11:43:53.617Z"
+    },
+    "task-1790336633617-3a703b": {
+      "id": "task-1790336633617-3a703b",
+      "userId": "user-creator-default",
+      "planId": "plan-1790336633615-11123e",
+      "title": "Breakdown Scene Directives (Create 7 YouTube Shorts for \"Create 7 days of YouTube Shorts about space facts.\")",
+      "description": "Generate camera shots, lighting cues, and audio SFX",
+      "type": "scene_breakdowns",
+      "creditCost": 2,
+      "status": "Queued",
+      "requiresApproval": false,
+      "isAsyncBackground": false,
+      "createdAt": "2026-09-25T11:43:53.617Z",
+      "updatedAt": "2026-09-25T11:43:53.617Z"
+    },
+    "task-1790336633618-aba40e": {
+      "id": "task-1790336633618-aba40e",
+      "userId": "user-creator-default",
+      "planId": "plan-1790336633615-11123e",
+      "title": "Formulate SEO & Hashtag Packs (Create 7 YouTube Shorts for \"Create 7 days of YouTube Shorts about space facts.\")",
+      "description": "Generate high-CTR titles, ranking tags, and descriptions",
+      "type": "seo_packs",
+      "creditCost": 2,
+      "status": "Queued",
+      "requiresApproval": false,
+      "isAsyncBackground": false,
+      "createdAt": "2026-09-25T11:43:53.618Z",
+      "updatedAt": "2026-09-25T11:43:53.618Z"
+    },
+    "task-1790336633618-d0d1fd": {
+      "id": "task-1790336633618-d0d1fd",
+      "userId": "user-creator-default",
+      "planId": "plan-1790336633615-11123e",
+      "title": "Design Thumbnail Concepts (Create 7 YouTube Shorts for \"Create 7 days of YouTube Shorts about space facts.\")",
+      "description": "Formulate visual contrast formulas and headline banners",
+      "type": "thumbnail_concepts",
+      "creditCost": 2,
+      "status": "Queued",
+      "requiresApproval": false,
+      "isAsyncBackground": false,
+      "createdAt": "2026-09-25T11:43:53.618Z",
+      "updatedAt": "2026-09-25T11:43:53.618Z"
+    },
+    "task-1790336633618-2718a4": {
+      "id": "task-1790336633618-2718a4",
+      "userId": "user-creator-default",
+      "planId": "plan-1790336633615-11123e",
+      "title": "Schedule to Content Calendar (Create 7 YouTube Shorts for \"Create 7 days of YouTube Shorts about space facts.\")",
+      "description": "Map items sequentially onto upcoming publication schedule",
+      "type": "calendar_schedule",
+      "creditCost": 2,
+      "status": "Queued",
+      "requiresApproval": false,
+      "isAsyncBackground": false,
+      "createdAt": "2026-09-25T11:43:53.619Z",
+      "updatedAt": "2026-09-25T11:43:53.619Z"
+    }
+  },
+  "contentCalendar": {
+    "cal-1": {
+      "id": "cal-1",
+      "userId": "user-creator-default",
+      "title": "7 Mind-Blowing Facts About Black Holes",
+      "platform": "YouTube Shorts",
+      "scheduledDate": "2026-09-25",
+      "scheduledTime": "17:00",
+      "status": "Ready",
+      "language": "English",
+      "channelName": "Cosmic Explorers",
+      "hook": "What happens if you fall into a supermassive black hole? You become human spaghetti!",
+      "notes": "Rendered in AI Media Studio with Dr. Nova character consistency cue.",
+      "createdAt": "2026-09-25T11:43:24.591Z",
+      "updatedAt": "2026-09-25T11:43:24.591Z"
+    },
+    "cal-2": {
+      "id": "cal-2",
+      "userId": "user-creator-default",
+      "title": "Why Is Space Completely Silent? (The Physics of Sound)",
+      "platform": "YouTube Shorts",
+      "scheduledDate": "2026-09-26",
+      "scheduledTime": "18:00",
+      "status": "Script Ready",
+      "language": "English",
+      "channelName": "Cosmic Explorers",
+      "hook": "Hollywood got it wrong—in space, no one can hear you scream, and here is why!",
+      "notes": "Script drafted, needs thumbnail preview.",
+      "createdAt": "2026-09-25T11:43:24.591Z",
+      "updatedAt": "2026-09-25T11:43:24.591Z"
+    },
+    "cal-3": {
+      "id": "cal-3",
+      "userId": "user-creator-default",
+      "title": "Kids Science: How Do Rockets Actually Reach Orbit?",
+      "platform": "TikTok",
+      "scheduledDate": "2026-09-27",
+      "scheduledTime": "15:30",
+      "status": "Media Pending",
+      "language": "English",
+      "channelName": "Cosmic Explorers",
+      "hook": "Rockets do NOT just fly straight up—they fall sideways forever!",
+      "notes": "Visual prompt generated for Dr. Nova explaining orbital velocity.",
+      "createdAt": "2026-09-25T11:43:24.591Z",
+      "updatedAt": "2026-09-25T11:43:24.591Z"
+    },
+    "cal-4": {
+      "id": "cal-4",
+      "userId": "user-creator-default",
+      "title": "The Diamond Planet: 55 Cancri e Mystery",
+      "platform": "Instagram Reels",
+      "scheduledDate": "2026-09-29",
+      "scheduledTime": "19:00",
+      "status": "Idea",
+      "language": "English",
+      "channelName": "Cosmic Explorers",
+      "hook": "There is a planet made almost entirely of crystallized diamond worth trillions!",
+      "notes": "High viral potential angle.",
+      "createdAt": "2026-09-25T11:43:24.591Z",
+      "updatedAt": "2026-09-25T11:43:24.591Z"
+    }
+  },
+  "series": {
+    "series-cosmic-wonders": {
+      "id": "series-cosmic-wonders",
+      "userId": "user-creator-default",
+      "seriesName": "Cosmic Wonders",
+      "topic": "Unexplained space phenomena and extreme planets",
+      "numberOfEpisodes": 5,
+      "platform": "YouTube Shorts",
+      "duration": "60 seconds",
+      "language": "English",
+      "episodeIdeas": [
+        {
+          "episodeNumber": 1,
+          "title": "The Planet Where It Rains Glass Sideways",
+          "hook": "Imagine winds blowing at 5,000 miles per hour while raining molten glass!",
+          "concept": "HD 189733b planetary atmosphere breakdown",
+          "status": "generated"
+        },
+        {
+          "episodeNumber": 2,
+          "title": "The Sound of a Black Hole Remastered by NASA",
+          "hook": "Turn your volume up: This is what a cosmic void actually sounds like.",
+          "concept": "Perseus galaxy cluster pressure soundwaves",
+          "status": "planned"
+        },
+        {
+          "episodeNumber": 3,
+          "title": "The Great Attractor: What Is Pulling Our Galaxy?",
+          "hook": "Something invisible is dragging our entire Milky Way at 2 million km/h!",
+          "concept": "Laniakea supercluster gravitational anomaly",
+          "status": "planned"
+        },
+        {
+          "episodeNumber": 4,
+          "title": "Neutron Stars: A Teaspoon Weighs a Mountain",
+          "hook": "If you dropped a teaspoon of neutron star matter on Earth, it would sink to the core!",
+          "concept": "Super-dense matter physics explained simply",
+          "status": "planned"
+        },
+        {
+          "episodeNumber": 5,
+          "title": "The James Webb Deep Field Mystery",
+          "hook": "These galaxies formed when the universe was barely an infant!",
+          "concept": "Earliest cosmic dawn observations",
+          "status": "planned"
+        }
+      ],
+      "recurringElements": "Dr. Nova host avatar, fast cosmic ambient synth track, 3-second retention question, recurring CTA",
+      "createdAt": "2026-09-22T11:43:24.591Z",
+      "updatedAt": "2026-09-25T11:43:24.591Z"
+    }
+  },
+  "characters": {
+    "char-dr-nova": {
+      "id": "char-dr-nova",
+      "userId": "user-creator-default",
+      "name": "Dr. Nova",
+      "role": "Cosmic Guide & Scientist",
+      "visualDescription": "Futuristic guide robot with sleek deep violet armor, polished chrome joints, and glowing cyan optic visor with an expressive holographic display",
+      "clothing": "Violet titanium exoskeleton with subtle neon circuit engravings and shoulder beacon badge",
+      "mainColors": [
+        "#8b5cf6",
+        "#06b6d4",
+        "#1e1b4b"
+      ],
+      "personality": "Inquisitive, energetic, mind-blown by astronomical wonders, loves explaining complex science through fun analogies",
+      "voiceStyle": "Energetic, crisp, friendly with a slight reverberant metallic sparkle",
+      "avatarUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
+      "createdAt": "2026-09-15T11:43:24.591Z",
+      "updatedAt": "2026-09-15T11:43:24.591Z"
+    }
+  },
+  "agentActivity": [
+    {
+      "id": "act-1790336633619-3c765c",
+      "userId": "user-creator-default",
+      "actionType": "create_plan",
+      "description": "Agent formulated creation plan: \"Create 7 YouTube Shorts for \"Create 7 days of YouTube Shorts about space facts.\"\" (7 videos, est. 14 credits)",
+      "timestamp": "2026-09-25T11:43:53.619Z",
+      "creditsUsed": 0
+    },
+    {
+      "id": "act-1",
+      "userId": "user-creator-default",
+      "actionType": "create_plan",
+      "description": "CreatorNova Agent formulated 7-day YouTube Shorts space content plan",
+      "timestamp": "2026-09-25T09:43:24.591Z",
+      "creditsUsed": 14
+    },
+    {
+      "id": "act-2",
+      "userId": "user-creator-default",
+      "actionType": "character_created",
+      "description": "Saved \"Dr. Nova\" to Character Library for consistent scene generation",
+      "timestamp": "2026-09-25T06:43:24.591Z"
+    },
+    {
+      "id": "act-3",
+      "userId": "user-creator-default",
+      "actionType": "series_created",
+      "description": "Created 5-part series \"Cosmic Wonders\" with unique episode hooks",
+      "timestamp": "2026-09-24T15:43:24.591Z"
+    },
+    {
+      "id": "act-4",
+      "userId": "user-creator-default",
+      "actionType": "add_calendar",
+      "description": "Scheduled \"7 Mind-Blowing Facts About Black Holes\" to Content Calendar",
+      "timestamp": "2026-09-24T11:43:24.591Z"
+    }
+  ]
+}
