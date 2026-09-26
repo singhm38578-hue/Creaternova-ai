@@ -37,6 +37,19 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onClose, onNavigat
   const [plans, setPlans] = useState<any[]>([]);
   const [creditPacks, setCreditPacks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [providerStatus, setProviderStatus] = useState<{
+    configured: boolean;
+    status: 'Connected' | 'Payment Provider Setup Required';
+    provider: string;
+    message: string;
+    supportedGateways: string[];
+  }>({
+    configured: false,
+    status: 'Payment Provider Setup Required',
+    provider: 'None',
+    message: 'Payment Provider Setup Required: Live payments and webhook processing are inactive. Please configure merchant API credentials in environment variables.',
+    supportedGateways: ['Razorpay', 'Cashfree', 'Stripe'],
+  });
 
   // India payment checkout modal state
   const [selectedPlanForCheckout, setSelectedPlanForCheckout] = useState<any | null>(null);
@@ -49,17 +62,25 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onClose, onNavigat
     currency?: string;
     message: string;
     isVerified?: boolean;
+    providerConfigured?: boolean;
   } | null>(null);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
-  // Fetch configured plans and credit packs from backend
+  // Fetch configured plans, credit packs, and provider status from backend
   useEffect(() => {
     const fetchPricing = async () => {
       setIsLoading(true);
       try {
-        const [plansRes, packsRes] = await Promise.all([
+        const [plansRes, packsRes, statusRes] = await Promise.all([
           studioApi.billing.getPlans().catch(() => ({ plans: [] })),
           studioApi.billing.getCreditPacks().catch(() => ({ packs: [] })),
+          studioApi.billing.getProviderStatus().catch(() => ({
+            configured: false,
+            status: 'Payment Provider Setup Required' as const,
+            provider: 'None',
+            message: 'Payment Provider Setup Required: Live payments and webhook processing are inactive. Please configure merchant API credentials in environment variables.',
+            supportedGateways: ['Razorpay', 'Cashfree', 'Stripe'],
+          })),
         ]);
         if (plansRes.plans && plansRes.plans.length > 0) {
           setPlans(plansRes.plans);
@@ -71,6 +92,9 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onClose, onNavigat
           setCreditPacks(packsRes.packs);
         } else {
           setCreditPacks(defaultCreditPacks);
+        }
+        if (statusRes) {
+          setProviderStatus(statusRes);
         }
       } catch (err) {
         setPlans(defaultLaunchPlans);
@@ -298,57 +322,33 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onClose, onNavigat
   const handleCreatePaymentOrder = async () => {
     setIsProcessingOrder(true);
     try {
-      const amount = selectedPlanForCheckout
-        ? getPlanPrice(selectedPlanForCheckout, billingCycle)
-        : getPackPrice(selectedPackForCheckout);
-
-      const res = await studioApi.billing.createOrder({
+      const res = await studioApi.billing.createCheckoutSession({
         planId: selectedPlanForCheckout?.id,
-        creditPackId: selectedPackForCheckout?.id,
         billingCycle,
         currency,
-        amount,
         paymentMethod,
       });
 
-      setOrderNotice({
-        orderId: res.order?.orderId,
-        amount,
-        currency,
-        message: res.message || 'Payment order initialized with backend.',
-        isVerified: false,
-      });
-    } catch (err: any) {
-      setOrderNotice({
-        message: err.message || 'Payment provider communication error.',
-      });
-    } finally {
-      setIsProcessingOrder(false);
-    }
-  };
-
-  // Test verify order (backend verification requirement)
-  const handleVerifyPayment = async () => {
-    if (!orderNotice?.orderId) return;
-    setIsProcessingOrder(true);
-    try {
-      const res = await studioApi.billing.verifyOrder(
-        orderNotice.orderId,
-        `pay_${Date.now()}`,
-        'mock_signature_verified'
-      );
-      if (res.success) {
+      if (!res.providerConfigured) {
         setOrderNotice({
-          ...orderNotice,
-          isVerified: true,
-          message: 'Payment verified successfully! Your subscription and credits have been credited to your account.',
+          message: res.message || 'Payment Provider Setup Required: Merchant gateway credentials must be configured on the server.',
+          providerConfigured: false,
+          isVerified: false,
         });
-        await refreshCredits();
+      } else {
+        setOrderNotice({
+          orderId: res.order?.orderId,
+          currency,
+          message: res.message || 'Payment order created. Subscriptions become active upon secure provider webhook verification.',
+          isVerified: false,
+          providerConfigured: true,
+        });
       }
     } catch (err: any) {
       setOrderNotice({
-        ...orderNotice,
-        message: 'Backend payment verification failed: ' + (err.message || 'Unknown error'),
+        message: err.message || 'Payment provider communication error.',
+        providerConfigured: false,
+        isVerified: false,
       });
     } finally {
       setIsProcessingOrder(false);
@@ -380,6 +380,21 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onClose, onNavigat
         <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
           Transparent pricing in Indian Rupees ({currencySymbol}) and global currencies. All prices and credit allocations are configurable without hidden surcharges.
         </p>
+
+        {!providerStatus.configured && (
+          <div className="p-4 bg-amber-950/40 border border-amber-600/40 rounded-2xl flex items-start gap-3 max-w-2xl mx-auto text-left shadow-lg">
+            <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-1 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-amber-300 uppercase tracking-wide">Payment Provider Setup Required</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/40 font-mono">Integration Disabled</span>
+              </div>
+              <p className="text-slate-300 leading-relaxed">
+                Automated checkout and subscription renewals are disabled until merchant credentials (such as <code>RAZORPAY_KEY_ID</code>, <code>RAZORPAY_KEY_SECRET</code>, <code>RAZORPAY_WEBHOOK_SECRET</code> or Stripe) are configured in the server environment. Direct payment simulation is permanently disabled for security.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Currency & Billing Cycle Bar */}
         <div className="pt-3 flex flex-wrap items-center justify-center gap-4">
@@ -763,40 +778,40 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onClose, onNavigat
               )}
             </div>
 
-            {/* Backend Verification Notice Requirement */}
-            <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-amber-400 font-bold">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Backend Verification Policy</span>
+            {/* Provider Configuration Warning / Policy */}
+            {!providerStatus.configured ? (
+              <div className="p-4 bg-amber-950/40 border border-amber-600/40 rounded-xl text-xs space-y-2 text-amber-200">
+                <div className="flex items-center gap-2 font-bold text-amber-400">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>Payment Provider Setup Required</span>
+                </div>
+                <p className="leading-relaxed text-[11px] text-slate-300">
+                  Automated checkout and recurring plans are inactive because merchant API keys are not configured in the server environment. Direct payment simulation is permanently disabled for financial security.
+                </p>
               </div>
-              <p className="leading-relaxed text-slate-400">
-                A subscription or credit pack becomes active <strong>only after secure backend verification</strong> from the selected payment provider (Razorpay / Cashfree webhook signature validation).
-              </p>
-            </div>
+            ) : (
+              <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Secure Server Webhook Verification</span>
+                </div>
+                <p className="leading-relaxed text-slate-400">
+                  Subscriptions become active strictly upon verified webhook notification from {providerStatus.provider} with HMAC signature validation.
+                </p>
+              </div>
+            )}
 
             {orderNotice && (
               <div className={`p-4 rounded-xl text-xs space-y-2 ${
-                orderNotice.isVerified
-                  ? 'bg-emerald-950/80 border border-emerald-500 text-emerald-200'
-                  : 'bg-indigo-950/80 border border-indigo-500/60 text-indigo-200'
+                orderNotice.providerConfigured
+                  ? 'bg-indigo-950/80 border border-indigo-500/60 text-indigo-200'
+                  : 'bg-amber-950/80 border border-amber-500/60 text-amber-200'
               }`}>
                 <div className="flex items-center gap-2 font-bold">
-                  {orderNotice.isVerified ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Info className="w-4 h-4 text-indigo-400" />}
-                  <span>Order: {orderNotice.orderId || 'Generated'}</span>
+                  <Info className="w-4 h-4" />
+                  <span>{orderNotice.orderId ? `Order: ${orderNotice.orderId}` : 'Provider Notice'}</span>
                 </div>
                 <p className="leading-relaxed text-[11px]">{orderNotice.message}</p>
-
-                {!orderNotice.isVerified && orderNotice.orderId && (
-                  <div className="pt-2 flex items-center gap-2">
-                    <button
-                      onClick={handleVerifyPayment}
-                      disabled={isProcessingOrder}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs cursor-pointer shadow-md"
-                    >
-                      {isProcessingOrder ? 'Verifying...' : 'Simulate Provider Webhook Verification'}
-                    </button>
-                  </div>
-                )}
               </div>
             )}
 
@@ -813,7 +828,14 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onClose, onNavigat
                 Close
               </button>
 
-              {!orderNotice?.orderId && (
+              {!providerStatus.configured ? (
+                <button
+                  disabled
+                  className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-500 border border-slate-700 text-xs font-bold cursor-not-allowed"
+                >
+                  Payment Provider Setup Required
+                </button>
+              ) : !orderNotice?.orderId ? (
                 <button
                   onClick={handleCreatePaymentOrder}
                   disabled={isProcessingOrder}
@@ -821,7 +843,7 @@ export const PricingScreen: React.FC<PricingScreenProps> = ({ onClose, onNavigat
                 >
                   {isProcessingOrder ? 'Creating Order...' : 'Create Payment Order'}
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

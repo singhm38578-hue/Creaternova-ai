@@ -209,12 +209,65 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
       },
       "required": ["id", "userId", "type", "storagePath", "downloadUrl", "createdAt"]
+    },
+    "Subscription": {
+      "title": "Subscription",
+      "description": "Secure recurring subscription record linked to user account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Subscription identifier" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "planId": { "type": "string", "enum": ["free", "pro", "creator", "business"], "description": "Active tier" },
+        "billingCycle": { "type": "string", "enum": ["monthly", "yearly"], "description": "Cadence" },
+        "status": { "type": "string", "enum": ["active", "past_due", "cancelled", "pending"], "description": "Subscription status" },
+        "currentPeriodStart": { "type": "string", "format": "date-time", "description": "Start timestamp" },
+        "currentPeriodEnd": { "type": "string", "format": "date-time", "description": "Renewal/expiry timestamp" },
+        "monthlyCredits": { "type": "number", "description": "Monthly credit allowance" },
+        "paymentProvider": { "type": "string", "description": "Payment provider (e.g. razorpay, cashfree, stripe)" },
+        "externalSubscriptionId": { "type": "string", "description": "External gateway subscription ID" },
+        "externalCustomerId": { "type": "string", "description": "External customer reference" },
+        "cancelAtPeriodEnd": { "type": "boolean", "description": "Whether plan cancels at current period end" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last updated timestamp" }
+      },
+      "required": ["id", "userId", "planId", "status", "monthlyCredits", "createdAt", "updatedAt"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Auditable payment transaction record with gateway reference and idempotency key",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Payment/order identifier" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "planId": { "type": "string", "description": "Target subscription tier if applicable" },
+        "creditPackId": { "type": "string", "description": "Target credit pack if applicable" },
+        "type": { "type": "string", "enum": ["subscription", "credit_pack"], "description": "Transaction category" },
+        "amount": { "type": "number", "description": "Payment charge amount" },
+        "currency": { "type": "string", "description": "Three-letter currency code (e.g. INR)" },
+        "status": { "type": "string", "enum": ["created", "pending", "verified", "failed"], "description": "Payment status" },
+        "paymentProvider": { "type": "string", "description": "Merchant provider identifier" },
+        "providerOrderId": { "type": "string", "description": "Gateway order ID" },
+        "providerPaymentId": { "type": "string", "description": "Gateway payment confirmation ID" },
+        "idempotencyKey": { "type": "string", "description": "Unique key ensuring single execution" },
+        "creditsAllocated": { "type": "number", "description": "Count of credits granted upon verification" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "verifiedAt": { "type": "string", "format": "date-time", "description": "Verification timestamp" }
+      },
+      "required": ["id", "userId", "amount", "currency", "status", "createdAt"]
     }
   },
   "firestore": {
     "/users/{uid}": {
       "schema": "User",
       "description": "Stores user profile and account subscription data"
+    },
+    "/users/{uid}/subscriptions/{subId}": {
+      "schema": "Subscription",
+      "description": "Stores user active and historical subscription contracts"
+    },
+    "/users/{uid}/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Stores verified payment records and invoices"
     },
     "/users/{uid}/projects/{projectId}": {
       "schema": "Project",

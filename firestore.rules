@@ -83,6 +83,20 @@ service cloud.firestore {
         allow write: if isOwner(userId) && hasServerSecret();
       }
 
+      // User Subscriptions subcollection: users/{userId}/subscriptions/{subscriptionId}
+      // Read-only for user; write restricted to server-side backend logic
+      match /subscriptions/{subscriptionId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if (isOwner(userId) || isAdmin()) && hasServerSecret();
+      }
+
+      // User Payments & Invoices subcollection: users/{userId}/payments/{paymentId}
+      // Read-only for user; write restricted to server-side backend logic
+      match /payments/{paymentId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if (isOwner(userId) || isAdmin()) && hasServerSecret();
+      }
+
       // User Media Assets metadata: users/{userId}/media/{mediaId}
       match /media/{mediaId} {
         allow read, write: if isOwner(userId) && isValidId(mediaId);

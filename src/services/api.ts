@@ -228,36 +228,55 @@ export const studioApi = {
 
   // Billing & Subscriptions
   billing: {
+    getProviderStatus: () =>
+      fetchApi<{
+        configured: boolean;
+        status: 'Connected' | 'Payment Provider Setup Required';
+        provider: string;
+        message: string;
+        supportedGateways: string[];
+      }>('/api/billing/provider-status'),
     getSubscription: () => fetchApi<any>('/api/billing/subscription'),
     getPlans: () => fetchApi<{ plans: any[] }>('/api/billing/plans'),
     getCreditPacks: () => fetchApi<{ packs: any[] }>('/api/billing/credit-packs'),
+    createCheckoutSession: (params: {
+      planId?: string;
+      billingCycle?: 'monthly' | 'yearly';
+      currency?: string;
+      paymentMethod?: string;
+    }) =>
+      fetchApi<{
+        success: boolean;
+        providerConfigured: boolean;
+        order?: any;
+        checkoutUrl?: string;
+        paymentProvider?: string;
+        message: string;
+        error?: string;
+      }>('/api/billing/create-checkout-session', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }),
     createOrder: (params: {
       planId?: string;
       creditPackId?: string;
       billingCycle?: 'monthly' | 'yearly';
       currency?: string;
-      amount: number;
+      amount?: number;
       paymentMethod?: string;
     }) =>
-      fetchApi<{ order: any; paymentGatewayRequired: boolean; supportedMethods: string[]; message: string }>(
-        '/api/billing/create-order',
-        {
-          method: 'POST',
-          body: JSON.stringify(params),
-        }
-      ),
-    verifyOrder: (orderId: string, paymentId: string, signature?: string) =>
-      fetchApi<{ success: boolean; order: any }>('/api/billing/verify-order', {
+      fetchApi<{
+        success: boolean;
+        providerConfigured: boolean;
+        order?: any;
+        message: string;
+        error?: string;
+      }>('/api/billing/create-order', {
         method: 'POST',
-        body: JSON.stringify({ orderId, paymentId, signature }),
-      }),
-    upgradeRequest: (targetPlan: string, billingCycle: string) =>
-      fetchApi<{ integrationRequired: boolean; message: string; provider: string }>('/api/billing/upgrade-request', {
-        method: 'POST',
-        body: JSON.stringify({ targetPlan, billingCycle }),
+        body: JSON.stringify(params),
       }),
     cancelRequest: () =>
-      fetchApi<{ success: boolean; message: string }>('/api/billing/cancel-request', {
+      fetchApi<{ success: boolean; subscription: any; message: string }>('/api/billing/cancel-request', {
         method: 'POST',
       }),
   },

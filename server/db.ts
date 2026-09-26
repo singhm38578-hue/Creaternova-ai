@@ -93,6 +93,23 @@ export interface CreditPackRecord {
   prices: Record<string, { currency: string; symbol: string; amount: number }>;
 }
 
+export interface SubscriptionRecord {
+  id: string;
+  userId: string;
+  planId: 'free' | 'pro' | 'creator' | 'business';
+  billingCycle: 'monthly' | 'yearly';
+  status: 'active' | 'past_due' | 'cancelled' | 'pending';
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  monthlyCredits: number;
+  paymentProvider?: string;
+  externalSubscriptionId?: string;
+  externalCustomerId?: string;
+  cancelAtPeriodEnd: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PaymentOrderRecord {
   orderId: string;
   userId: string;
@@ -275,6 +292,8 @@ export interface DatabaseSchema {
   pricingPlans: Record<string, PricingPlanRecord>;
   creditPacks: Record<string, CreditPackRecord>;
   paymentOrders: Record<string, PaymentOrderRecord>;
+  subscriptions: Record<string, SubscriptionRecord>;
+  processedWebhookEvents: Record<string, { eventId: string; processedAt: string; status: string }>;
 }
 
 function hashPassword(password: string): string {
@@ -330,6 +349,8 @@ class DatabaseManager {
       pricingPlans: {},
       creditPacks: {},
       paymentOrders: {},
+      subscriptions: {},
+      processedWebhookEvents: {},
     };
   }
 
@@ -350,6 +371,8 @@ class DatabaseManager {
         if (!this.db.series) this.db.series = {};
         if (!this.db.characters) this.db.characters = {};
         if (!this.db.agentActivity) this.db.agentActivity = [];
+        if (!this.db.subscriptions) this.db.subscriptions = {};
+        if (!this.db.processedWebhookEvents) this.db.processedWebhookEvents = {};
         if (!this.db.pricingPlans || Object.keys(this.db.pricingPlans).length === 0) {
           this.seedPricingPlans();
         }
@@ -1809,6 +1832,67 @@ class DatabaseManager {
 
     this.persist();
     return order;
+  }
+
+  public getUserSubscription(userId: string): SubscriptionRecord {
+    this.ensureInitialized();
+    const existing = this.db.subscriptions[userId];
+    if (existing) return existing;
+
+    const user = this.db.users[userId];
+    const plan = (user?.plan || 'free') as 'free' | 'pro' | 'creator' | 'business';
+    const planConfig = this.db.pricingPlans[plan] || this.db.pricingPlans.free;
+    const now = new Date();
+    const sub: SubscriptionRecord = {
+      id: `sub_${userId}_default`,
+      userId,
+      planId: plan,
+      billingCycle: user?.billingCycle || 'monthly',
+      status: 'active',
+      currentPeriodStart: now.toISOString(),
+      currentPeriodEnd: new Date(now.getTime() + 30 * 86400000).toISOString(),
+      monthlyCredits: planConfig?.monthlyCredits || 50,
+      paymentProvider: 'system',
+      cancelAtPeriodEnd: false,
+      createdAt: user?.createdAt || now.toISOString(),
+      updatedAt: now.toISOString(),
+    };
+    this.db.subscriptions[userId] = sub;
+    this.persist();
+    return sub;
+  }
+
+  public saveUserSubscription(sub: SubscriptionRecord): void {
+    this.ensureInitialized();
+    this.db.subscriptions[sub.userId] = sub;
+    this.persist();
+  }
+
+  public getUserPaymentOrders(userId: string): PaymentOrderRecord[] {
+    this.ensureInitialized();
+    return Object.values(this.db.paymentOrders)
+      .filter((order) => order.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  public getPaymentRecord(orderId: string): PaymentOrderRecord | undefined {
+    this.ensureInitialized();
+    return this.db.paymentOrders[orderId];
+  }
+
+  public isWebhookEventProcessed(eventId: string): boolean {
+    this.ensureInitialized();
+    return !!this.db.processedWebhookEvents[eventId];
+  }
+
+  public recordWebhookEvent(eventId: string, status: string = 'processed'): void {
+    this.ensureInitialized();
+    this.db.processedWebhookEvents[eventId] = {
+      eventId,
+      processedAt: new Date().toISOString(),
+      status,
+    };
+    this.persist();
   }
 }
 

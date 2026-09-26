@@ -89,3 +89,40 @@ export interface SubscriptionPlanDetails {
   features: string[];
   popular?: boolean;
 }
+
+export interface SubscriptionRecord {
+  id: string;
+  userId: string;
+  planId: SubscriptionPlanTier;
+  billingCycle: BillingCycle;
+  status: 'active' | 'past_due' | 'cancelled' | 'pending';
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  monthlyCredits: number;
+  paymentProvider?: string;
+  externalSubscriptionId?: string;
+  externalCustomerId?: string;
+  cancelAtPeriodEnd: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaymentRecord {
+  id: string;
+  userId: string;
+  planId?: SubscriptionPlanTier;
+  creditPackId?: string;
+  type: 'subscription' | 'credit_pack';
+  amount: number;
+  currency: string;
+  status: 'created' | 'pending' | 'verified' | 'failed';
+  paymentProvider?: string;
+  providerOrderId?: string;
+  providerPaymentId?: string;
+  idempotencyKey?: string;
+  creditsAllocated?: number;
+  metadata?: Record<string, any>;
+  createdAt: string;
+  verifiedAt?: string;
+}
+

@@ -13,7 +13,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
-app.use(express.json({ limit: '10mb' }));
+app.use(
+  express.json({
+    limit: '10mb',
+    verify: (req: any, _res, buf) => {
+      req.rawBody = buf.toString();
+    },
+  })
+);
 
 // Shared server-side Gemini client
 const apiKey = process.env.GEMINI_API_KEY;
@@ -53,6 +60,7 @@ function extractJsonFromText(rawText: string) {
 import { dbManager } from './server/db.ts';
 import agentRouter from './server/agentRoutes.ts';
 import { CreditWalletService } from './server/creditService.ts';
+import { PaymentService } from './server/paymentService.ts';
 import { GENERATION_CREDIT_COSTS, PLAN_DEFINITIONS } from './src/config/creditCosts.ts';
 
 // Helper to extract authenticated user or null
@@ -505,9 +513,16 @@ app.post('/api/credits/replenish-demo', async (req, res) => {
 });
 
 // -------------------------------------------------------------
-// SUBSCRIPTION & BILLING ENDPOINTS (INDIA-FIRST & GLOBAL ARCHITECTURE)
+// SUBSCRIPTION & BILLING ENDPOINTS (SECURE SERVER-AUTHORITATIVE ARCHITECTURE)
 // -------------------------------------------------------------
 
+// 1. Payment Provider Status
+app.get('/api/billing/provider-status', (req, res) => {
+  const status = PaymentService.getProviderStatus();
+  return res.json(status);
+});
+
+// 2. Configured Plans & Pricing
 app.get('/api/billing/plans', (req, res) => {
   const plans = dbManager.getPricingPlans();
   return res.json({ plans });
@@ -518,77 +533,116 @@ app.get('/api/billing/credit-packs', (req, res) => {
   return res.json({ packs });
 });
 
+// 3. Subscription & Billing Profile Overview
 app.get('/api/billing/subscription', (req, res) => {
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const wallet = dbManager.getUserCredits(user.id);
   const plans = dbManager.getPricingPlans();
+  const subData = PaymentService.getUserSubscription(user.id);
+
   return res.json({
-    plan: user.plan,
-    billingCycle: (user as any).billingCycle || 'monthly',
-    status: 'active',
-    renewalDate: new Date(Date.now() + 25 * 86400000).toISOString(),
+    subscription: subData.subscription,
+    providerStatus: subData.providerStatus,
+    invoices: subData.invoices,
+    plan: subData.subscription.planId,
+    billingCycle: subData.subscription.billingCycle,
+    status: subData.subscription.status,
+    renewalDate: subData.subscription.currentPeriodEnd,
     creditsRemaining: wallet.totalRemaining,
-    monthlyAllocation: wallet.monthlyAllocation,
+    monthlyAllocation: subData.subscription.monthlyCredits,
     plans,
   });
 });
 
-app.post('/api/billing/create-order', (req, res) => {
+// 4. Secure Backend Checkout Initiation
+app.post('/api/billing/create-checkout-session', async (req, res) => {
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
-  const { planId, creditPackId, billingCycle, currency = 'INR', amount, paymentMethod = 'upi' } = req.body;
-  const order = dbManager.createPaymentOrder({
-    userId: user.id,
-    planId,
-    creditPackId,
-    billingCycle,
-    currency,
-    amount,
-    paymentMethod,
-  });
-
-  return res.json({
-    order,
-    paymentGatewayRequired: true,
-    supportedMethods: ['UPI (GPay, PhonePe, Paytm, BHIM)', 'Cards (Visa, Mastercard, RuPay)', 'Net Banking', 'Supported Wallets', 'Recurring e-Mandate'],
-    message: 'Payment order created. Subscriptions become active only after secure backend verification from the selected payment provider (Razorpay / Cashfree).',
-  });
-});
-
-app.post('/api/billing/verify-order', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
-  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
-
-  const { orderId, paymentId, signature } = req.body;
-  if (!orderId || !paymentId) {
-    return res.status(400).json({ error: 'orderId and paymentId are required' });
-  }
+  const { planId, billingCycle = 'monthly', currency = 'INR', paymentMethod = 'upi' } = req.body;
 
   try {
-    const verified = dbManager.verifyPaymentOrder(orderId, { paymentId, signature });
-    return res.json({ success: true, order: verified });
+    const result = await PaymentService.createCheckoutSession({
+      userId: user.id,
+      userEmail: user.email,
+      planId,
+      billingCycle,
+      currency,
+      paymentMethod,
+    });
+
+    if (!result.providerConfigured) {
+      return res.status(503).json(result);
+    }
+
+    return res.json(result);
   } catch (err: any) {
-    return res.status(400).json({ error: err.message || 'Verification failed' });
+    return res.status(400).json({ error: err.message || 'Failed to create checkout session' });
   }
 });
 
-app.post('/api/billing/upgrade-request', (req, res) => {
-  const { targetPlan, billingCycle } = req.body;
-  return res.status(501).json({
-    integrationRequired: true,
-    provider: 'Razorpay / Cashfree / Stripe India Integration',
-    targetPlan,
-    billingCycle,
-    message: 'Payment gateway integration required. Subscriptions become active only after secure backend verification from the selected payment provider.',
+// Legacy route alias for compatibility
+app.post('/api/billing/create-order', async (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const { planId, billingCycle = 'monthly', currency = 'INR', paymentMethod = 'upi' } = req.body;
+
+  try {
+    const result = await PaymentService.createCheckoutSession({
+      userId: user.id,
+      userEmail: user.email,
+      planId: planId || 'pro',
+      billingCycle,
+      currency,
+      paymentMethod,
+    });
+
+    if (!result.providerConfigured) {
+      return res.status(503).json(result);
+    }
+
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'Failed to create order' });
+  }
+});
+
+// 5. Verification Endpoint: NEVER ALLOW CLIENT-SIDE VERIFICATION OR PAYMENT SIMULATION
+app.post('/api/billing/verify-order', (req, res) => {
+  return res.status(403).json({
+    error: 'CLIENT_VERIFICATION_FORBIDDEN',
+    message: 'Direct client-side payment verification is strictly disabled. Subscriptions and credits are activated exclusively via authenticated server webhooks with cryptographic signature verification.',
   });
 });
 
+// 6. Secure Backend Webhook Architecture
+app.post('/api/billing/webhook', async (req, res) => {
+  try {
+    const rawPayload = (req as any).rawBody || (typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
+    const result = await PaymentService.handleWebhook({
+      rawPayload,
+      headers: req.headers,
+    });
+
+    return res.json(result);
+  } catch (err: any) {
+    console.error('Webhook processing failure:', err.message);
+    return res.status(400).json({ error: err.message || 'Webhook verification failed' });
+  }
+});
+
+// 7. Cancel Subscription Request
 app.post('/api/billing/cancel-request', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const updatedSub = PaymentService.cancelSubscription(user.id);
   return res.json({
     success: true,
+    subscription: updatedSub,
     message: 'Cancellation scheduled. Your plan features and credits remain active until the end of the current billing cycle.',
   });
 });

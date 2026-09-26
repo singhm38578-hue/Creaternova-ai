@@ -440,6 +440,110 @@ export class CreditWalletService {
   }
 
   /**
+   * Idempotently activates a subscription plan and allocates monthly credits.
+   * Controlled strictly by verified backend webhooks / server logic.
+   */
+  public static async activateSubscriptionCredits(params: {
+    userId: string;
+    planId: 'free' | 'pro' | 'creator' | 'business';
+    idempotencyKey: string;
+    authToken?: string;
+  }): Promise<UserWalletData> {
+    const { userId, planId, idempotencyKey, authToken } = params;
+    const releaseLock = await this.acquireLock(userId);
+    try {
+      const planConfig = PLAN_DEFINITIONS[planId] || PLAN_DEFINITIONS.free;
+      const wallet = await this.getWallet(userId, authToken);
+      const balanceBefore = wallet.creditBalance;
+      const allocatedCredits = planConfig.monthlyCredits;
+      const balanceAfter = balanceBefore + allocatedCredits;
+      const now = new Date();
+      const nowIso = now.toISOString();
+      const nextResetDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      const txId = `tx_sub_${idempotencyKey || Date.now()}`;
+
+      const txRecord: CreditTransactionRecord = {
+        id: txId,
+        userId,
+        type: 'monthly_allocation',
+        amount: allocatedCredits,
+        balanceBefore,
+        balanceAfter,
+        operation: `subscription_activation_${planId}`,
+        projectId: null,
+        status: 'completed',
+        createdAt: nowIso,
+      };
+
+      // 1. Update Firestore REST API if auth token is present
+      if (authToken) {
+        try {
+          const updateUrl = `${FIRESTORE_BASE_URL}/users/${userId}?updateMask.fieldPaths=creditBalance&updateMask.fieldPaths=credits&updateMask.fieldPaths=plan&updateMask.fieldPaths=creditResetDate&updateMask.fieldPaths=updatedAt`;
+          await fetch(updateUrl, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              fields: toFirestoreFields({
+                creditBalance: balanceAfter,
+                credits: balanceAfter,
+                plan: planId,
+                creditResetDate: nextResetDate,
+                updatedAt: nowIso,
+                serverSecret: SERVER_WALLET_SECRET,
+              }),
+            }),
+          });
+
+          // Store transaction record in Firestore subcollection
+          const txUrl = `${FIRESTORE_BASE_URL}/users/${userId}/creditTransactions/${txId}`;
+          await fetch(txUrl, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              fields: toFirestoreFields({
+                ...txRecord,
+                serverSecret: SERVER_WALLET_SECRET,
+              }),
+            }),
+          });
+        } catch (e) {
+          console.warn('Could not sync subscription activation to Firestore:', e);
+        }
+      }
+
+      // 2. Also update local dbManager
+      if ((dbManager as any).db && (dbManager as any).db.credits) {
+        const localCredits = (dbManager as any).db.credits[userId];
+        if (localCredits) {
+          localCredits.totalRemaining = balanceAfter;
+          localCredits.monthlyAllocation = allocatedCredits;
+          localCredits.lastResetDate = nowIso;
+        }
+        const localUser = (dbManager as any).db.users?.[userId];
+        if (localUser) {
+          localUser.plan = planId;
+        }
+        (dbManager as any).persist?.();
+      }
+
+      return {
+        plan: planId,
+        creditBalance: balanceAfter,
+        creditResetDate: nextResetDate,
+        updatedAt: nowIso,
+      };
+    } finally {
+      releaseLock();
+    }
+  }
+
+  /**
    * Refills credits for testing/demo sandbox and logs transaction with 'bonus' type.
    */
   public static async replenishDemoCredits(userId: string, authToken?: string, amount: number = 500): Promise<UserWalletData> {
