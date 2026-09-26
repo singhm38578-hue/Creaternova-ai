@@ -146,16 +146,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             profileImage: profile.photoURL,
             plan: profile.plan,
             billingCycle: profile.billingCycle,
-            preferredLanguage: profile.preferredLanguage,
-            creatorNiche: profile.creatorNiche,
-            defaultPlatform: profile.defaultPlatform,
+            preferredLanguage: profile.preferredLanguage || 'English',
+            creatorNiche: profile.creatorNiche || 'Content Creation',
+            defaultPlatform: profile.defaultPlatform || 'YouTube Shorts',
+            defaultContentLanguage: profile.preferredLanguage || 'English',
             createdAt: profile.createdAt,
             onboardingCompleted: true,
           };
 
           setUser(safeUser);
           setCredits({
-            userId: profile.uid,
             textCredits: Math.floor(profile.credits * 0.4),
             imageCredits: Math.floor(profile.credits * 0.3),
             voiceCredits: Math.floor(profile.credits * 0.2),
@@ -341,7 +341,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const profile = await getUserProfile(user.id);
         if (profile) {
           setCredits({
-            userId: profile.uid,
             textCredits: Math.floor(profile.credits * 0.4),
             imageCredits: Math.floor(profile.credits * 0.3),
             voiceCredits: Math.floor(profile.credits * 0.2),
