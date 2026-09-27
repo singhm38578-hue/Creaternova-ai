@@ -188,7 +188,7 @@ export interface AgentPlanRecord {
   estimatedCredits: number;
   expectedOutputs: string[];
   tasks: AgentTaskSummary[];
-  status: 'draft' | 'approved' | 'executing' | 'completed' | 'cancelled';
+  status: 'draft' | 'approved' | 'executing' | 'completed' | 'cancelled' | 'failed';
   useBrandKit: boolean;
   selectedCharacterId?: string;
   selectedCharacterName?: string;

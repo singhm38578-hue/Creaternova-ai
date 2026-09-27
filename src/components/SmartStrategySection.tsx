@@ -11,7 +11,8 @@ import {
   Repeat,
   Compass,
   CheckCircle2,
-  RefreshCw
+  RefreshCw,
+  Info
 } from 'lucide-react';
 import { StrategyRecommendation } from '../types/content';
 import { studioApi } from '../services/api';
@@ -20,28 +21,69 @@ interface SmartStrategySectionProps {
   onExecutePrompt: (promptText: string) => void;
 }
 
+// Module-level in-memory cache to prevent repetitive API calls on view switches
+let cachedStrategyState: {
+  recommendations: StrategyRecommendation[];
+  channelNiche: string;
+  notice?: string;
+  loadedAt: number;
+} | null = null;
+
 export const SmartStrategySection: React.FC<SmartStrategySectionProps> = ({
   onExecutePrompt,
 }) => {
-  const [recommendations, setRecommendations] = useState<StrategyRecommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<StrategyRecommendation[]>(
+    () => cachedStrategyState?.recommendations || []
+  );
   const [loading, setLoading] = useState(false);
-  const [channelNiche, setChannelNiche] = useState<string>('');
+  const [channelNiche, setChannelNiche] = useState<string>(
+    () => cachedStrategyState?.channelNiche || 'Science & Space Facts'
+  );
+  const [notice, setNotice] = useState<string | null>(
+    () => cachedStrategyState?.notice || null
+  );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const fetchStrategy = async () => {
+  const fetchStrategy = async (force: boolean = false) => {
+    // If we have cached recommendations loaded less than 30 mins ago and not forced, reuse
+    if (!force && cachedStrategyState && Date.now() - cachedStrategyState.loadedAt < 30 * 60 * 1000) {
+      setRecommendations(cachedStrategyState.recommendations);
+      setChannelNiche(cachedStrategyState.channelNiche);
+      if (cachedStrategyState.notice) setNotice(cachedStrategyState.notice);
+      return;
+    }
+
     try {
       setLoading(true);
-      const res = await studioApi.agent.getStrategy();
-      setRecommendations(res.strategy || []);
-      setChannelNiche(res.niche || 'Science & Space Facts');
+      setErrorMessage(null);
+      const res = await studioApi.agent.getStrategy({ forceRefresh: force });
+      const recs = res.strategy || [];
+      const niche = res.niche || 'Science & Space Facts';
+      
+      setRecommendations(recs);
+      setChannelNiche(niche);
+      if (res.notice) {
+        setNotice(res.notice);
+      } else {
+        setNotice(null);
+      }
+
+      cachedStrategyState = {
+        recommendations: recs,
+        channelNiche: niche,
+        notice: res.notice,
+        loadedAt: Date.now(),
+      };
     } catch (err: any) {
-      console.error('Failed to load strategy:', err);
+      // Gracefully handle without unhandled console error
+      setErrorMessage(err?.message || 'AI service rate limited. Strategy framework loaded.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchStrategy();
+    fetchStrategy(false);
   }, []);
 
   const getCategoryIcon = (category: string) => {
@@ -64,11 +106,17 @@ export const SmartStrategySection: React.FC<SmartStrategySectionProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-extrabold uppercase px-2 py-0.5 rounded bg-violet-600/30 text-violet-300 border border-violet-500/40">
               AI Strategy Engine
             </span>
             <span className="text-xs text-slate-400">Grounded in Algorithmic Retention</span>
+            {notice && (
+              <span className="text-[11px] font-medium text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
+                <Info className="w-3 h-3 text-emerald-400" />
+                {notice}
+              </span>
+            )}
           </div>
           <h2 className="text-xl font-black text-white mt-1 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-emerald-400" /> Smart Content Strategy
@@ -79,7 +127,7 @@ export const SmartStrategySection: React.FC<SmartStrategySectionProps> = ({
         </div>
 
         <button
-          onClick={fetchStrategy}
+          onClick={() => fetchStrategy(true)}
           disabled={loading}
           className="text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded-xl border border-slate-700 hover:bg-slate-800 flex items-center gap-1.5 self-start sm:self-auto transition-colors"
         >
@@ -87,8 +135,20 @@ export const SmartStrategySection: React.FC<SmartStrategySectionProps> = ({
         </button>
       </div>
 
+      {errorMessage && recommendations.length === 0 && (
+        <div className="p-3 bg-amber-950/30 border border-amber-800/40 rounded-xl text-xs text-amber-200 flex items-center justify-between">
+          <span>{errorMessage}</span>
+          <button
+            onClick={() => fetchStrategy(true)}
+            className="px-2.5 py-1 bg-amber-600/30 hover:bg-amber-600/50 rounded text-amber-100 font-medium"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Grid of Strategy Cards */}
-      {loading ? (
+      {loading && recommendations.length === 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((n) => (
             <div key={n} className="h-44 bg-slate-950/70 border border-slate-800 rounded-xl animate-pulse" />

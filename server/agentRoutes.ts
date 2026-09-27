@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { GoogleGenAI } from '@google/genai';
 import { dbManager } from './db.ts';
 import { CreditWalletService } from './creditService.ts';
+import { AIProviderService, AIProviderError } from './aiProviderService.ts';
 
 const router = express.Router();
 
@@ -137,76 +138,31 @@ Output ONLY a JSON object:
   ]
 }`;
 
-    let parsedPlan: any = null;
-
-    if (ai) {
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: systemPrompt,
-          config: {
-            responseMimeType: 'application/json',
-            temperature: 0.3,
-          },
-        });
-        parsedPlan = extractJsonFromText(response.text || '{}');
-      } catch (err) {
-        console.warn('Gemini parse error, falling back to rule-based engine:', err);
-      }
+    if (!AIProviderService.isConfigured()) {
+      return res.status(503).json({
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'AI service temporarily unavailable. Please try again later.',
+      });
     }
 
-    if (!parsedPlan || !parsedPlan.goal) {
-      // Smart Rule-Based Parser Fallback
-      const lower = command.toLowerCase();
-      let count = 1;
-      const countMatch = lower.match(/\b([1-9]|10)\b/) || lower.match(/\b(one|two|three|four|five|six|seven|eight|nine|ten)\b/);
-      if (countMatch) {
-        const map: Record<string, number> = {
-          one: 1, two: 2, three: 3, four: 4, five: 5,
-          six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-        };
-        count = map[countMatch[0]] || parseInt(countMatch[0], 10) || 1;
-      } else if (lower.includes('7-day') || lower.includes('week') || lower.includes('7 days')) {
-        count = 7;
+    let parsedPlan: any = null;
+    try {
+      const responseText = await AIProviderService.generateContent({
+        prompt: systemPrompt,
+        systemInstruction: 'You are CreatorNova AI Agent, an intelligent creator assistant. Output valid JSON only.',
+        temperature: 0.3,
+        responseMimeType: 'application/json',
+      });
+      parsedPlan = AIProviderService.extractJson(responseText);
+    } catch (err: any) {
+      if (err instanceof AIProviderError) {
+        return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
       }
+      return res.status(503).json({ error: 'SERVICE_UNAVAILABLE', message: 'AI service temporarily unavailable. Please try again later.' });
+    }
 
-      let platform = 'YouTube Shorts';
-      if (lower.includes('reel') || lower.includes('instagram')) platform = 'Instagram Reels';
-      else if (lower.includes('tiktok')) platform = 'TikTok';
-      else if (lower.includes('long video') || lower.includes('youtube long')) platform = 'YouTube Long Video';
-
-      let lang = brandKit?.preferredLanguage || 'English';
-      if (lower.includes('hindi')) lang = 'Hindi';
-      else if (lower.includes('spanish')) lang = 'Spanish';
-
-      const estimatedCreds = Math.max(2, count * 2);
-
-      parsedPlan = {
-        goal: `Create ${count} ${platform} for "${command.slice(0, 60)}"`,
-        numberOfVideos: count,
-        platform,
-        language: lang,
-        estimatedOperations: count * 6,
-        estimatedCredits: estimatedCreds,
-        expectedOutputs: [
-          `${count} High-Engagement Content Angles`,
-          `${count} 3-Second Retention Hooks`,
-          `${count} Full Production Scripts`,
-          `${count} Scene Breakdowns with Visual Cues`,
-          `${count} SEO Metadata & Tag Packs`,
-          `${count} Psychological Thumbnail Layouts`,
-          'Automated Sync to Content Calendar',
-        ],
-        tasks: [
-          { stepNumber: 1, title: 'Research & Diversify Topics', description: 'Brainstorm distinct non-overlapping angles with high virality potential', type: 'research_topics', estimatedCredits: 2, status: 'Queued' },
-          { stepNumber: 2, title: 'Craft 3-Second Retention Hooks', description: 'Create psychological curiosity hooks to prevent audience swiping', type: 'create_hooks', estimatedCredits: 2, status: 'Queued' },
-          { stepNumber: 3, title: 'Write Full Production Scripts', description: 'Draft teleprompter-ready scripts with visual direction cues', type: 'write_scripts', estimatedCredits: Math.max(2, Math.round(count * 0.8)), status: 'Queued' },
-          { stepNumber: 4, title: 'Breakdown Scene Directives', description: character ? `Generate visual shots incorporating ${character.name}` : 'Generate camera shots, lighting cues, and audio SFX', type: 'scene_breakdowns', estimatedCredits: 2, status: 'Queued' },
-          { stepNumber: 5, title: 'Formulate SEO & Hashtag Packs', description: 'Generate high-CTR titles, ranking tags, and descriptions', type: 'seo_packs', estimatedCredits: 2, status: 'Queued' },
-          { stepNumber: 6, title: 'Design Thumbnail Concepts', description: 'Formulate visual contrast formulas and headline banners', type: 'thumbnail_concepts', estimatedCredits: 2, status: 'Queued' },
-          { stepNumber: 7, title: 'Schedule to Content Calendar', description: 'Map items sequentially onto upcoming publication schedule', type: 'calendar_schedule', estimatedCredits: 0, status: 'Queued' },
-        ],
-      };
+    if (!parsedPlan || !parsedPlan.goal || !Array.isArray(parsedPlan.tasks)) {
+      return res.status(500).json({ error: 'BAD_RESPONSE', message: 'AI returned invalid plan structure. Please try again.' });
     }
 
     // Save as draft plan in DB
@@ -422,121 +378,44 @@ Return ONLY a JSON array with exactly ${count} objects:
   }
 ]`;
 
-    let generatedItems: any[] = [];
-
-    if (ai) {
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: systemPrompt,
-          config: {
-            responseMimeType: 'application/json',
-            temperature: 0.7,
-          },
-        });
-        const parsed = extractJsonFromText(response.text || '[]');
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          generatedItems = parsed;
-        }
-      } catch (err) {
-        console.warn('Gemini execution error, using procedural synthesis:', err);
-      }
+    if (!AIProviderService.isConfigured()) {
+      dbManager.updateAgentPlan(planId, user.id, { status: 'failed' });
+      return res.status(503).json({
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'AI service temporarily unavailable. Please try again later.',
+      });
     }
 
-    // Procedural fallback if AI output was empty or failed
-    if (!generatedItems || generatedItems.length === 0) {
-      const sampleThemes = [
-        { title: 'The Sound of a Black Hole (It Will Give You Chills)', topic: 'Cosmic Acoustics', angle: 'Soundwaves in gas halos', text: 'NASA remastered the actual sound pressure waves inside the Perseus galaxy cluster!' },
-        { title: 'Why Time Actually Slows Down Near Jupiter', topic: 'Gravitational Time Dilation', angle: 'Einstein general relativity in the solar system', text: 'Gravity is so strong near Jupiter that atomic clocks physically tick slower!' },
-        { title: 'The Planet Where It Rains Molten Glass Sideways', topic: 'Exoplanet HD 189733b', angle: 'Extreme alien weather', text: 'Winds blow 7 times the speed of sound carrying microscopic shards of silicate glass.' },
-        { title: 'Could Humans Survive a Trip Through the Asteroid Belt?', topic: 'Space Travel Myths', angle: 'Star Wars vs Reality', text: 'Unlike movies with crowded boulders, asteroids are actually millions of miles apart.' },
-        { title: 'The Mystery of the Great Attractor Pulling Our Galaxy', topic: 'Deep Space Gravitational Anomaly', angle: 'Cosmic megastructure', text: 'Something invisible is dragging our entire Milky Way at 2 million kilometers per hour!' },
-        { title: 'What If the Sun Was Replaced with a Black Hole of the Same Mass?', topic: 'Orbital Mechanics Mythbust', angle: 'Earth survival physics', text: 'Earth would NOT get sucked in! It would freeze, but our orbit would remain identical.' },
-        { title: 'The Oldest Star in the Universe Is Older Than Science Expected', topic: 'Methuselah Star HD 140283', angle: 'Cosmology paradox', text: 'This star was formed just after the Big Bang and still shines in our galaxy today.' },
-      ];
+    let generatedItems: any[] = [];
 
-      for (let i = 0; i < count; i++) {
-        const theme = sampleThemes[i % sampleThemes.length];
-        const dayNum = i + 1;
-        const charName = character?.name || 'Dr. Nova';
-        generatedItems.push({
-          dayNumber: dayNum,
-          title: `Day ${dayNum}: ${theme.title}`,
-          topic: theme.topic,
-          hook: {
-            hookText: `Stop scrolling! Did you know that ${theme.text.toLowerCase()}`,
-            visualAction: `${charName} appears on screen pointing at a shimmering holographic projection of ${theme.topic}.`,
-            psychologyTrigger: 'Curiosity gap & mind-bending realization',
-          },
-          script: {
-            rawFullText: `[Hook] Stop scrolling! Did you know that ${theme.text.toLowerCase()}\n\n[Body] Most people believe space is completely empty, but ${theme.angle} proves our universe is far weirder than science fiction.\n\n[Climax] In fact, physicists calculated that if you were there right now, you would witness physics defying everything we learned in school!\n\n[CTA] Hit subscribe to explore a new cosmic mystery every single day!`,
-            wordCount: 110,
-            estimatedDuration: '40s',
-            callToAction: 'Subscribe for daily cosmic facts!',
-            beats: [
-              { id: `b-${dayNum}-1`, timestamp: '0:00', speaker: charName, sectionType: 'hook', directionCue: '[Punchy & Intrigued]', dialogue: `Stop scrolling! ${theme.text}`, visualCue: 'Fast zoom on cosmic anomaly', durationSec: 6 },
-              { id: `b-${dayNum}-2`, timestamp: '0:06', speaker: charName, sectionType: 'core_beat', directionCue: '[Curious]', dialogue: `Most people think space is empty, but ${theme.angle} proves otherwise.`, visualCue: '3D diagram rotating', durationSec: 15 },
-              { id: `b-${dayNum}-3`, timestamp: '0:21', speaker: charName, sectionType: 'cta', directionCue: '[Enthusiastic]', dialogue: 'Subscribe to Cosmic Explorers for daily mind-blowing facts!', visualCue: 'Animated subscribe banner', durationSec: 9 },
-            ],
-          },
-          scenes: [
-            {
-              id: `s-${dayNum}-1`,
-              sceneNumber: 1,
-              timestampRange: '0:00 - 0:06',
-              shotType: 'Close Up',
-              cameraAngle: 'Eye Level',
-              visualDescription: `${charName} looking directly into lens with glowing eyes, pointing at floating 3D hologram of ${theme.topic}.`,
-              audioSfx: 'Subtle cosmic whoosh and synth riser',
-              onScreenText: theme.title.toUpperCase().slice(0, 30),
-              lightingMood: 'Cinematic deep violet and cyan backlight',
-              brollKeywords: ['space', 'galaxy', 'sci-fi holographic interface'],
-            },
-            {
-              id: `s-${dayNum}-2`,
-              sceneNumber: 2,
-              timestampRange: '0:06 - 0:21',
-              shotType: 'Extreme Wide',
-              cameraAngle: 'Drone Aerial',
-              visualDescription: `Spectacular hyper-realistic render of ${theme.topic} with glowing accretion disk and cosmic dust clouds.`,
-              audioSfx: 'Deep gravitational hum',
-              onScreenText: 'MIND-BLOWING PHYSICS',
-              lightingMood: 'High contrast starry void',
-              brollKeywords: ['astronomy', 'stars', 'nebula explosion'],
-            },
-            {
-              id: `s-${dayNum}-3`,
-              sceneNumber: 3,
-              timestampRange: '0:21 - 0:30',
-              shotType: 'Medium Shot',
-              cameraAngle: 'Eye Level',
-              visualDescription: `${charName} giving a thumbs up with subscribe notification bell ringing next to them.`,
-              audioSfx: 'Clean notification chime and outro beat',
-              onScreenText: 'SUBSCRIBE FOR DAILY FACTS!',
-              lightingMood: 'Vibrant studio neon',
-              brollKeywords: ['creator', 'subscribe', 'neon'],
-            },
-          ],
-          seo: {
-            titleSuggestions: [
-              theme.title,
-              `${theme.topic} Explained in 40 Seconds`,
-              `The Scariest Truth About ${theme.topic}`,
-            ],
-            description: `${theme.title}\n\nExplore the shocking truth of ${theme.topic} in this quick breakdown.\n\nSubscribe for daily educational content!\n#SpaceFacts #Astronomy #Shorts`,
-            keywords: [theme.topic.toLowerCase(), 'space facts', 'science', 'astronomy', 'universe', 'shorts'],
-            hashtags: ['#SpaceFacts', '#Science', '#Shorts', '#Astronomy'],
-            seoScore: 92,
-          },
-          thumbnail: {
-            headline: theme.title.split(' ').slice(0, 3).join(' ').toUpperCase(),
-            shortText: 'DON\'T MISS THIS',
-            visualComposition: `${charName} with shocked expression on left, massive glowing ${theme.topic} on right with high-contrast neon outline`,
-            aiConceptPrompt: `High definition cinematic digital art of ${theme.topic} with dramatic purple and cyan lighting, hyper-detailed cosmic atmosphere`,
-            suggestedColors: { bg1: '#0b0f19', bg2: '#1e1b4b', accent: '#06b6d4' },
-          },
-        });
+    try {
+      const responseText = await AIProviderService.generateContent({
+        prompt: systemPrompt,
+        systemInstruction: 'You are CreatorNova AI Agent executing a confirmed content plan. Output valid JSON array with production-ready items.',
+        temperature: 0.7,
+        responseMimeType: 'application/json',
+      });
+      const parsed = AIProviderService.extractJson(responseText);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        generatedItems = parsed;
       }
+    } catch (err: any) {
+      dbManager.updateAgentPlan(planId, user.id, { status: 'failed' });
+      if (err instanceof AIProviderError) {
+        return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
+      }
+      return res.status(503).json({
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'AI service temporarily unavailable. Please try again later.',
+      });
+    }
+
+    if (!generatedItems || generatedItems.length === 0) {
+      dbManager.updateAgentPlan(planId, user.id, { status: 'failed' });
+      return res.status(500).json({
+        error: 'BAD_RESPONSE',
+        message: 'AI generation produced an empty result. No credits were charged. Please try again.',
+      });
     }
 
     // Step 4: Save each piece as a real project in User Project Library & Schedule to Content Calendar
@@ -833,6 +712,75 @@ router.post('/calendar/:id/publish', (req, res) => {
 // 5. SMART CONTENT STRATEGY (EXPLAINABLE RECOMMENDATIONS)
 // =============================================================
 
+const strategyCache = new Map<string, { strategy: any[]; niche: string; audience: string; timestamp: number }>();
+
+function getAlgorithmicStrategy(niche: string, audience: string, tone?: string): any[] {
+  const safeNiche = niche || 'Creative Video Production';
+  const safeAudience = audience || 'General Audience';
+  return [
+    {
+      id: 'strat-pillar-1',
+      category: 'Pillar',
+      title: `${safeNiche} Retention Deep-Dives`,
+      description: `Anchor your channel around high-curiosity ${safeNiche} questions, busting common misconceptions with proof.`,
+      reason: `${safeNiche} audiences show 42% higher 3-second retention when videos open with a tension gap followed by rapid pacing.`,
+      actionPrompt: `Create a 60-second high-energy video script exploring the biggest untold truth in ${safeNiche} with a viral hook and vivid scene visuals.`,
+      metricsImpact: '+42% Retention',
+      priority: 'High',
+    },
+    {
+      id: 'strat-series-2',
+      category: 'Series',
+      title: `The 3-Part "${safeNiche} Explained" Series`,
+      description: `Build an episodic multi-part series that hooks viewers and leaves a cliffhanger leading to the next episode.`,
+      reason: `Episodic series lift session duration by 2.4x and convert one-off Shorts viewers into recurring channel subscribers.`,
+      actionPrompt: `Plan a 3-part series breaking down the ultimate guide to ${safeNiche} for ${safeAudience} with linked cliffhangers between episodes.`,
+      metricsImpact: '+65% Binge Rate',
+      priority: 'High',
+    },
+    {
+      id: 'strat-var-3',
+      category: 'Variation',
+      title: `Scale & Extreme Comparisons`,
+      description: `Contrast everyday perspectives against extreme, mind-bending examples relevant to ${safeNiche}.`,
+      reason: `Visual scale comparisons trigger debate in comments and generate 3.1x more re-shares than standard narratives.`,
+      actionPrompt: `Generate a fast-paced comparison script comparing the smallest vs largest aspects of ${safeNiche} with dynamic visual cues.`,
+      metricsImpact: '+38% Shares',
+      priority: 'High',
+    },
+    {
+      id: 'strat-aud-4',
+      category: 'Audience',
+      title: `Top 3 Debunked Myths for ${safeAudience}`,
+      description: `Disprove the 3 most common myths or mistakes held by ${safeAudience} in ${safeNiche}.`,
+      reason: `Myth-busting formats trigger high engagement in the first 15 seconds as viewers evaluate their own beliefs.`,
+      actionPrompt: `Write a script debunking the top 3 biggest misconceptions in ${safeNiche} with snappy dialogue and on-screen graphic callouts.`,
+      metricsImpact: '+52% Comments',
+      priority: 'High',
+    },
+    {
+      id: 'strat-format-5',
+      category: 'Format',
+      title: `Fast 15s Hook to Micro-Tutorial Format`,
+      description: `Lead with the shocking end result in the first 3 seconds, followed by step-by-step breakdown.`,
+      reason: `Front-loading visual payoff prevents drop-off before the 30-second mark, satisfying algorithmic completion criteria.`,
+      actionPrompt: `Generate 5 hook variations and a storyboard for a 45-second high-tempo ${safeNiche} breakdown.`,
+      metricsImpact: '+48% Hook Retention',
+      priority: 'High',
+    },
+    {
+      id: 'strat-rep-6',
+      category: 'Repurposing',
+      title: `Cross-Platform Vertical & Carousel Engine`,
+      description: `Extract the core hook and 3 key takeaways to repurpose across YouTube Shorts, Instagram Reels, and community posts.`,
+      reason: `Repurposing proven concepts across 3 vertical platforms triples organic impressions without doubling production overhead.`,
+      actionPrompt: `Repurpose our latest ${safeNiche} project into 3 distinct Shorts hooks and a community text poll.`,
+      metricsImpact: '+3.2x Total Reach',
+      priority: 'High',
+    },
+  ];
+}
+
 router.post('/agent/strategy', async (req, res) => {
   try {
     const user = getRequestUser(req);
@@ -843,6 +791,21 @@ router.post('/agent/strategy', async (req, res) => {
 
     const niche = brandKit.channelNiche || 'Science & Facts';
     const audience = brandKit.targetAudience || 'General Audience';
+    const forceRefresh = Boolean(req.body?.forceRefresh);
+
+    const cached = strategyCache.get(user.id);
+    const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour memory cache
+
+    // If cache is fresh and forceRefresh was not requested, return instantly without API quota consumption
+    if (!forceRefresh && cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return res.json({ strategy: cached.strategy, niche: cached.niche, audience: cached.audience, isCached: true });
+    }
+
+    if (!AIProviderService.isConfigured()) {
+      const fallback = cached?.strategy || getAlgorithmicStrategy(niche, audience, brandKit.toneOfVoice);
+      strategyCache.set(user.id, { strategy: fallback, niche, audience, timestamp: Date.now() });
+      return res.json({ strategy: fallback, niche, audience, isFallback: true });
+    }
 
     const systemPrompt = `You are the CreatorNova Smart Content Strategy engine.
 Analyze the creator's channel and generate 6 high-impact, actionable content strategy recommendations across:
@@ -876,91 +839,46 @@ Return ONLY a JSON array of 6 items:
 ]`;
 
     let recommendations: any[] = [];
+    try {
+      const responseText = await AIProviderService.generateContent({
+        prompt: systemPrompt,
+        systemInstruction: 'You are CreatorNova Smart Content Strategy engine. Output valid JSON array with 6 actionable recommendations.',
+        temperature: 0.4,
+        responseMimeType: 'application/json',
+        maxRetries: 1,
+      });
+      recommendations = AIProviderService.extractJson(responseText);
 
-    if (ai) {
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: systemPrompt,
-          config: {
-            responseMimeType: 'application/json',
-            temperature: 0.4,
-          },
-        });
-        recommendations = extractJsonFromText(response.text || '[]');
-      } catch (err) {
-        console.warn('Gemini strategy error, using domain strategy library:', err);
+      if (Array.isArray(recommendations) && recommendations.length > 0) {
+        strategyCache.set(user.id, { strategy: recommendations, niche, audience, timestamp: Date.now() });
+        return res.json({ strategy: recommendations, niche, audience });
       }
-    }
+      throw new Error('AI returned empty strategy array');
+    } catch (err: any) {
+      // Fallback gracefully on quota, rate limit, or network issue
+      if (cached && Array.isArray(cached.strategy) && cached.strategy.length > 0) {
+        return res.json({
+          strategy: cached.strategy,
+          niche: cached.niche,
+          audience: cached.audience,
+          isCached: true,
+          notice: 'AI rate limit protection active; loaded saved channel strategy framework.',
+        });
+      }
 
-    if (!recommendations || recommendations.length === 0) {
-      recommendations = [
-        {
-          id: 'strat-1',
-          category: 'Pillar',
-          title: 'Establish "Mind-Bending Scale" Pillar',
-          description: 'Compare microscopic or colossal universe sizes using ordinary everyday items (e.g. grain of sand vs universe).',
-          reason: 'Audience cognitive psychology shows relative comparisons generate 42% higher completion rates than raw numbers.',
-          actionPrompt: 'Create a 5-part Shorts series comparing everyday objects to the scale of the cosmos.',
-          metricsImpact: '+42% Completion Rate',
-          priority: 'High',
-        },
-        {
-          id: 'strat-2',
-          category: 'Series',
-          title: 'Launch "Extreme Planets" Episodic Series',
-          description: 'Weekly recurring deep-dive into bizarre worlds (diamond rain, glass winds, oceans of liquid methane).',
-          reason: 'Episodic series format drives 2.3x higher profile visits because viewers binge related shorts.',
-          actionPrompt: 'Create 7 days of YouTube Shorts about extreme planets in deep space.',
-          metricsImpact: '2.3x Binge Session Rate',
-          priority: 'High',
-        },
-        {
-          id: 'strat-3',
-          category: 'Variation',
-          title: 'A/B Test Sensory Sound Hooks vs Visual Hooks',
-          description: 'Pair astronomical recordings (NASA black hole acoustic data) with sudden silence pattern interrupts.',
-          reason: 'Shorts algorithm penalizes slow intros; audio-first pattern interrupts drop swipe-away rate below 25%.',
-          actionPrompt: 'Create 3 space videos featuring real space audio recordings and sensory hooks.',
-          metricsImpact: '-18% Swipe-Away Rate',
-          priority: 'Medium',
-        },
-        {
-          id: 'strat-4',
-          category: 'Audience',
-          title: 'Target "Curious Skeptic" Demographic',
-          description: 'Debunk Hollywood space movie myths (explosions in space, asteroid belts, laser sounds).',
-          reason: 'Mythbusting triggers comment debate which algorithmic feeds prioritize as engagement signals.',
-          actionPrompt: 'Turn 5 common sci-fi movie space myths into educational YouTube Shorts.',
-          metricsImpact: '+65% Comment Density',
-          priority: 'Growth',
-        },
-        {
-          id: 'strat-5',
-          category: 'Format',
-          title: 'Adopt Fast 3-Beat Micro-Storytelling',
-          description: 'Structure every 45-second short as: 1) Shocking hook (0-4s), 2) Scientific paradox (5-25s), 3) Mind-expanding twist (26-40s).',
-          reason: 'Viewer drop-off spikes at 12 seconds; introducing a secondary twist re-engages fading attention.',
-          actionPrompt: 'Create 3 YouTube Shorts using the 3-beat micro-storytelling structure.',
-          metricsImpact: '+28% Average View Duration',
-          priority: 'High',
-        },
-        {
-          id: 'strat-6',
-          category: 'Repurposing',
-          title: 'Repurpose High-Performing Scripts for Global Locales',
-          description: 'Translate and culturally adapt proven science scripts into Hindi and Spanish speaking markets.',
-          reason: 'STEM educational content has huge international demand with 60% lower competition in regional languages.',
-          actionPrompt: 'Make an English and Hindi version of our top space facts project.',
-          metricsImpact: '2.8x Global Reach',
-          priority: 'Growth',
-        },
-      ];
+      const fallback = getAlgorithmicStrategy(niche, audience, brandKit.toneOfVoice);
+      strategyCache.set(user.id, { strategy: fallback, niche, audience, timestamp: Date.now() });
+      return res.json({
+        strategy: fallback,
+        niche,
+        audience,
+        isFallback: true,
+        notice: 'Algorithmic strategy framework active.',
+      });
     }
-
-    return res.json({ strategy: recommendations, niche, audience });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to generate strategy' });
+    const fallback = getAlgorithmicStrategy('Creative Video', 'General Audience', 'engaging');
+    return res.json({ strategy: fallback, niche: 'Creative Video', audience: 'General Audience', isFallback: true });
   }
 });
 
@@ -1025,39 +943,34 @@ Return ONLY JSON:
   ]
 }`;
 
-    let seriesData: any = null;
-
-    if (ai) {
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: systemPrompt,
-          config: {
-            responseMimeType: 'application/json',
-            temperature: 0.6,
-          },
-        });
-        seriesData = extractJsonFromText(response.text || '{}');
-      } catch (err) {
-        console.warn('Gemini series error, falling back:', err);
-      }
+    if (!AIProviderService.isConfigured()) {
+      return res.status(503).json({
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'AI service temporarily unavailable. Please try again later.',
+      });
     }
 
-    if (!seriesData || !Array.isArray(seriesData.episodes)) {
-      const episodes = [];
-      for (let i = 1; i <= numberOfEpisodes; i++) {
-        episodes.push({
-          episodeNumber: i,
-          title: `${seriesName} - Part ${i}: Mystery of the ${topic.split(' ')[0]} Anomaly`,
-          hook: `Welcome back to ${seriesName}! Did you know this one fact about ${topic} defies all physics?`,
-          concept: `Episode ${i} explores the unique scientific angle of ${topic} with visual animation breakdown.`,
-          status: 'planned',
-        });
+    let seriesData: any = null;
+    try {
+      const responseText = await AIProviderService.generateContent({
+        prompt: systemPrompt,
+        systemInstruction: 'You are CreatorNova episodic video series strategist. Output valid JSON only.',
+        temperature: 0.6,
+        responseMimeType: 'application/json',
+      });
+      seriesData = AIProviderService.extractJson(responseText);
+    } catch (err: any) {
+      if (err instanceof AIProviderError) {
+        return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
       }
-      seriesData = {
-        recurringElements: `Signature "${seriesName}" visual intro badge, recurring host ${character?.name || 'Dr. Nova'}, fast cosmic ambient beat, and subscribe banner.`,
-        episodes,
-      };
+      return res.status(503).json({
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'AI service temporarily unavailable. Please try again later.',
+      });
+    }
+
+    if (!seriesData || !Array.isArray(seriesData.episodes) || seriesData.episodes.length === 0) {
+      return res.status(500).json({ error: 'BAD_RESPONSE', message: 'Failed to generate episodic series ideas.' });
     }
 
     const savedSeries = dbManager.saveSeries({
@@ -1202,47 +1115,26 @@ Return ONLY a JSON object:
   "callToAction": "Platform-specific call to action"
 }`;
 
-    let adaptedData: any = null;
+    const cost = 3; // repurposing credit cost
+    const authToken = (user as any).authToken;
 
-    if (ai) {
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: systemPrompt,
-          config: {
-            responseMimeType: 'application/json',
-            temperature: 0.5,
-          },
-        });
-        adaptedData = extractJsonFromText(response.text || '{}');
-      } catch (err) {
-        console.warn('Gemini repurposing error, using adaptive generator:', err);
-      }
-    }
+    const pipeline = await AIProviderService.executePipeline({
+      userId: user.id,
+      projectId,
+      operation: 'repurposing',
+      creditCost: cost,
+      authToken,
+      generator: () =>
+        AIProviderService.generateRepurposing({
+          projectTitle: project.name,
+          projectTopic: project.topic,
+          scriptText: project.script?.rawFullText || project.topic,
+          repurposeType,
+          customInstruction,
+        }),
+    });
 
-    if (!adaptedData || !adaptedData.adaptedScript) {
-      const isHindi = repurposeType === 'english_to_hindi';
-      const isSpanish = repurposeType === 'english_to_spanish';
-
-      adaptedData = {
-        adaptedTitle: isHindi
-          ? `${project.name} (हिंदी रूपांतरण)`
-          : isSpanish
-          ? `${project.name} (Edición en Español)`
-          : `[${label.split('→')[1]?.trim() || 'Adapted'}] ${project.name}`,
-        adaptedHook: isHindi
-          ? `क्या आप जानते हैं? ${project.topic} का यह रहस्य आपको हैरान कर देगा!`
-          : isSpanish
-          ? `¡Espera un segundo! ¿Sabías este secreto sobre ${project.topic}?`
-          : `Wait! If you think you know about ${project.topic}, this 40-second breakdown will completely change your mind.`,
-        adaptedScript: isHindi
-          ? `[Hook] क्या आप जानते हैं? ${project.topic} का यह रहस्य विज्ञान की दुनिया को हिला रहा है!\n\n[Explain] जब वैज्ञानिकों ने इसका गहराई से अध्ययन किया, तो उन्हें ऐसे प्रमाण मिले जो हमारी सोच से परे हैं।\n\n[Call To Action] ऐसे और भी रोमांचक वैज्ञानिक तथ्यों के लिए अभी सब्सक्राइब करें!`
-          : `[Hook] Stop scrolling! ${project.topic} is way crazier than anyone told you in school.\n\n[Core] Here is the exact physics breakdown adapted for fast streaming: ${project.script?.rawFullText?.slice(0, 150) || project.topic}...\n\n[CTA] Drop a follow for daily science breakdowns!`,
-        platformStrategy: `Adapted pacing for ${repurposeType.replace(/_/g, ' ')}, condensing exposition into a 3-second curiosity gap and conversational tone.`,
-        keyHashtags: ['#Viral', '#Shorts', '#Science', '#Trending'],
-        callToAction: 'Follow for part 2!',
-      };
-    }
+    const adaptedData = pipeline.result;
 
     // Save as adapted project
     const newProjId = `project-repurpose-${Date.now()}-${crypto.randomBytes(2).toString('hex')}`;
@@ -1277,7 +1169,7 @@ Return ONLY a JSON object:
       description: `Repurposed "${project.name}" → "${adaptedData.adaptedTitle}" (${label})`,
       projectId: newProjId,
       projectName: adaptedData.adaptedTitle,
-      creditsUsed: 2,
+      creditsUsed: cost,
     });
 
     return res.json({
@@ -1285,9 +1177,14 @@ Return ONLY a JSON object:
       adaptedProject: newProject,
       adaptedData,
       repurposeType,
+      creditsDeducted: pipeline.creditsDeducted,
+      remainingCredits: pipeline.remainingCredits,
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Repurposing failed' });
+    if (err instanceof AIProviderError) {
+      return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
+    }
+    return res.status(500).json({ error: 'REPURPOSE_FAILED', message: err?.message || 'Repurposing failed' });
   }
 });
 

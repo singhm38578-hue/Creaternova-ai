@@ -47,6 +47,19 @@
       "recurringCharacterDescription": "Dr. Nova, an energetic robotic cosmic guide with deep violet plating and glowing cyan eyes",
       "preferredCta": "Subscribe to Cosmic Explorers for weekly mind-blowing facts!",
       "updatedAt": "2026-09-25T11:27:41.982Z"
+    },
+    "YdycqvezkkY8ohf4Ja5avSO0Rwz1": {
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1",
+      "channelName": "My Channel",
+      "channelNiche": "General",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Retention Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Subscribe for more videos!",
+      "updatedAt": "2026-09-27T07:45:52.021Z"
     }
   },
   "credits": {
@@ -69,6 +82,36 @@
       "totalRemaining": 10000,
       "monthlyAllocation": 10000,
       "lastResetDate": "2026-09-25T11:27:41.982Z"
+    },
+    "test-user-1790496267730": {
+      "userId": "test-user-1790496267730",
+      "textCredits": 38,
+      "imageCredits": 28,
+      "voiceCredits": 19,
+      "videoCredits": 10,
+      "totalRemaining": 95,
+      "monthlyAllocation": 200,
+      "lastResetDate": "2026-09-27T08:04:27.730Z"
+    },
+    "test-user-1790501142053": {
+      "userId": "test-user-1790501142053",
+      "textCredits": 38,
+      "imageCredits": 28,
+      "voiceCredits": 19,
+      "videoCredits": 10,
+      "totalRemaining": 95,
+      "monthlyAllocation": 200,
+      "lastResetDate": "2026-09-27T09:25:42.053Z"
+    },
+    "test-user-1790501222752": {
+      "userId": "test-user-1790501222752",
+      "textCredits": 38,
+      "imageCredits": 28,
+      "voiceCredits": 19,
+      "videoCredits": 10,
+      "totalRemaining": 95,
+      "monthlyAllocation": 200,
+      "lastResetDate": "2026-09-27T09:27:02.752Z"
     }
   },
   "creditConfig": {
@@ -1025,6 +1068,45 @@
         }
       ],
       "userId": "user-creator-default"
+    },
+    "project-1790496267731": {
+      "name": "Pipeline Test Project",
+      "topic": "Artificial Intelligence in 2026",
+      "platform": "YouTube Shorts",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Tech Creators",
+      "id": "project-1790496267731",
+      "userId": "test-user-1790496267730",
+      "createdAt": "2026-09-27T08:04:27.731Z",
+      "updatedAt": "2026-09-27T08:04:27.737Z",
+      "testField": "Unit test mock data generator for pipeline logic verification"
+    },
+    "project-1790501142054": {
+      "name": "Pipeline Test Project",
+      "topic": "Artificial Intelligence in 2026",
+      "platform": "YouTube Shorts",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Tech Creators",
+      "id": "project-1790501142054",
+      "userId": "test-user-1790501142053",
+      "createdAt": "2026-09-27T09:25:42.054Z",
+      "updatedAt": "2026-09-27T09:25:42.060Z",
+      "testField": "Unit test mock data generator for pipeline logic verification"
+    },
+    "project-1790501222754": {
+      "name": "Pipeline Test Project",
+      "topic": "Artificial Intelligence in 2026",
+      "platform": "YouTube Shorts",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Tech Creators",
+      "id": "project-1790501222754",
+      "userId": "test-user-1790501222752",
+      "createdAt": "2026-09-27T09:27:02.754Z",
+      "updatedAt": "2026-09-27T09:27:02.759Z",
+      "testField": "Unit test mock data generator for pipeline logic verification"
     }
   },
   "resetTokens": {},
@@ -1743,5 +1825,107 @@
       }
     }
   },
-  "paymentOrders": {}
+  "paymentOrders": {},
+  "subscriptions": {},
+  "processedWebhookEvents": {},
+  "aiUsageRecords": {
+    "usage_req_1790496267733_5aaad3": {
+      "id": "usage_req_1790496267733_5aaad3",
+      "userId": "test-user-1790496267730",
+      "projectId": "project-1790496267731",
+      "operation": "test_failure_op",
+      "provider": "google",
+      "model": "gemini-3.8-flash",
+      "creditsCharged": 0,
+      "estimatedProviderCost": null,
+      "status": "failed",
+      "requestId": "req_1790496267733_5aaad3",
+      "createdAt": "2026-09-27T08:04:27.733Z",
+      "errorMessage": "Simulated upstream provider outage"
+    },
+    "usage_req_1790496267736_be25885d": {
+      "id": "usage_req_1790496267736_be25885d",
+      "userId": "test-user-1790496267730",
+      "projectId": "project-1790496267731",
+      "operation": "test_success_op",
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "creditsCharged": 5,
+      "estimatedProviderCost": null,
+      "status": "success",
+      "requestId": "req_1790496267736_be25885d",
+      "createdAt": "2026-09-27T08:04:27.736Z",
+      "metadata": {}
+    },
+    "usage_req_1790501142056_8192cc": {
+      "id": "usage_req_1790501142056_8192cc",
+      "userId": "test-user-1790501142053",
+      "projectId": "project-1790501142054",
+      "operation": "test_failure_op",
+      "provider": "google",
+      "model": "gemini-3.8-flash",
+      "creditsCharged": 0,
+      "estimatedProviderCost": null,
+      "status": "failed",
+      "requestId": "req_1790501142056_8192cc",
+      "createdAt": "2026-09-27T09:25:42.056Z",
+      "errorMessage": "Simulated upstream provider outage"
+    },
+    "usage_req_1790501142059_5ce333f5": {
+      "id": "usage_req_1790501142059_5ce333f5",
+      "userId": "test-user-1790501142053",
+      "projectId": "project-1790501142054",
+      "operation": "test_success_op",
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "creditsCharged": 5,
+      "estimatedProviderCost": null,
+      "status": "success",
+      "requestId": "req_1790501142059_5ce333f5",
+      "createdAt": "2026-09-27T09:25:42.059Z",
+      "metadata": {}
+    },
+    "usage_req_1790501222755_c9d1e1": {
+      "id": "usage_req_1790501222755_c9d1e1",
+      "userId": "test-user-1790501222752",
+      "projectId": "project-1790501222754",
+      "operation": "test_failure_op",
+      "provider": "google",
+      "model": "gemini-3.8-flash",
+      "creditsCharged": 0,
+      "estimatedProviderCost": null,
+      "status": "failed",
+      "requestId": "req_1790501222755_c9d1e1",
+      "createdAt": "2026-09-27T09:27:02.756Z",
+      "errorMessage": "Simulated upstream provider outage"
+    },
+    "usage_req_1790501222758_8e07fe02": {
+      "id": "usage_req_1790501222758_8e07fe02",
+      "userId": "test-user-1790501222752",
+      "projectId": "project-1790501222754",
+      "operation": "test_success_op",
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "creditsCharged": 5,
+      "estimatedProviderCost": null,
+      "status": "success",
+      "requestId": "req_1790501222758_8e07fe02",
+      "createdAt": "2026-09-27T09:27:02.758Z",
+      "metadata": {}
+    },
+    "usage_req_1790501255907_1d2c70": {
+      "id": "usage_req_1790501255907_1d2c70",
+      "userId": "user-creator-default",
+      "projectId": null,
+      "operation": "content_pack_generation",
+      "provider": "google",
+      "model": "gemini-3.8-flash",
+      "creditsCharged": 0,
+      "estimatedProviderCost": null,
+      "status": "failed",
+      "requestId": "req_1790501255907_1d2c70",
+      "createdAt": "2026-09-27T09:27:36.195Z",
+      "errorMessage": "AI service quota exceeded or rate limited. Please try again in a few moments."
+    }
+  }
 }

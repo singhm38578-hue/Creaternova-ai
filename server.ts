@@ -62,6 +62,7 @@ import agentRouter from './server/agentRoutes.ts';
 import { CreditWalletService } from './server/creditService.ts';
 import { PaymentService } from './server/paymentService.ts';
 import { AIUsageService } from './server/aiUsageService.ts';
+import { AIProviderService, AIProviderError } from './server/aiProviderService.ts';
 import {
   AI_OPERATIONS_CONFIG,
   AI_SAFETY_LIMITS,
@@ -787,20 +788,13 @@ app.post('/api/generate-content-pack', async (req, res) => {
   }
 
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
-  const cost = 10;
-  if (user) {
-    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
-    if (wallet.creditBalance < cost) {
-      return res.status(402).json({
-        error: 'INSUFFICIENT_CREDITS',
-        message: 'Not enough credits',
-        required: cost,
-        available: wallet.creditBalance,
-      });
-    }
-  }
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
-  const prompt = `You are the lead content architect and creative director at CreatorNova AI.
+  const cost = 10;
+  const authToken = (user as any).authToken;
+
+  try {
+    const prompt = `You are the lead content architect and creative director at CreatorNova AI.
 Generate a complete, production-ready "Creator Content Pack" based on the following creator inputs:
 - Project Name: "${projectName}"
 - Content Topic: "${topic}"
@@ -859,7 +853,7 @@ Your output MUST be a single, valid JSON object with the following exact keys an
       "visualDescription": "Detailed visual setting, lighting, background, and art direction",
       "characterAction": "Exact movement, facial expression, and physical interaction",
       "voiceover": "Voiceover line spoken in this specific scene",
-      "aiVideoPrompt": "High-fidelity video generation prompt for Veo/Sora/Runway (e.g., Cinematic 4k, photorealistic, slow motion, volumetric lighting)",
+      "aiVideoPrompt": "High-fidelity video prompt",
       "audioSfx": "Sound effects, ambient audio, music riser",
       "onScreenText": "On-screen kinetic text overlay or subtitle",
       "lightingMood": "Lighting style and color palette",
@@ -883,7 +877,7 @@ Your output MUST be a single, valid JSON object with the following exact keys an
     "thumbnailIdea": "Core visual concept for the thumbnail",
     "shortText": "3-4 WORD BOLD HEADLINE",
     "visualComposition": "Description of subject placement, focal point, face reaction, and color contrast",
-    "aiImagePrompt": "Detailed AI image generator prompt (e.g. for Midjourney/Imagen): Cinematic composition, dramatic rim light, saturated colors, 8k",
+    "aiImagePrompt": "Detailed AI image generator prompt",
     "suggestedColors": {
       "bg1": "#0F172A",
       "bg2": "#581C87",
@@ -922,905 +916,333 @@ Your output MUST be a single, valid JSON object with the following exact keys an
   }
 }`;
 
-  try {
-    if (!ai) {
-      throw new Error('GEMINI_API_KEY is not configured');
-    }
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: `You are an elite YouTube, TikTok, and social media production studio director. Output only clean, valid JSON matching the requested structure. Write all dialogue, voiceover, descriptions, and titles in ${language}.`,
-        responseMimeType: 'application/json',
-        temperature: 0.75,
+    const pipeline = await AIProviderService.executePipeline({
+      userId: user.id,
+      projectId: null,
+      operation: 'content_pack_generation',
+      creditCost: cost,
+      authToken,
+      generator: async () => {
+        const raw = await AIProviderService.generateContent({
+          prompt,
+          systemInstruction: `You are an elite YouTube, TikTok, and social media production studio director. Output only clean, valid JSON matching the requested structure. Write all dialogue, voiceover, descriptions, and titles in ${language}.`,
+          responseMimeType: 'application/json',
+          temperature: 0.75,
+        });
+        const parsed = AIProviderService.extractJson(raw);
+        parsed.createdAt = new Date().toISOString();
+        return parsed;
       },
     });
 
-    const parsed = extractJsonFromText(response.text || '{}');
-    parsed.createdAt = new Date().toISOString();
-    if (user) {
-      await CreditWalletService.debitCreditsAtomic({
-        userId: user.id,
-        cost,
-        operation: 'content_pack_generation',
-        authToken: (user as any).authToken,
-      });
+    return res.json({
+      contentPack: pipeline.result,
+      creditsDeducted: pipeline.creditsDeducted,
+      remainingCredits: pipeline.remainingCredits,
+      requestId: pipeline.requestId,
+    });
+  } catch (err: any) {
+    if (err instanceof AIProviderError) {
+      return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
     }
-    return res.json({ contentPack: parsed });
-  } catch (error: any) {
-    console.error('Error generating content pack with Gemini:', error?.message || error);
-
-    // Fallback content pack tailored to inputs
-    const isShort = platform.toLowerCase().includes('short') || platform.toLowerCase().includes('reel') || platform.toLowerCase().includes('tiktok') || duration.includes('15') || duration.includes('30') || duration.includes('60');
-    
-    const fallbackPack = {
-      projectName: projectName || 'New Creator Project',
-      topic: topic,
-      platform: platform,
-      contentType: contentType,
-      language: language,
-      duration: duration,
-      targetAudience: targetAudience,
-      createdAt: new Date().toISOString(),
-      contentIdea: {
-        title: `${topic}: The Ultimate Breakdown`,
-        concept: `A high-retention video engineered for ${platform} exploring ${topic} with punchy visuals and surprising insights.`,
-        coreValue: `Viewers learn the most fascinating aspect of ${topic} presented clearly for ${targetAudience}.`,
-        targetAudience: targetAudience
-      },
-      hook: {
-        hookText: `If you think you know about ${topic}, this one hidden truth changes everything.`,
-        timing: '0:00 - 0:03',
-        visualAction: 'Fast camera whip-pan zooming into an unexpected high-contrast detail with deep bass thud',
-        psychologyTrigger: 'Curiosity gap & pattern interrupt'
-      },
-      script: {
-        rawFullText: `If you think you know about ${topic}, this one hidden truth changes everything.\n\nMost people assume the basics, but researchers discovered something completely unexpected.\n\nNotice how every detail aligns when you look at it from this angle. It completely redefines the way we see ${topic}.\n\nWhich part surprised you the most? Drop your thoughts in the comments and subscribe for more daily insights!`,
-        estimatedDuration: duration,
-        wordCount: 75,
-        callToAction: `Follow for daily ${contentType.toLowerCase()} deep dives!`,
-        beats: [
-          {
-            id: `beat-${Date.now()}-1`,
-            timestamp: '0:00 - 0:05',
-            speaker: 'Narrator',
-            sectionType: 'hook',
-            directionCue: '[Urgent, leaning close to lens with sharp eye contact]',
-            dialogue: `If you think you know about ${topic}, this one hidden truth changes everything.`,
-            visualCue: 'Fast zoom-in with VHS glitch overlay and sub-bass drop',
-            durationSec: 5
-          },
-          {
-            id: `beat-${Date.now()}-2`,
-            timestamp: '0:05 - 0:20',
-            speaker: 'Narrator',
-            sectionType: 'intro',
-            directionCue: '[Measured, intense, building pace]',
-            dialogue: `Most people assume the basics, but researchers discovered something completely unexpected.`,
-            visualCue: 'Kinetic typography sweeps across screen with whoosh sound effect',
-            durationSec: 15
-          },
-          {
-            id: `beat-${Date.now()}-3`,
-            timestamp: '0:20 - 0:45',
-            speaker: 'Narrator',
-            sectionType: 'core_beat',
-            directionCue: '[Revelation tone, deliberate emphasis]',
-            dialogue: `Notice how every detail aligns when you look at it from this angle. It completely redefines the way we see ${topic}.`,
-            visualCue: 'Detailed 3D motion graphics showcasing key breakthrough',
-            durationSec: 25
-          },
-          {
-            id: `beat-${Date.now()}-4`,
-            timestamp: '0:45 - 0:60',
-            speaker: 'Narrator',
-            sectionType: 'cta',
-            directionCue: '[Warm smile, genuine appreciation]',
-            dialogue: `Which part surprised you the most? Drop your thoughts in the comments and subscribe for more daily insights!`,
-            visualCue: 'Pulsing call to action with subscribe bell animation',
-            durationSec: 15
-          }
-        ]
-      },
-      scenes: [
-        {
-          id: `scene-${Date.now()}-1`,
-          sceneNumber: 1,
-          timestampRange: '0:00 - 0:05',
-          shotType: 'Extreme Close Up',
-          cameraAngle: 'Low Angle',
-          visualDescription: `High impact opening visual representing ${topic}. Subject moves toward camera with energetic gesture.`,
-          characterAction: 'Sudden turn to camera with wide eyes and finger snap',
-          voiceover: `If you think you know about ${topic}, this one hidden truth changes everything.`,
-          aiVideoPrompt: `Cinematic 4k extreme close up shot of a character looking into camera in surprise, dramatic rim lighting, neon accent glow, 35mm lens, 24fps`,
-          audioSfx: 'Sub-bass drop (30Hz), whoosh transition, camera shutter click',
-          onScreenText: `⚠️ WAIT FOR THIS...`,
-          lightingMood: 'High contrast edge lighting with electric purple and cyan rim light',
-          brollKeywords: ['dynamic hook', 'shock reaction', 'cinematic lighting']
-        },
-        {
-          id: `scene-${Date.now()}-2`,
-          sceneNumber: 2,
-          timestampRange: '0:05 - 0:20',
-          shotType: 'Medium Shot',
-          cameraAngle: 'Dynamic Tracking',
-          visualDescription: `Smooth camera track introducing the core dilemma and context of ${topic}.`,
-          characterAction: 'Walking smoothly through a futuristic minimalist studio environment',
-          voiceover: `Most people assume the basics, but researchers discovered something completely unexpected.`,
-          aiVideoPrompt: `Hyper-realistic medium tracking shot through sleek modern workspace with holographic infographic floating in air, volumetric morning sunlight, octane render`,
-          audioSfx: 'Subtle rhythmic lo-fi beat begins, soft digital chime',
-          onScreenText: `THE SHOCKING REALITY`,
-          lightingMood: 'Diffused daylight with warm golden fill',
-          brollKeywords: ['modern studio', 'data visualization', 'motion graphics']
-        },
-        {
-          id: `scene-${Date.now()}-3`,
-          sceneNumber: 3,
-          timestampRange: '0:20 - 0:45',
-          shotType: 'Close Up',
-          cameraAngle: 'Dutch Tilt',
-          visualDescription: `Dramatic climax showing the core breakdown and evidence of ${topic}.`,
-          characterAction: 'Pointing directly at floating glowing key evidence diagram',
-          voiceover: `Notice how every detail aligns when you look at it from this angle. It completely redefines the way we see ${topic}.`,
-          aiVideoPrompt: `Dramatic slow motion close up of luminous particles merging into a sharp geometric pattern, deep contrast, shallow depth of field, anamorphic lens flare`,
-          audioSfx: 'Rising Shepard tone, vinyl scratch, celebratory chord swell',
-          onScreenText: `🚨 THE BIGGEST DISCOVERY`,
-          lightingMood: 'Vibrant neon emerald and ultraviolet glow',
-          brollKeywords: ['breakthrough discovery', 'high retention montage', 'detailed macro']
-        },
-        {
-          id: `scene-${Date.now()}-4`,
-          sceneNumber: 4,
-          timestampRange: '0:45 - 0:60',
-          shotType: 'Wide Shot',
-          cameraAngle: 'Eye Level',
-          visualDescription: `Clean outro transition card with interactive questions and social badges.`,
-          characterAction: 'Friendly nod and wave with thumbs up gesture',
-          voiceover: `Which part surprised you the most? Drop your thoughts in the comments and subscribe for more daily insights!`,
-          aiVideoPrompt: `Modern social media outro card, kinetic typography, neon call-to-action button pulsing in center, clean studio lighting`,
-          audioSfx: 'Double bell chime, cheerful acoustic outro chords',
-          onScreenText: `SUBSCRIBE & COMMENT 💬`,
-          lightingMood: 'Warm inviting studio sunset colors',
-          brollKeywords: ['call to action', 'end screen', 'subscribe animation']
-        }
-      ],
-      seo: {
-        titleSuggestions: [
-          `The Shocking Truth About ${topic} (Nobody Talks About This) ⚡`,
-          `5 Secrets About ${topic} You Never Knew Existed!`,
-          `What Happens When You Realize This About ${topic}? 😲`,
-          `How ${topic} Actually Works in Real Life (Explained in 60s)`,
-          `I Explored ${topic} for 30 Days and This Happened...`
-        ],
-        description: `🚀 In this video, we dive deep into ${topic}! Designed for ${targetAudience}, here is the complete breakdown you need to know.\n\n⏱️ CHAPTERS:\n0:00 - The Big Hook\n0:05 - The Context & Problem\n0:20 - The Unexpected Breakthrough\n0:45 - Key Takeaway & Next Steps\n\n🔔 Subscribe to CreatorNova AI for daily ${contentType.toLowerCase()} videos!`,
-        keywords: [topic.toLowerCase(), `${topic.toLowerCase()} facts`, `${topic.toLowerCase()} explained`, `${topic.toLowerCase()} tutorial`, 'viral content', 'creator studio'],
-        hashtags: [`#${topic.replace(/[^a-zA-Z0-9]/g, '')}`, `#${platform.replace(/\s+/g, '')}`, `#${contentType}`, '#Viral', '#CreatorNova'],
-        seoScore: 95
-      },
-      thumbnail: {
-        thumbnailIdea: `Dramatic high-contrast focal point of a shocked creator pointing at a glowing visual representation of ${topic}`,
-        shortText: 'DO NOT MISS!',
-        visualComposition: 'Left side: extreme close-up of face looking in awe. Right side: glowing oversized 3D icon with high-contrast saturated rim light.',
-        aiImagePrompt: `Cinematic YouTube thumbnail composition: A charismatic person looking in shock at a floating glowing holographic object representing ${topic}, extreme rim lighting in neon yellow and deep magenta, dark studio backdrop, 8k octane render`,
-        suggestedColors: {
-          bg1: '#0F172A',
-          bg2: '#3B0764',
-          accent: '#F59E0B'
-        }
-      },
-      repurposing: {
-        youtubeShort: {
-          hook: `Stop scrolling! Did you know this crazy fact about ${topic}?`,
-          script: `Here is the mind-blowing reality about ${topic} in under 30 seconds...`,
-          caption: `Wait until the end! What do you think about ${topic}? 🤯`,
-          hashtags: ['#Shorts', '#Facts', `#${topic.replace(/[^a-zA-Z0-9]/g, '')}`]
-        },
-        instagramReel: {
-          hook: `Save this before you forget this fact about ${topic}! 📌`,
-          audioIdea: 'Trending synthwave bassline or cinematic ambient swell (120 BPM)',
-          caption: `Drop a ❤️ if you learned something new today about ${topic}!\n\nShare with a friend who loves ${contentType.toLowerCase()}.\n.\n.\n#reels #viral #explore`,
-          hashtags: ['#ReelsInstagram', '#ContentCreator', '#TrendingReels', '#ExplorePage']
-        },
-        tiktok: {
-          hook: `I bet you didn't know this about ${topic} 🤯`,
-          soundTrend: 'Popular fast-talking documentary sound with upbeat rhythm',
-          caption: `Tell me I'm not the only one who didn't know this?! 😂👇`,
-          hashtags: ['#TikTokViral', '#LearnOnTikTok', '#MindBlown', '#FYP']
-        },
-        facebookPost: {
-          headline: `Why everyone is suddenly talking about ${topic}:`,
-          text: `We did a deep dive into ${topic} and found something that completely changed our perspective. Most people believe the traditional story, but recent evidence proves otherwise...\n\nRead the full breakdown in the video above!`,
-          cta: 'What has been your experience with this? Let us know in the comments below!'
-        },
-        youtubeCommunity: {
-          postText: `Hey community! We just dropped our new video on ${topic}! Quick question for you all:`,
-          pollQuestion: `How much did you know about ${topic} before watching?`,
-          pollOptions: ['Knew everything!', 'Learned something brand new', 'Blew my mind completely', 'Never heard of it']
-        }
-      },
-      notice: error?.message || 'Generated via studio content engine'
-    };
-
-    return res.json({ contentPack: fallbackPack });
+    return res.status(503).json({ error: 'SERVICE_UNAVAILABLE', message: 'AI service temporarily unavailable. Please try again later.' });
   }
 });
 
-// 1. Generate Content Ideas Endpoint
+// 1. Generate Content Ideas Endpoint (Secure AI Provider Layer)
 app.post('/api/generate-ideas', async (req, res) => {
-  const { topic, format, targetAudience, tone, count = 4 } = req.body;
+  const { topic, format, targetAudience, tone, count = 4, projectId } = req.body;
   if (!topic) {
     return res.status(400).json({ error: 'Topic is required' });
   }
 
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
   const cost = GENERATION_CREDIT_COSTS.ideaGeneration;
-  if (user) {
-    const safety = AIUsageService.checkSafetyLimits({
-      userId: user.id,
-      operation: 'idea_generation',
-      creditsToCharge: cost,
-    });
-    if (!safety.allowed) {
-      return res.status(400).json({ error: safety.error });
-    }
-
-    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
-    if (wallet.creditBalance < cost) {
-      return res.status(402).json({
-        error: 'INSUFFICIENT_CREDITS',
-        message: 'Not enough credits',
-        required: cost,
-        available: wallet.creditBalance,
-      });
-    }
-  }
-
-  const prompt = `You are a viral YouTube, TikTok, and content creation strategist for CreatorNova AI.
-Generate ${count} killer, high-CTR content ideas for:
-Topic/Niche: "${topic}"
-Target Format: "${format || 'youtube_long'}"
-Target Audience: "${targetAudience || 'General Audience'}"
-Tone: "${tone || 'engaging_energetic'}"
-
-Return ONLY valid JSON array with objects in this exact structure:
-[
-  {
-    "id": "idea-1",
-    "title": "Compelling Title with Hook",
-    "hook": "First 3-5 seconds opening hook line that stops scrolling",
-    "viralityScore": 92,
-    "format": "${format || 'youtube_long'}",
-    "durationEstimate": "Estimated duration (e.g. 60 seconds, 8-10 min)",
-    "angle": "Unique emotional or psychological angle",
-    "targetAudience": "${targetAudience || 'General'}",
-    "coreTakeaway": "What viewer learns or experiences",
-    "suggestedVisualHook": "What the viewer sees visually in the very first second",
-    "retentionTip": "Specific editing or pacing tip to prevent drop-off"
-  }
-]`;
+  const authToken = (user as any).authToken;
 
   try {
-    if (!ai) {
-      throw new Error('GEMINI_API_KEY is not configured');
-    }
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: 'You are an elite YouTube and social media creative director specializing in viral retention and storytelling. Output only clean valid JSON.',
-        responseMimeType: 'application/json',
-        temperature: 0.85,
-      },
+    const pipeline = await AIProviderService.executePipeline({
+      userId: user.id,
+      projectId: projectId || null,
+      operation: 'idea_generation',
+      creditCost: cost,
+      authToken,
+      generator: () => AIProviderService.generateIdeas({ topic, format, targetAudience, tone, count }),
+      projectUpdater: (proj, ideas) => ({
+        ...proj,
+        generatedIdeas: ideas,
+        topic: topic || proj.topic,
+      }),
     });
 
-    const parsed = extractJsonFromText(response.text || '[]');
-    if (user) {
-      await CreditWalletService.debitCreditsAtomic({
-        userId: user.id,
-        cost,
-        operation: 'idea_generation',
-        authToken: (user as any).authToken,
-      });
-      AIUsageService.startUsageRecord({
-        userId: user.id,
-        operation: 'idea_generation',
-        creditsCharged: cost,
-      });
-    }
-    return res.json({ ideas: Array.isArray(parsed) ? parsed : [parsed] });
-  } catch (error: any) {
-    console.error('Error generating ideas:', error?.message || error);
-    if (user) {
-      dbManager.recordAIUsage({
-        id: `usage_err_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        userId: user.id,
-        projectId: null,
-        operation: 'idea_generation',
-        provider: 'google',
-        model: 'gemini-3.8-flash',
-        creditsCharged: 0,
-        estimatedProviderCost: null,
-        status: 'failed',
-        requestId: `err_${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        errorMessage: error?.message || 'Generation failed',
-      });
-    }
-    // Fallback creative ideas so the creator never faces an empty screen
     return res.json({
-      ideas: [
-        {
-          id: `idea-${Date.now()}-1`,
-          title: `Why Nobody Talks About ${topic} (The Shocking Truth)`,
-          hook: `If you think you know about ${topic}, this one hidden fact changes everything.`,
-          viralityScore: 95,
-          format: format || 'youtube_long',
-          durationEstimate: format === 'youtube_short' ? '50 seconds' : '6-8 minutes',
-          angle: 'Curiosity gap with insider breakdown',
-          targetAudience: targetAudience || 'General Enthusiasts',
-          coreTakeaway: `Key revelation and actionable takeaway about ${topic}`,
-          suggestedVisualHook: 'Fast camera whip-pan zooming into an unexpected high-contrast detail',
-          retentionTip: 'Introduce a teaser question at 0:15 that is only revealed in the climax'
-        },
-        {
-          id: `idea-${Date.now()}-2`,
-          title: `I Tested ${topic} For 7 Days: Here's What Happened`,
-          hook: `Everyone told me not to try this with ${topic}... but I did anyway.`,
-          viralityScore: 91,
-          format: format || 'youtube_long',
-          durationEstimate: format === 'youtube_short' ? '45 seconds' : '7 minutes',
-          angle: 'Personal high-stakes experiment',
-          targetAudience: targetAudience || 'Audience looking for authentic tests',
-          coreTakeaway: 'Honest pros, cons, and surprising outcome',
-          suggestedVisualHook: 'Time-lapse split screen counting down days with fast-paced sound effects',
-          retentionTip: 'Keep cuts under 2.5 seconds during the initial challenge setup'
-        }
-      ],
-      notice: error?.message || 'Using studio creative engine'
+      ideas: pipeline.result,
+      creditsDeducted: pipeline.creditsDeducted,
+      remainingCredits: pipeline.remainingCredits,
+      requestId: pipeline.requestId,
+      savedToProject: pipeline.savedToProject,
     });
+  } catch (err: any) {
+    if (err instanceof AIProviderError) {
+      return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
+    }
+    return res.status(500).json({ error: 'GENERATION_FAILED', message: err?.message || 'Generation failed' });
   }
 });
 
-// 2. Generate Full Script Endpoint
+// 1b. Generate Dedicated Viral Hooks Endpoint (Secure AI Provider Layer)
+app.post('/api/generate-hooks', async (req, res) => {
+  const { topic, format, targetAudience, count = 5, projectId } = req.body;
+  if (!topic) {
+    return res.status(400).json({ error: 'Topic is required' });
+  }
+
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const cost = GENERATION_CREDIT_COSTS.ideaGeneration;
+  const authToken = (user as any).authToken;
+
+  try {
+    const pipeline = await AIProviderService.executePipeline({
+      userId: user.id,
+      projectId: projectId || null,
+      operation: 'idea_generation',
+      creditCost: cost,
+      authToken,
+      generator: () => AIProviderService.generateHooks({ topic, format, targetAudience, count }),
+    });
+
+    return res.json({
+      hooks: pipeline.result,
+      creditsDeducted: pipeline.creditsDeducted,
+      remainingCredits: pipeline.remainingCredits,
+      requestId: pipeline.requestId,
+    });
+  } catch (err: any) {
+    if (err instanceof AIProviderError) {
+      return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
+    }
+    return res.status(500).json({ error: 'GENERATION_FAILED', message: err?.message || 'Hook generation failed' });
+  }
+});
+
+// 2. Generate Full Script Endpoint (Secure AI Provider Layer)
 app.post('/api/generate-script', async (req, res) => {
-  const { title, format, targetAudience, tone, pacing = 'balanced', hostFormat = 'solo', duration = '3-5 minutes' } = req.body;
+  const { title, format, targetAudience, tone, pacing = 'balanced', hostFormat = 'solo', duration = '3-5 minutes', projectId } = req.body;
   if (!title) {
     return res.status(400).json({ error: 'Title is required' });
   }
 
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
   const cost = GENERATION_CREDIT_COSTS.scriptGeneration;
-  if (user) {
-    const safety = AIUsageService.checkSafetyLimits({
-      userId: user.id,
-      operation: 'script_generation',
-      creditsToCharge: cost,
-    });
-    if (!safety.allowed) {
-      return res.status(400).json({ error: safety.error });
-    }
-
-    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
-    if (wallet.creditBalance < cost) {
-      return res.status(402).json({
-        error: 'INSUFFICIENT_CREDITS',
-        message: 'Not enough credits',
-        required: cost,
-        available: wallet.creditBalance,
-      });
-    }
-  }
-
-  const prompt = `You are an Emmy-nominated YouTube and social media scriptwriter for CreatorNova AI.
-Write a production-ready, highly engaging video script for:
-Title: "${title}"
-Platform/Format: "${format || 'youtube_long'}"
-Target Duration: "${duration}"
-Target Audience: "${targetAudience || 'General Audience'}"
-Tone: "${tone || 'engaging_energetic'}"
-Pacing: "${pacing}"
-Host Format: "${hostFormat}"
-
-The script MUST include:
-1. High-retention opening Hook (0:00 - 0:05) with pattern interrupt.
-2. Introduction/Setup with curiosity stakes.
-3. 3 to 6 structured narrative beats / chapters with voice direction cues (e.g., [Excited], [Whispering], [Dramatic pause], [Laughing]) and visual/B-roll cues.
-4. Climax / Core Revelation.
-5. High-converting Outro & Call to Action (CTA).
-
-Return ONLY valid JSON with this exact structure:
-{
-  "title": "${title}",
-  "format": "${format || 'youtube_long'}",
-  "estimatedDuration": "${duration}",
-  "wordCount": 350,
-  "hookSummary": "Brief overview of what makes the hook punchy",
-  "tone": "${tone || 'engaging_energetic'}",
-  "callToAction": "Specific, natural call-to-action line",
-  "beats": [
-    {
-      "id": "beat-1",
-      "timestamp": "0:00 - 0:08",
-      "speaker": "Host",
-      "sectionType": "hook",
-      "directionCue": "[Fast, intense whisper, leaning into camera]",
-      "dialogue": "Exact spoken line for the speaker.",
-      "visualCue": "Specific on-screen visual instruction, camera angle, or B-roll overlay.",
-      "durationSec": 8
-    }
-  ],
-  "rawFullText": "The complete spoken script without timestamps for easy copying and teleprompter reading"
-}`;
+  const authToken = (user as any).authToken;
 
   try {
-    if (!ai) {
-      throw new Error('GEMINI_API_KEY is not configured');
-    }
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: 'You write world-class video scripts with viral retention hooks, clear pacing, emotional arcs, and natural speech rhythm. Output valid JSON only.',
-        responseMimeType: 'application/json',
-        temperature: 0.75,
-      },
+    const pipeline = await AIProviderService.executePipeline({
+      userId: user.id,
+      projectId: projectId || null,
+      operation: 'script_generation',
+      creditCost: cost,
+      authToken,
+      generator: () =>
+        AIProviderService.generateScript({
+          title,
+          format,
+          duration,
+          targetAudience,
+          tone,
+          pacing,
+          hostFormat,
+        }),
+      projectUpdater: (proj, script) => ({
+        ...proj,
+        name: title,
+        script,
+        duration: duration || proj.duration,
+      }),
     });
 
-    const parsed = extractJsonFromText(response.text || '{}');
-    parsed.lastUpdated = new Date().toISOString();
-    if (user) {
-      await CreditWalletService.debitCreditsAtomic({
-        userId: user.id,
-        cost,
-        operation: 'script_generation',
-        authToken: (user as any).authToken,
-      });
-      AIUsageService.startUsageRecord({
-        userId: user.id,
-        operation: 'script_generation',
-        creditsCharged: cost,
-      });
+    return res.json({
+      script: pipeline.result,
+      creditsDeducted: pipeline.creditsDeducted,
+      remainingCredits: pipeline.remainingCredits,
+      requestId: pipeline.requestId,
+      savedToProject: pipeline.savedToProject,
+    });
+  } catch (err: any) {
+    if (err instanceof AIProviderError) {
+      return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
     }
-    return res.json({ script: parsed });
-  } catch (error: any) {
-    console.error('Error generating script:', error?.message || error);
-    if (user) {
-      dbManager.recordAIUsage({
-        id: `usage_err_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        userId: user.id,
-        projectId: null,
-        operation: 'script_generation',
-        provider: 'google',
-        model: 'gemini-3.8-flash',
-        creditsCharged: 0,
-        estimatedProviderCost: null,
-        status: 'failed',
-        requestId: `err_${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        errorMessage: error?.message || 'Generation failed',
-      });
-    }
-    // Intelligent fallback script
-    const fallbackScript = {
-      title: title,
-      format: format || 'youtube_long',
-      estimatedDuration: duration,
-      wordCount: 220,
-      hookSummary: 'High-contrast visual zoom with punchy rhetorical question',
-      tone: tone || 'engaging_energetic',
-      callToAction: 'Hit like if this surprised you, and subscribe to CreatorNova for more!',
-      lastUpdated: new Date().toISOString(),
-      beats: [
-        {
-          id: `beat-${Date.now()}-1`,
-          timestamp: '0:00 - 0:06',
-          speaker: 'Host',
-          sectionType: 'hook',
-          directionCue: '[Urgent, leaning close to lens with sharp eye contact]',
-          dialogue: `Stop scrolling. What if everything you thought you knew about ${title} was completely backwards?`,
-          visualCue: 'Fast zoom-in with subtle VHS glitch overlay and deep audio bass thud.',
-          durationSec: 6
-        },
-        {
-          id: `beat-${Date.now()}-2`,
-          timestamp: '0:06 - 0:30',
-          speaker: 'Host',
-          sectionType: 'intro',
-          directionCue: '[Friendly, articulate, setting the stage]',
-          dialogue: `Welcome back creators. Today we are unpacking something mind-bending. Stick around to the very end because the second half of this breakdown flips the script.`,
-          visualCue: 'Kinetic typography title graphic sweeps across screen with whoosh sound effect.',
-          durationSec: 24
-        },
-        {
-          id: `beat-${Date.now()}-3`,
-          timestamp: '0:30 - 1:15',
-          speaker: 'Host',
-          sectionType: 'core_beat',
-          directionCue: '[Authoritative yet conversational]',
-          dialogue: `Here is the first big rule: when you examine ${title}, you notice a pattern that 99% of people miss. Notice how the pieces fit together seamlessly once you know what to look for.`,
-          visualCue: 'B-roll footage showing detailed motion graphics and high-resolution examples.',
-          durationSec: 45
-        },
-        {
-          id: `beat-${Date.now()}-4`,
-          timestamp: '1:15 - 1:45',
-          speaker: 'Host',
-          sectionType: 'climax',
-          directionCue: '[Dramatic pause, then revelation tone]',
-          dialogue: `And that brings us to the real secret. It is not about doing more—it is about understanding the core mechanism that makes this truly powerful.`,
-          visualCue: 'Slow zoom into key diagram with glowing highlighting accents.',
-          durationSec: 30
-        },
-        {
-          id: `beat-${Date.now()}-5`,
-          timestamp: '1:45 - 2:00',
-          speaker: 'Host',
-          sectionType: 'cta',
-          directionCue: '[Warm smile, genuine appreciation]',
-          dialogue: `Which part surprised you the most? Drop your thoughts below, tap that subscribe bell, and I will see you in the next one!`,
-          visualCue: 'End screen animated template with subscribe button and recommended next video cards.',
-          durationSec: 15
-        }
-      ],
-      rawFullText: `Stop scrolling. What if everything you thought you knew about ${title} was completely backwards?\n\nWelcome back creators. Today we are unpacking something mind-bending. Stick around to the very end because the second half of this breakdown flips the script.\n\nHere is the first big rule: when you examine ${title}, you notice a pattern that 99% of people miss. Notice how the pieces fit together seamlessly once you know what to look for.\n\nAnd that brings us to the real secret. It is not about doing more—it is about understanding the core mechanism that makes this truly powerful.\n\nWhich part surprised you the most? Drop your thoughts below, tap that subscribe bell, and I will see you in the next one!`
-    };
-    return res.json({ script: fallbackScript, notice: error?.message || 'Generated via studio script engine' });
+    return res.status(500).json({ error: 'GENERATION_FAILED', message: err?.message || 'Script generation failed' });
   }
 });
 
-// 3. Polish / Refine Script Beat
+// 3. Polish / Refine Script Beat (Secure AI Provider Layer)
 app.post('/api/refine-script', async (req, res) => {
   const { originalText, instruction } = req.body;
   if (!originalText) {
     return res.status(400).json({ error: 'originalText is required' });
   }
 
-  const prompt = `Refine and rewrite the following script line or section for a content creator.
-Instruction: "${instruction || 'Make it punchier, higher retention, and more conversational'}"
-Original text:
-"""${originalText}"""
-
-Return ONLY a JSON object:
-{
-  "refinedText": "Rewritten spoken script text",
-  "directionCue": "[New voice/delivery cue]",
-  "reasoning": "Why this version improves retention"
-}`;
-
   try {
-    if (!ai) {
-      throw new Error('GEMINI_API_KEY is not configured');
+    const refined = await AIProviderService.refineScript({ originalText, instruction });
+    return res.json(refined);
+  } catch (err: any) {
+    if (err instanceof AIProviderError) {
+      return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
     }
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json',
-        temperature: 0.7,
-      },
-    });
-
-    const parsed = extractJsonFromText(response.text || '{}');
-    return res.json(parsed);
-  } catch (error: any) {
-    return res.json({
-      refinedText: `Here is the truth: ${originalText.trim()} And that is what sets the masters apart.`,
-      directionCue: '[Energetic, punchy, crisp pause]',
-      reasoning: 'Boosted cadence and eliminated passive phrasing.'
-    });
+    return res.status(500).json({ error: 'GENERATION_FAILED', message: err?.message || 'Refinement failed' });
   }
 });
 
-// 4. Generate Storyboard & Scene Breakdown
+// 4. Generate Storyboard & Scene Breakdown (Secure AI Provider Layer)
 app.post('/api/generate-scenes', async (req, res) => {
-  const { title, scriptText, format, sceneCount = 6 } = req.body;
+  const { title, scriptText, format, sceneCount = 6, projectId } = req.body;
   if (!title && !scriptText) {
     return res.status(400).json({ error: 'Title or scriptText is required' });
   }
 
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
   const cost = GENERATION_CREDIT_COSTS.sceneGeneration;
-  if (user) {
-    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
-    if (wallet.creditBalance < cost) {
-      return res.status(402).json({
-        error: 'INSUFFICIENT_CREDITS',
-        message: 'Not enough credits',
-        required: cost,
-        available: wallet.creditBalance,
-      });
-    }
-  }
-
-  const prompt = `You are a visionary cinematographer, storyboard artist, and video editor for CreatorNova AI.
-Break down this video into ${sceneCount} detailed cinematic storyboard scenes for production:
-Title: "${title || 'Untitled'}"
-Format: "${format || 'youtube_long'}"
-Script Context:
-"""${scriptText || title}"""
-
-For each scene, provide:
-- sceneNumber (1 to ${sceneCount})
-- timestampRange (e.g. 0:00 - 0:15)
-- shotType ('Extreme Wide', 'Wide Shot', 'Medium Shot', 'Close Up', 'Macro', 'POV', 'Screen Capture', 'Drone Aerial')
-- cameraAngle ('Eye Level', 'Low Angle', 'High Angle', 'Bird Eye', 'Dutch Tilt', 'Dynamic Tracking')
-- visualDescription (Precise description of subject, lighting, action, and camera movement)
-- audioSfx (Sound effects, ambient sound, music transition cues)
-- onScreenText (Motion graphics, lower thirds, or text callouts)
-- lightingMood (Color grading and lighting ambiance)
-- brollKeywords (3-4 search keywords for stock footage or asset generation)
-
-Return ONLY valid JSON array of objects:
-[
-  {
-    "id": "scene-1",
-    "sceneNumber": 1,
-    "timestampRange": "0:00 - 0:10",
-    "shotType": "Close Up",
-    "cameraAngle": "Dynamic Tracking",
-    "visualDescription": "...",
-    "audioSfx": "...",
-    "onScreenText": "...",
-    "lightingMood": "...",
-    "brollKeywords": ["...", "..."]
-  }
-]`;
+  const authToken = (user as any).authToken;
 
   try {
-    if (!ai) {
-      throw new Error('GEMINI_API_KEY is not configured');
-    }
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: 'You are an award-winning visual director creating crystal-clear shotlists. Output only valid JSON array.',
-        responseMimeType: 'application/json',
-        temperature: 0.7,
-      },
+    const pipeline = await AIProviderService.executePipeline({
+      userId: user.id,
+      projectId: projectId || null,
+      operation: 'scene_generation',
+      creditCost: cost,
+      authToken,
+      generator: () =>
+        AIProviderService.generateScenes({
+          title: title || 'Content Scenes',
+          scriptText,
+          format,
+          sceneCount: Number(sceneCount) || 5,
+        }),
+      projectUpdater: (proj, scenes) => ({
+        ...proj,
+        scenes,
+      }),
     });
 
-    const parsed = extractJsonFromText(response.text || '[]');
-    if (user) {
-      await CreditWalletService.debitCreditsAtomic({
-        userId: user.id,
-        cost,
-        operation: 'scene_generation',
-        authToken: (user as any).authToken,
-      });
-    }
-    return res.json({ scenes: Array.isArray(parsed) ? parsed : [parsed] });
-  } catch (error: any) {
-    console.error('Error generating scenes:', error?.message || error);
     return res.json({
-      scenes: [
-        {
-          id: `scene-${Date.now()}-1`,
-          sceneNumber: 1,
-          timestampRange: '0:00 - 0:08',
-          shotType: 'Close Up',
-          cameraAngle: 'Low Angle',
-          visualDescription: `High impact opening visual representing ${title}. Subject moves toward camera with energetic gesture.`,
-          audioSfx: 'Quick bass riser, cinematic whoosh into crisp impact hit.',
-          onScreenText: `⚡ ${title.toUpperCase().slice(0, 30)}`,
-          lightingMood: 'High contrast cinematic edge lighting with neon cyan accent.',
-          brollKeywords: ['dynamic intro', 'cinematic lighting', 'high energy portrait']
-        },
-        {
-          id: `scene-${Date.now()}-2`,
-          sceneNumber: 2,
-          timestampRange: '0:08 - 0:25',
-          shotType: 'Wide Shot',
-          cameraAngle: 'Dynamic Tracking',
-          visualDescription: 'Camera tracks smoothly along a clean modern studio desk with key props illustrating the topic.',
-          audioSfx: 'Subtle rhythmic lo-fi beat starts up, gentle typewriter sound for text reveal.',
-          onScreenText: 'THE CORE QUESTION',
-          lightingMood: 'Warm diffused ambient daylight with soft shadows.',
-          brollKeywords: ['modern studio desk', 'creator workspace', 'smooth camera tracking']
-        },
-        {
-          id: `scene-${Date.now()}-3`,
-          sceneNumber: 3,
-          timestampRange: '0:25 - 0:55',
-          shotType: 'Medium Shot',
-          cameraAngle: 'Eye Level',
-          visualDescription: 'Detailed demonstration with split-screen infographics highlighting the key breakthrough.',
-          audioSfx: 'UI pop and click sounds on graphic annotations.',
-          onScreenText: 'STEP 1: THE FOUNDATION',
-          lightingMood: 'Bright crisp neutral studio lighting.',
-          brollKeywords: ['infographic overlay', 'data visualization', 'educational demo']
-        },
-        {
-          id: `scene-${Date.now()}-4`,
-          sceneNumber: 4,
-          timestampRange: '0:55 - 1:20',
-          shotType: 'Close Up',
-          cameraAngle: 'Dutch Tilt',
-          visualDescription: 'Climactic high-retention reveal moment with rapid-fire B-roll sequence.',
-          audioSfx: 'Heartbeat thump, vinyl scratch transition, dramatic string swell.',
-          onScreenText: '🚨 THE GAME CHANGER',
-          lightingMood: 'Vibrant neon purple and gold rim highlights.',
-          brollKeywords: ['rapid cuts broll', 'dramatic lighting', 'high retention montage']
-        },
-        {
-          id: `scene-${Date.now()}-5`,
-          sceneNumber: 5,
-          timestampRange: '1:20 - 1:45',
-          shotType: 'Wide Shot',
-          cameraAngle: 'Eye Level',
-          visualDescription: 'Host summarizes key takeaways with animated checklist ticking off completed items.',
-          audioSfx: 'Clean chime sounds on each checkmark, warm acoustic outro chords.',
-          onScreenText: '✅ 3 KEY TAKEAWAYS',
-          lightingMood: 'Warm golden hour sunset fill.',
-          brollKeywords: ['summary checklist', 'animated lower thirds', 'creator smiling']
-        }
-      ],
-      notice: error?.message || 'Using studio scene engine'
+      scenes: pipeline.result,
+      creditsDeducted: pipeline.creditsDeducted,
+      remainingCredits: pipeline.remainingCredits,
+      requestId: pipeline.requestId,
+      savedToProject: pipeline.savedToProject,
     });
+  } catch (err: any) {
+    if (err instanceof AIProviderError) {
+      return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
+    }
+    return res.status(500).json({ error: 'GENERATION_FAILED', message: err?.message || 'Scene generation failed' });
   }
 });
 
-// 5. Generate SEO Suite (Titles, Tags, Description, Hashtags)
+// 5. Generate SEO Suite (Titles, Tags, Description, Hashtags) (Secure AI Provider Layer)
 app.post('/api/generate-seo', async (req, res) => {
-  const { title, topic, scriptText, targetAudience } = req.body;
+  const { title, topic, scriptText, targetAudience, projectId } = req.body;
   const mainSubject = title || topic || 'Creative Content';
 
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
   const cost = GENERATION_CREDIT_COSTS.seoPack;
-  if (user) {
-    const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
-    if (wallet.creditBalance < cost) {
-      return res.status(402).json({
-        error: 'INSUFFICIENT_CREDITS',
-        message: 'Not enough credits',
-        required: cost,
-        available: wallet.creditBalance,
-      });
-    }
-  }
-
-  const prompt = `You are a top YouTube & TikTok SEO algorithm specialist for CreatorNova AI.
-Create a comprehensive, high-ranking SEO optimization package for:
-Title/Topic: "${mainSubject}"
-Audience: "${targetAudience || 'General Audience'}"
-Script Context:
-"""${(scriptText || mainSubject).slice(0, 1500)}"""
-
-Generate:
-1. 5 High-CTR title variations (Curiosity Gap, Listicle, Emotional / Shock, How-To, Story Driven) with predicted CTR score (80-100).
-2. Fully formatted YouTube/TikTok video description with hook, timestamps placeholder, social links, and call to action.
-3. 4 Primary Keywords & 4 Long-tail Keywords.
-4. 12-15 YouTube Studio search tags.
-5. 6-8 trending & niche hashtags.
-6. Overall SEO health score (1-100).
-
-Return ONLY valid JSON in this exact structure:
-{
-  "titles": [
-    {
-      "title": "Title text here",
-      "score": 96,
-      "category": "Curiosity Gap",
-      "characterCount": 58
-    }
-  ],
-  "description": "Full rich description text...",
-  "primaryKeywords": ["keyword 1", "keyword 2", "keyword 3", "keyword 4"],
-  "longTailKeywords": ["long tail 1", "long tail 2", "long tail 3", "long tail 4"],
-  "tags": ["tag1", "tag2", "tag3"],
-  "hashtags": ["#tag1", "#tag2", "#tag3"],
-  "seoHealthScore": 97,
-  "targetAudience": "${targetAudience || 'General'}",
-  "category": "Education / How-To"
-}`;
+  const authToken = (user as any).authToken;
 
   try {
-    if (!ai) {
-      throw new Error('GEMINI_API_KEY is not configured');
-    }
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: 'You generate high-conversion YouTube SEO metadata designed to maximize click-through rate (CTR) and search discoverability. Output valid JSON only.',
-        responseMimeType: 'application/json',
-        temperature: 0.7,
-      },
+    const pipeline = await AIProviderService.executePipeline({
+      userId: user.id,
+      projectId: projectId || null,
+      operation: 'seo_generation',
+      creditCost: cost,
+      authToken,
+      generator: () =>
+        AIProviderService.generateSeo({
+          title: mainSubject,
+          topic,
+          scriptText,
+          targetAudience,
+        }),
+      projectUpdater: (proj, seo) => ({
+        ...proj,
+        seoPack: seo,
+      }),
     });
 
-    const parsed = extractJsonFromText(response.text || '{}');
-    if (user) {
-      await CreditWalletService.debitCreditsAtomic({
-        userId: user.id,
-        cost,
-        operation: 'seo_pack',
-        authToken: (user as any).authToken,
-      });
-    }
-    return res.json({ seo: parsed });
-  } catch (error: any) {
-    console.error('Error generating SEO:', error?.message || error);
     return res.json({
-      seo: {
-        titles: [
-          { title: `The Secret to ${mainSubject} (Nobody Talks About This) ⚡`, score: 98, category: 'Curiosity Gap', characterCount: 56 },
-          { title: `How to Master ${mainSubject} in 5 Minutes (Step-by-Step)`, score: 94, category: 'How-To', characterCount: 54 },
-          { title: `I Tested ${mainSubject} for 30 Days and WOW! 😲`, score: 92, category: 'Emotional / Shock', characterCount: 46 },
-          { title: `Top 5 ${mainSubject} Mistakes You Are Probably Making!`, score: 89, category: 'Listicle', characterCount: 52 },
-          { title: `From Beginner to Pro: The Ultimate ${mainSubject} Guide`, score: 87, category: 'Story Driven', characterCount: 53 }
-        ],
-        description: `🚀 In this video, we dive deep into ${mainSubject}! Whether you are a beginner or looking to sharpen your skills, this complete breakdown covers everything you need to know.\n\n⏱️ CHAPTERS:\n0:00 - Introduction & The Big Hook\n0:30 - Core Fundamentals of ${mainSubject}\n1:45 - The Breakthrough Strategy\n3:15 - Real-World Example & Demo\n4:30 - Key Takeaways & Action Plan\n\n🔔 Don't forget to LIKE and SUBSCRIBE for more weekly content creation tutorials!\n\n💬 Question of the day: What is your biggest challenge with ${mainSubject}? Drop a comment below!`,
-        primaryKeywords: [mainSubject.toLowerCase(), `${mainSubject.toLowerCase()} tutorial`, `${mainSubject.toLowerCase()} tips`, `how to ${mainSubject.toLowerCase()}`],
-        longTailKeywords: [`best ways to master ${mainSubject.toLowerCase()}`, `${mainSubject.toLowerCase()} step by step guide`, `${mainSubject.toLowerCase()} for beginners 2026`, `${mainSubject.toLowerCase()} explained simply`],
-        tags: [mainSubject.toLowerCase(), 'tutorial', 'tips and tricks', 'guide', 'how to', 'creator studio', 'step by step', 'masterclass', 'for beginners', 'viral content', 'best tips'],
-        hashtags: [`#${mainSubject.replace(/[^a-zA-Z0-9]/g, '')}`, '#ContentCreator', '#Tutorial', '#TipsAndTricks', '#ViralVideo', '#CreatorNova'],
-        seoHealthScore: 95,
-        targetAudience: targetAudience || 'Curious Creators & Learners',
-        category: 'How-To & Style'
-      },
-      notice: error?.message || 'Using studio SEO engine'
+      seo: pipeline.result,
+      creditsDeducted: pipeline.creditsDeducted,
+      remainingCredits: pipeline.remainingCredits,
+      requestId: pipeline.requestId,
+      savedToProject: pipeline.savedToProject,
     });
+  } catch (err: any) {
+    if (err instanceof AIProviderError) {
+      return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
+    }
+    return res.status(500).json({ error: 'GENERATION_FAILED', message: err?.message || 'SEO generation failed' });
   }
 });
 
-// 6. Multi-language Content Translation Endpoint
+// 6. Multi-language Content Translation Endpoint (Secure AI Provider Layer)
 app.post('/api/translate-content', async (req, res) => {
-  const { text, targetLanguage, mode = 'cultural', originalLanguage = 'English' } = req.body;
+  const { text, targetLanguage, mode = 'cultural', originalLanguage = 'English', projectId } = req.body;
   if (!text || !targetLanguage) {
     return res.status(400).json({ error: 'Text and targetLanguage are required' });
   }
 
-  const prompt = `You are a professional localization director and native dubbing translator for CreatorNova AI.
-Translate and localize the following content from ${originalLanguage} into ${targetLanguage}:
-Localization Mode: "${mode}" (Options: 'direct' for exact meaning, 'cultural' for natural slang and regional idioms, 'dubbing' for matched syllable length and spoken rhythm).
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
-Original Content:
-"""${text}"""
-
-Return ONLY valid JSON:
-{
-  "targetLanguage": "${targetLanguage}",
-  "mode": "${mode}",
-  "translatedText": "The fully translated and localized text",
-  "culturalNotes": "Notes on how idioms, tone, or expressions were adapted for the audience",
-  "speechPacingTip": "Guidance for voiceover timing and delivery (e.g. speak at 115 BPM, emphasize vowels)"
-}`;
+  const cost = 2;
+  const authToken = (user as any).authToken;
 
   try {
-    if (!ai) {
-      throw new Error('GEMINI_API_KEY is not configured');
-    }
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: 'You provide natural, fluent, culturally attuned translations tailored for video voiceovers, subtitles, and YouTube metadata. Output valid JSON only.',
-        responseMimeType: 'application/json',
-        temperature: 0.4,
+    const pipeline = await AIProviderService.executePipeline({
+      userId: user.id,
+      projectId: projectId || null,
+      operation: 'translation',
+      creditCost: cost,
+      authToken,
+      generator: () =>
+        AIProviderService.generateTranslation({
+          text,
+          targetLanguage,
+          mode,
+          originalLanguage,
+        }),
+      projectUpdater: (proj, translation) => {
+        const translations = Array.isArray(proj.translations) ? [...proj.translations] : [];
+        translations.push(translation);
+        return {
+          ...proj,
+          translations,
+        };
       },
     });
 
-    const parsed = extractJsonFromText(response.text || '{}');
-    return res.json({ translation: parsed });
-  } catch (error: any) {
-    console.error('Error translating content:', error?.message || error);
     return res.json({
-      translation: {
-        targetLanguage,
-        mode,
-        translatedText: `[${targetLanguage} Translation] ${text}`,
-        culturalNotes: `Localized for ${targetLanguage} audience with natural conversational phrasing.`,
-        speechPacingTip: 'Maintain standard speech rate with natural conversational pauses.'
-      },
-      notice: error?.message || 'Using studio localization engine'
+      translation: pipeline.result,
+      creditsDeducted: pipeline.creditsDeducted,
+      remainingCredits: pipeline.remainingCredits,
+      requestId: pipeline.requestId,
+      savedToProject: pipeline.savedToProject,
     });
+  } catch (err: any) {
+    if (err instanceof AIProviderError) {
+      return res.status(err.statusCode).json({ error: err.errorCode, message: err.message, isQuota: err.isQuota });
+    }
+    return res.status(500).json({ error: 'GENERATION_FAILED', message: err?.message || 'Translation failed' });
   }
 });
 
@@ -2106,21 +1528,12 @@ Return ONLY a JSON array of caption segments:
     const parsed = extractJsonFromText(response.text || '[]');
     return res.json({ segments: Array.isArray(parsed) ? parsed : [parsed] });
   } catch (error: any) {
-    // Generate fallback segments from lines
-    const lines = (scriptText || 'Welcome to this video!')
-      .split(/[.?!]\s+/)
-      .filter(Boolean)
-      .slice(0, 10);
-
-    const fallbackSegments = lines.map((line: string, i: number) => ({
-      id: `cap-${i + 1}`,
-      sceneNumber: i + 1,
-      text: line.trim(),
-      startTime: i * 3.5,
-      endTime: (i + 1) * 3.5,
-    }));
-
-    return res.json({ segments: fallbackSegments });
+    const normalized = AIProviderService.normalizeError(error);
+    return res.status(normalized.statusCode).json({
+      error: normalized.errorCode,
+      message: normalized.message,
+      isQuota: normalized.isQuota,
+    });
   }
 });
 

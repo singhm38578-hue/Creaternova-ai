@@ -387,10 +387,11 @@ export const studioApi = {
         body: JSON.stringify(params),
       }),
 
-    getStrategy: () => fetchApi<{ strategy: any[]; niche: string; audience: string }>('/api/agent/strategy', {
-      method: 'POST',
-      body: JSON.stringify({}),
-    }),
+    getStrategy: (params?: { forceRefresh?: boolean }) =>
+      fetchApi<{ strategy: any[]; niche: string; audience: string; notice?: string; isCached?: boolean; isFallback?: boolean }>('/api/agent/strategy', {
+        method: 'POST',
+        body: JSON.stringify(params || {}),
+      }),
 
     repurpose: (params: { projectId: string; repurposeType: string; customInstruction?: string }) =>
       fetchApi<{ success: boolean; adaptedProject: any; adaptedData: any; repurposeType: string }>('/api/agent/repurpose', {

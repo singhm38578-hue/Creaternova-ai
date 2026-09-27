@@ -31,7 +31,8 @@ import {
   ExternalLink,
   ChevronRight,
   HelpCircle,
-  Tag
+  Tag,
+  AlertCircle
 } from 'lucide-react';
 import {
   PlatformOption,
@@ -88,6 +89,7 @@ export const NewProjectWorkflow: React.FC<NewProjectWorkflowProps> = ({
 
   // Canvas ref for live thumbnail preview in Result Screen
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [generationError, setGenerationError] = useState<string | null>(null);
 
   const platforms: { name: PlatformOption; label: string; icon: React.ReactNode; color: string }[] = [
     { name: 'YouTube Shorts', label: 'YouTube Shorts', icon: <PlaySquare className="w-5 h-5 text-red-500" />, color: 'hover:border-red-500/60' },
@@ -260,6 +262,7 @@ export const NewProjectWorkflow: React.FC<NewProjectWorkflowProps> = ({
 
     setStep('generating');
     setCurrentProgressIndex(0);
+    setGenerationError(null);
 
     const actualDuration = duration === 'Custom' ? (customDuration || '60 seconds') : duration;
 
@@ -285,15 +288,12 @@ export const NewProjectWorkflow: React.FC<NewProjectWorkflowProps> = ({
       }
     } catch (err: any) {
       console.error('Failed generating content pack:', err);
+      setStep('form');
       if (err.code === 'INSUFFICIENT_CREDITS' || err.status === 402) {
-        setStep('form');
         openInsufficientCreditModal(cost);
         return;
       }
-      // Wait slightly then proceed to result with fallback
-      setTimeout(() => {
-        setStep('result');
-      }, 1000);
+      setGenerationError(err?.message || 'AI service temporarily unavailable. Please try again later.');
     }
   };
 
@@ -448,6 +448,26 @@ export const NewProjectWorkflow: React.FC<NewProjectWorkflowProps> = ({
             </button>
           )}
         </div>
+
+        {generationError && (
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm flex items-start justify-between gap-3 animate-in fade-in">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-red-200">
+                  {generationError.toLowerCase().includes('quota') ? 'AI Quota / Rate Limit Reached' : 'Generation Unavailable'}
+                </p>
+                <p className="text-xs text-red-300/80 mt-0.5">{generationError}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setGenerationError(null)}
+              className="text-red-400 hover:text-red-200 text-xs px-2 py-1 rounded hover:bg-red-500/20 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Form Container */}
         <div className="space-y-6">
