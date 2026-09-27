@@ -645,4 +645,115 @@ export interface VideoProviderStatus {
   message: string;
 }
 
+// -------------------------------------------------------------
+// SHAREABLE TEMPLATES & REFERRALS FOUNDATION
+// -------------------------------------------------------------
+
+export interface TemplateWorkflowStructure {
+  format: ContentFormat;
+  tone: ToneType;
+  targetAudience: string;
+  duration?: string;
+  estimatedDuration?: string;
+}
+
+export interface TemplateSceneStructure {
+  sceneNumber: number;
+  timestampRange: string;
+  shotType?: string;
+  cameraAngle?: string;
+  visualDescription: string;
+  characterAction?: string;
+  audioSfx?: string;
+  onScreenText?: string;
+  lightingMood?: string;
+  brollKeywords?: string[];
+  aiVideoPrompt?: string;
+}
+
+export interface TemplatePromptStructure {
+  ideaHooks?: string[];
+  thumbnailPrompt?: string;
+  thumbnailHeadline?: string;
+  scriptOutline?: string;
+  scriptBeats?: Array<{
+    sectionType: ScriptBeatType | string;
+    directionCue: string;
+    visualCue: string;
+    dialogueOutline: string;
+  }>;
+}
+
+export interface ShareableTemplate {
+  id: string;
+  creatorUserId: string;
+  creatorDisplayName?: string;
+  shareCreatorName: boolean;
+  originalProjectId: string;
+  title: string;
+  description: string;
+  category: string;
+  platform: PlatformOption | string;
+  contentType: ContentTypeOption | string;
+  language: LanguageOption | string;
+  workflow: TemplateWorkflowStructure;
+  scenes: TemplateSceneStructure[];
+  prompts: TemplatePromptStructure;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  usesCount: number;
+}
+
+/**
+ * Publicly visible template preview.
+ * Strictly strips private media, scripts not selected, user IDs, emails, billing & provider data.
+ */
+export interface PublicTemplatePreview {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  creatorDisplayName?: string;
+  platform: string;
+  contentType: string;
+  language: string;
+  workflow: TemplateWorkflowStructure;
+  sceneCount: number;
+  scenes: TemplateSceneStructure[];
+  prompts: TemplatePromptStructure;
+  usesCount: number;
+  createdAt: string;
+}
+
+export type ReferralStatus = 'clicked' | 'signed_up' | 'qualified' | 'rewarded';
+
+export interface ReferralRecord {
+  id: string;
+  referrerUserId: string;
+  referredUserId: string | null;
+  referralCode: string;
+  createdAt: string;
+  status: ReferralStatus;
+  rewardCredits: number;
+  rewardedAt?: string | null;
+}
+
+export interface ReferralStats {
+  referralCode: string;
+  referralLink: string;
+  totalClicks: number;
+  successfulReferrals: number;
+  creditsEarned: number;
+  rewardPerReferral: number;
+  referrals: Array<{
+    id: string;
+    referredUserLabel: string;
+    status: ReferralStatus;
+    createdAt: string;
+    rewardCredits: number;
+  }>;
+}
+
+
 

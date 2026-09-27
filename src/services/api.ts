@@ -209,6 +209,78 @@ export const studioApi = {
       }),
   },
 
+  // Shareable Templates
+  templates: {
+    createOrUpdate: (data: {
+      originalProjectId: string;
+      title: string;
+      description: string;
+      category?: string;
+      platform?: string;
+      contentType?: string;
+      language?: string;
+      shareCreatorName?: boolean;
+      workflow?: any;
+      scenes?: any[];
+      prompts?: any;
+    }) =>
+      fetchApi<{ template: any; shareableUrl: string; success: boolean }>('/api/templates', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    getPublic: (id: string) =>
+      fetchApi<{ template: any }>(`/api/templates/public/${id}`),
+
+    getMyTemplates: () =>
+      fetchApi<{ templates: any[] }>('/api/templates/my-templates'),
+
+    toggleStatus: (id: string, isActive: boolean) =>
+      fetchApi<{ template: any; success: boolean }>(`/api/templates/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ isActive }),
+      }),
+
+    delete: (id: string) =>
+      fetchApi<{ success: boolean }>(`/api/templates/${id}`, {
+        method: 'DELETE',
+      }),
+
+    use: (id: string) =>
+      fetchApi<{ project: any; success: boolean; message: string }>(`/api/templates/${id}/use`, {
+        method: 'POST',
+      }),
+  },
+
+  // Referrals
+  referrals: {
+    getMyCode: () =>
+      fetchApi<{ referralCode: string; referralLink: string; rewardCredits: number }>('/api/referrals/my-code'),
+
+    recordClick: (referralCode: string) =>
+      fetchApi<{ success: boolean; valid: boolean; referralCode: string }>('/api/referrals/click', {
+        method: 'POST',
+        body: JSON.stringify({ referralCode }),
+      }),
+
+    recordSignup: (referralCode: string) =>
+      fetchApi<{ success: boolean; referralId?: string; error?: string }>('/api/referrals/signup', {
+        method: 'POST',
+        body: JSON.stringify({ referralCode }),
+      }),
+
+    getMyStats: () =>
+      fetchApi<{
+        referralCode: string;
+        referralLink: string;
+        totalClicks: number;
+        successfulReferrals: number;
+        creditsEarned: number;
+        rewardPerReferral: number;
+        referrals: any[];
+      }>('/api/referrals/my-stats'),
+  },
+
   // Credits & Wallet
   credits: {
     getWallet: () => fetchApi<{ wallet: any; config: any; plans: any }>('/api/credits/wallet'),

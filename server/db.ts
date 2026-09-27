@@ -336,6 +336,68 @@ export interface VideoAssetRecord {
   createdAt: string;
 }
 
+export interface TemplateRecord {
+  id: string;
+  creatorUserId: string;
+  creatorDisplayName: string;
+  shareCreatorName: boolean;
+  originalProjectId: string;
+  title: string;
+  description: string;
+  category: string;
+  platform: string;
+  contentType: string;
+  language: string;
+  workflow: {
+    format: string;
+    tone: string;
+    targetAudience: string;
+    duration?: string;
+    estimatedDuration?: string;
+  };
+  scenes: Array<{
+    sceneNumber: number;
+    timestampRange: string;
+    shotType?: string;
+    cameraAngle?: string;
+    visualDescription: string;
+    characterAction?: string;
+    audioSfx?: string;
+    onScreenText?: string;
+    lightingMood?: string;
+    brollKeywords?: string[];
+    aiVideoPrompt?: string;
+  }>;
+  prompts: {
+    ideaHooks?: string[];
+    thumbnailPrompt?: string;
+    thumbnailHeadline?: string;
+    scriptOutline?: string;
+    scriptBeats?: Array<{
+      sectionType: string;
+      directionCue: string;
+      visualCue: string;
+      dialogueOutline: string;
+    }>;
+  };
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  usesCount: number;
+}
+
+export interface ReferralRecord {
+  id: string;
+  referrerUserId: string;
+  referredUserId: string | null;
+  referralCode: string;
+  createdAt: string;
+  status: 'clicked' | 'signed_up' | 'qualified' | 'rewarded';
+  rewardCredits: number;
+  rewardedAt?: string | null;
+  ipHash?: string;
+}
+
 export interface DatabaseSchema {
   users: Record<string, UserRecord>;
   sessions: Record<string, { userId: string; expiresAt: number }>;
@@ -359,7 +421,11 @@ export interface DatabaseSchema {
   aiUsageRecords: Record<string, AIUsageRecord>;
   videoJobs: Record<string, VideoJobRecord>;
   videoAssets: Record<string, VideoAssetRecord>;
+  templates: Record<string, TemplateRecord>;
+  referrals: Record<string, ReferralRecord>;
+  userReferralCodes: Record<string, string>;
 }
+
 
 function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password + '_creatornova_salt').digest('hex');
@@ -419,6 +485,9 @@ class DatabaseManager {
       aiUsageRecords: {},
       videoJobs: {},
       videoAssets: {},
+      templates: {},
+      referrals: {},
+      userReferralCodes: {},
     };
   }
 
@@ -449,6 +518,9 @@ class DatabaseManager {
         if (!this.db.aiUsageRecords) this.db.aiUsageRecords = {};
         if (!this.db.videoJobs) this.db.videoJobs = {};
         if (!this.db.videoAssets) this.db.videoAssets = {};
+        if (!this.db.templates) this.db.templates = {};
+        if (!this.db.referrals) this.db.referrals = {};
+        if (!this.db.userReferralCodes) this.db.userReferralCodes = {};
         if (!this.db.pricingPlans || Object.keys(this.db.pricingPlans).length === 0) {
           this.seedPricingPlans();
         }
@@ -2108,6 +2180,523 @@ class DatabaseManager {
     this.persist();
     return true;
   }
+
+  // -------------------------------------------------------------
+  // SHAREABLE TEMPLATES FOUNDATION
+  // -------------------------------------------------------------
+
+  public createOrUpdateTemplate(
+    userId: string,
+    input: {
+      id?: string;
+      originalProjectId: string;
+      title: string;
+      description: string;
+      category?: string;
+      platform?: string;
+      contentType?: string;
+      language?: string;
+      shareCreatorName?: boolean;
+      workflow?: any;
+      scenes?: any[];
+      prompts?: any;
+    }
+  ): TemplateRecord {
+    this.ensureInitialized();
+    const user = this.getUserById(userId);
+    const now = new Date().toISOString();
+
+    const templateId = input.id || `tmpl_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
+    const existing = this.db.templates[templateId];
+
+    if (existing && existing.creatorUserId !== userId) {
+      throw new Error('Access denied: You do not own this template.');
+    }
+
+    // Pull from project if available to auto-populate
+    const originalProject = this.getUserProjectById(input.originalProjectId, userId);
+
+    // Sanitize scenes: STRIP ALL PRIVATE MEDIA, KEYS, STORAGE PATHS, ASSET IDS
+    const rawScenes = input.scenes || originalProject?.scenes || [];
+    const sanitizedScenes = rawScenes.map((s: any, idx: number) => ({
+      sceneNumber: s.sceneNumber ?? idx + 1,
+      timestampRange: s.timestampRange || `0:${String(idx * 15).padStart(2, '0')}-0:${String((idx + 1) * 15).padStart(2, '0')}`,
+      shotType: s.shotType || 'Medium Shot',
+      cameraAngle: s.cameraAngle || 'Eye Level',
+      visualDescription: s.visualDescription || '',
+      characterAction: s.characterAction || '',
+      audioSfx: s.audioSfx || '',
+      onScreenText: s.onScreenText || '',
+      lightingMood: s.lightingMood || 'Studio lighting',
+      brollKeywords: Array.isArray(s.brollKeywords) ? s.brollKeywords : [],
+      aiVideoPrompt: s.aiVideoPrompt || '',
+      // Notice: NO mediaUrl, NO renderedVideoUrl, NO storagePath, NO videoMetadata
+    }));
+
+    // Workflow structure
+    const workflow = {
+      format: input.workflow?.format || originalProject?.format || 'youtube_short',
+      tone: input.workflow?.tone || originalProject?.tone || 'engaging_energetic',
+      targetAudience: input.workflow?.targetAudience || originalProject?.targetAudience || 'General audience',
+      duration: input.workflow?.duration || originalProject?.duration || '60 seconds',
+      estimatedDuration: input.workflow?.estimatedDuration || originalProject?.script?.estimatedDuration || '60 seconds',
+    };
+
+    // Prompt structure
+    const prompts = {
+      ideaHooks: input.prompts?.ideaHooks || originalProject?.ideas?.map((i: any) => i.hook) || [],
+      thumbnailPrompt: input.prompts?.thumbnailPrompt || originalProject?.thumbnail?.aiConceptPrompt || '',
+      thumbnailHeadline: input.prompts?.thumbnailHeadline || originalProject?.thumbnail?.headline || '',
+      scriptOutline: input.prompts?.scriptOutline || originalProject?.script?.hookSummary || '',
+      scriptBeats: (input.prompts?.scriptBeats || originalProject?.script?.beats || []).map((b: any) => ({
+        sectionType: b.sectionType || 'core_beat',
+        directionCue: b.directionCue || '',
+        visualCue: b.visualCue || '',
+        dialogueOutline: b.dialogue || '',
+      })),
+    };
+
+    const templateRecord: TemplateRecord = {
+      id: templateId,
+      creatorUserId: userId,
+      creatorDisplayName: user?.name || 'Creator',
+      shareCreatorName: input.shareCreatorName !== false,
+      originalProjectId: input.originalProjectId,
+      title: input.title || originalProject?.name || 'Content Template',
+      description: input.description || originalProject?.topic || 'Reusable production workflow template',
+      category: input.category || 'General',
+      platform: input.platform || originalProject?.platform || 'YouTube Shorts',
+      contentType: input.contentType || originalProject?.contentType || 'Entertainment',
+      language: input.language || originalProject?.language || 'English',
+      workflow,
+      scenes: sanitizedScenes,
+      prompts,
+      isActive: true,
+      createdAt: existing?.createdAt || now,
+      updatedAt: now,
+      usesCount: existing?.usesCount || 0,
+    };
+
+    this.db.templates[templateId] = templateRecord;
+    this.persist();
+    return templateRecord;
+  }
+
+  /**
+   * Retrieves sanitized public template preview.
+   * STRICT PRIVACY GUARANTEE: Never exposes creator email, Firebase UID,
+   * billing info, credit balance, API keys, or private media assets.
+   */
+  public getPublicTemplate(templateId: string): any | null {
+    this.ensureInitialized();
+    const template = this.db.templates[templateId];
+    if (!template || !template.isActive) return null;
+
+    return {
+      id: template.id,
+      title: template.title,
+      description: template.description,
+      category: template.category,
+      creatorDisplayName: template.shareCreatorName ? template.creatorDisplayName : 'CreatorNova Creator',
+      platform: template.platform,
+      contentType: template.contentType,
+      language: template.language,
+      workflow: template.workflow,
+      sceneCount: template.scenes.length,
+      scenes: template.scenes,
+      prompts: template.prompts,
+      usesCount: template.usesCount,
+      createdAt: template.createdAt,
+    };
+  }
+
+  public getTemplateById(templateId: string, userId?: string): TemplateRecord | null {
+    this.ensureInitialized();
+    const template = this.db.templates[templateId];
+    if (!template) return null;
+    if (userId && template.creatorUserId !== userId) {
+      const user = this.getUserById(userId);
+      if (user?.role !== 'admin') return null;
+    }
+    return template;
+  }
+
+  public getUserTemplates(userId: string): TemplateRecord[] {
+    this.ensureInitialized();
+    return Object.values(this.db.templates)
+      .filter((t) => t.creatorUserId === userId)
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  }
+
+  public toggleTemplateActive(templateId: string, userId: string, isActive: boolean): TemplateRecord | null {
+    this.ensureInitialized();
+    const template = this.db.templates[templateId];
+    if (!template) return null;
+    if (template.creatorUserId !== userId) {
+      const user = this.getUserById(userId);
+      if (user?.role !== 'admin') return null;
+    }
+
+    template.isActive = isActive;
+    template.updatedAt = new Date().toISOString();
+    this.persist();
+    return template;
+  }
+
+  public deleteTemplate(templateId: string, userId: string): boolean {
+    this.ensureInitialized();
+    const template = this.db.templates[templateId];
+    if (!template) return false;
+    if (template.creatorUserId !== userId) {
+      const user = this.getUserById(userId);
+      if (user?.role !== 'admin') return false;
+    }
+
+    delete this.db.templates[templateId];
+    this.persist();
+    return true;
+  }
+
+  /**
+   * Clones a template into a NEW project in the recipient user's account.
+   * Never modifies the original creator's project or template.
+   */
+  public useTemplate(templateId: string, targetUserId: string): any {
+    this.ensureInitialized();
+    const template = this.db.templates[templateId];
+    if (!template || !template.isActive) {
+      throw new Error('Template not found or no longer available.');
+    }
+
+    // Increment template uses count
+    template.usesCount = (template.usesCount || 0) + 1;
+
+    const now = new Date().toISOString();
+    const newProjectId = `proj_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
+
+    // Reconstruct clean scenes with fresh IDs and prompt_ready status
+    const scenes = template.scenes.map((s, idx) => ({
+      id: `scene-${Date.now()}-${idx + 1}`,
+      sceneNumber: s.sceneNumber,
+      timestampRange: s.timestampRange,
+      shotType: s.shotType,
+      cameraAngle: s.cameraAngle,
+      visualDescription: s.visualDescription,
+      characterAction: s.characterAction,
+      audioSfx: s.audioSfx,
+      onScreenText: s.onScreenText,
+      lightingMood: s.lightingMood,
+      brollKeywords: [...(s.brollKeywords || [])],
+      aiVideoPrompt: s.aiVideoPrompt,
+      mediaStatus: 'prompt_ready',
+    }));
+
+    // Reconstruct script beats
+    const beats = (template.prompts.scriptBeats || []).map((b, idx) => ({
+      id: `beat-${idx + 1}`,
+      timestamp: `0:${String(idx * 15).padStart(2, '0')}`,
+      speaker: 'Host',
+      sectionType: b.sectionType || 'core_beat',
+      directionCue: b.directionCue || '',
+      dialogue: b.dialogueOutline || '',
+      visualCue: b.visualCue || '',
+      durationSec: 15,
+    }));
+
+    const isVertical =
+      template.platform.includes('Shorts') ||
+      template.platform.includes('Reel') ||
+      template.platform.includes('TikTok');
+
+    const newProject = {
+      id: newProjectId,
+      userId: targetUserId,
+      name: `${template.title} (Template Copy)`,
+      topic: template.description || template.title,
+      format: template.workflow.format,
+      platform: template.platform,
+      contentType: template.contentType,
+      language: template.language,
+      duration: template.workflow.duration || '60 seconds',
+      targetAudience: template.workflow.targetAudience,
+      tone: template.workflow.tone,
+      createdAt: now,
+      updatedAt: now,
+      ideas: (template.prompts.ideaHooks || []).map((hook, idx) => ({
+        id: `idea-${Date.now()}-${idx}`,
+        title: `${template.title} Angle ${idx + 1}`,
+        hook,
+        viralityScore: 90,
+        format: template.workflow.format,
+        durationEstimate: template.workflow.duration || '60s',
+        angle: 'Curiosity angle',
+        targetAudience: template.workflow.targetAudience,
+        coreTakeaway: template.description,
+        suggestedVisualHook: 'Dynamic zoom',
+        retentionTip: 'Fast pacing',
+        createdAt: now,
+      })),
+      script: {
+        title: `${template.title} Script`,
+        format: template.workflow.format,
+        estimatedDuration: template.workflow.estimatedDuration || '60 seconds',
+        wordCount: beats.length * 25,
+        hookSummary: template.prompts.scriptOutline || 'Opening Hook',
+        beats,
+        rawFullText: beats.map((b) => b.dialogue).join('\n\n'),
+        tone: template.workflow.tone,
+        callToAction: 'Follow for more creator insights!',
+        lastUpdated: now,
+      },
+      scenes,
+      seo: {
+        titles: [
+          { title: template.title, score: 92, category: 'Curiosity Gap', characterCount: template.title.length },
+        ],
+        description: template.description,
+        primaryKeywords: [template.category.toLowerCase(), template.platform.toLowerCase()],
+        longTailKeywords: [],
+        tags: [template.category, template.platform],
+        hashtags: [`#${template.category.replace(/\s+/g, '')}`, `#${template.platform.replace(/\s+/g, '')}`],
+        seoHealthScore: 88,
+        targetAudience: template.workflow.targetAudience,
+        category: template.category,
+      },
+      thumbnail: {
+        headline: template.prompts.thumbnailHeadline || template.title,
+        subheadline: 'CreatorNova Template',
+        badgeText: 'HOT',
+        templateTheme: 'bold_creator',
+        aspectRatio: isVertical ? '9:16' : '16:9',
+        textColor: '#FFFFFF',
+        accentColor: '#8B5CF6',
+        bgColor1: '#0B0F19',
+        bgColor2: '#1E1B4B',
+        fontSize: 48,
+        showVignette: true,
+        showGlow: true,
+        emojis: ['🔥', '⚡'],
+        compositionAngle: 'Eye Level',
+        aiConceptPrompt: template.prompts.thumbnailPrompt || '',
+      },
+      translations: [],
+    };
+
+    // Save project for target user
+    this.saveUserProject(newProject, targetUserId);
+    this.persist();
+
+    return newProject;
+  }
+
+  // -------------------------------------------------------------
+  // REFERRAL FOUNDATION & ANTI-ABUSE
+  // -------------------------------------------------------------
+
+  public getUserReferralCode(userId: string): string {
+    this.ensureInitialized();
+    if (this.db.userReferralCodes[userId]) {
+      return this.db.userReferralCodes[userId];
+    }
+
+    // Generate unique, clean referral code
+    const hash = crypto.createHash('md5').update(`nova_ref_${userId}`).digest('hex').slice(0, 6).toUpperCase();
+    const code = `NOVA-${hash}`;
+    this.db.userReferralCodes[userId] = code;
+    this.persist();
+    return code;
+  }
+
+  public getUserIdByReferralCode(code: string): string | null {
+    this.ensureInitialized();
+    const cleanCode = (code || '').trim().toUpperCase();
+    for (const [userId, refCode] of Object.entries(this.db.userReferralCodes)) {
+      if (refCode.toUpperCase() === cleanCode) return userId;
+    }
+    // Also check default creator fallback
+    if (cleanCode === 'NOVA-CREATOR' || cleanCode === 'CREATORNOVA') {
+      return 'user-creator-default';
+    }
+    return null;
+  }
+
+  public recordReferralClick(code: string, ipHash?: string): { success: boolean; valid: boolean; referralCode: string } {
+    this.ensureInitialized();
+    const referrerUserId = this.getUserIdByReferralCode(code);
+    if (!referrerUserId) {
+      return { success: false, valid: false, referralCode: code };
+    }
+
+    const clickId = `ref_click_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
+    const referralRecord: ReferralRecord = {
+      id: clickId,
+      referrerUserId,
+      referredUserId: null,
+      referralCode: code.toUpperCase(),
+      createdAt: new Date().toISOString(),
+      status: 'clicked',
+      rewardCredits: 0,
+      ipHash,
+    };
+
+    this.db.referrals[clickId] = referralRecord;
+    this.persist();
+    return { success: true, valid: true, referralCode: code.toUpperCase() };
+  }
+
+  public recordReferralSignup(
+    code: string,
+    newUserId: string
+  ): { success: boolean; referralId?: string; error?: string } {
+    this.ensureInitialized();
+    const referrerUserId = this.getUserIdByReferralCode(code);
+    if (!referrerUserId) {
+      return { success: false, error: 'INVALID_REFERRAL_CODE' };
+    }
+
+    // ANTI-ABUSE 1: Self-referrals strictly prevented
+    if (referrerUserId === newUserId) {
+      return { success: false, error: 'SELF_REFERRAL_NOT_ALLOWED' };
+    }
+
+    // ANTI-ABUSE 2: Duplicate referrals for same user prevented
+    const existing = Object.values(this.db.referrals).find(
+      (r) => r.referredUserId === newUserId
+    );
+    if (existing) {
+      return { success: false, error: 'USER_ALREADY_REFERRED', referralId: existing.id };
+    }
+
+    // Find if there was an open 'clicked' record for this code without a user attached
+    const openClick = Object.values(this.db.referrals).find(
+      (r) => r.referralCode === code.toUpperCase() && r.referredUserId === null && r.status === 'clicked'
+    );
+
+    const refId = openClick ? openClick.id : `ref_signup_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
+    const now = new Date().toISOString();
+
+    const record: ReferralRecord = {
+      id: refId,
+      referrerUserId,
+      referredUserId: newUserId,
+      referralCode: code.toUpperCase(),
+      createdAt: openClick ? openClick.createdAt : now,
+      status: 'signed_up',
+      rewardCredits: 0,
+      rewardedAt: null,
+    };
+
+    this.db.referrals[refId] = record;
+    this.persist();
+
+    return { success: true, referralId: refId };
+  }
+
+  public async qualifyAndRewardReferral(
+    referredUserId: string,
+    rewardAmount: number = 25,
+    authToken?: string
+  ): Promise<{ success: boolean; rewarded: boolean; error?: string }> {
+    this.ensureInitialized();
+
+    const referral = Object.values(this.db.referrals).find(
+      (r) => r.referredUserId === referredUserId
+    );
+
+    if (!referral) {
+      return { success: false, rewarded: false, error: 'REFERRAL_NOT_FOUND' };
+    }
+
+    // ANTI-ABUSE: Cannot reward self-referrals
+    if (referral.referrerUserId === referredUserId) {
+      return { success: false, rewarded: false, error: 'SELF_REFERRAL_NOT_ALLOWED' };
+    }
+
+    // ANTI-ABUSE: Cannot reward already rewarded referrals
+    if (referral.status === 'rewarded') {
+      return { success: false, rewarded: false, error: 'ALREADY_REWARDED' };
+    }
+
+    // Transition status to qualified
+    referral.status = 'qualified';
+
+    // Award bonus credits through CreditWalletService
+    const { CreditWalletService } = await import('./creditService.ts');
+    await CreditWalletService.awardReferralBonus({
+      referrerUserId: referral.referrerUserId,
+      referredUserId,
+      referralId: referral.id,
+      amount: rewardAmount,
+      authToken,
+    });
+
+    // Mark as rewarded
+    referral.status = 'rewarded';
+    referral.rewardCredits = rewardAmount;
+    referral.rewardedAt = new Date().toISOString();
+    this.persist();
+
+    return { success: true, rewarded: true };
+  }
+
+  public getUserReferralStats(userId: string): {
+    referralCode: string;
+    referralLink: string;
+    totalClicks: number;
+    successfulReferrals: number;
+    creditsEarned: number;
+    rewardPerReferral: number;
+    referrals: Array<{
+      id: string;
+      referredUserLabel: string;
+      status: 'clicked' | 'signed_up' | 'qualified' | 'rewarded';
+      createdAt: string;
+      rewardCredits: number;
+    }>;
+  } {
+    this.ensureInitialized();
+    const referralCode = this.getUserReferralCode(userId);
+
+    const userReferrals = Object.values(this.db.referrals).filter(
+      (r) => r.referrerUserId === userId
+    );
+
+    const totalClicks = userReferrals.length;
+    const successfulReferrals = userReferrals.filter(
+      (r) => r.status === 'rewarded' || r.status === 'qualified'
+    ).length;
+
+    const creditsEarned = userReferrals
+      .filter((r) => r.status === 'rewarded')
+      .reduce((sum, r) => sum + (r.rewardCredits || 0), 0);
+
+    const referrals = userReferrals
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .map((r) => {
+        let label = 'Invited Visitor';
+        if (r.referredUserId) {
+          label = `Creator (${r.referredUserId.slice(0, 6)}...)`;
+        }
+        return {
+          id: r.id,
+          referredUserLabel: label,
+          status: r.status,
+          createdAt: r.createdAt,
+          rewardCredits: r.rewardCredits || 0,
+        };
+      });
+
+    return {
+      referralCode,
+      referralLink: `/ref/${referralCode}`,
+      totalClicks,
+      successfulReferrals,
+      creditsEarned,
+      rewardPerReferral: 25,
+      referrals,
+    };
+  }
 }
 
 export const dbManager = new DatabaseManager();
+

@@ -18,11 +18,14 @@ import {
   List,
   ChevronDown,
   RefreshCw,
-  X
+  X,
+  Share2
 } from 'lucide-react';
 import { Project } from '../types/content';
 import { studioApi } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { ShareTemplateModal } from './ShareTemplateModal';
+import { TemplatePreviewModal } from './TemplatePreviewModal';
 
 interface ProjectLibraryProps {
   onSelectProject: (projectId: string) => void;
@@ -50,6 +53,10 @@ export const ProjectLibrary: React.FC<ProjectLibraryProps> = ({
   // Rename modal
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [newName, setNewName] = useState('');
+
+  // Share as Template modal state
+  const [sharingProject, setSharingProject] = useState<Project | null>(null);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
 
   // Autosave toast indicator
   const [saveIndicator, setSaveIndicator] = useState<string | null>(null);
@@ -328,6 +335,13 @@ export const ProjectLibrary: React.FC<ProjectLibraryProps> = ({
                   {/* Actions Dropdown */}
                   <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                     <button
+                      onClick={() => setSharingProject(proj)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-violet-300 hover:bg-slate-800 transition-colors"
+                      title="Share as Template"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
                       onClick={() => {
                         setEditingProject(proj);
                         setNewName(proj.name);
@@ -412,6 +426,13 @@ export const ProjectLibrary: React.FC<ProjectLibraryProps> = ({
                   <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-end gap-1">
                       <button
+                        onClick={() => setSharingProject(proj)}
+                        className="p-1 text-slate-400 hover:text-violet-300"
+                        title="Share as Template"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
                         onClick={() => {
                           setEditingProject(proj);
                           setNewName(proj.name);
@@ -491,6 +512,32 @@ export const ProjectLibrary: React.FC<ProjectLibraryProps> = ({
           </form>
         </div>
       )}
+
+      {/* Share as Template Modal */}
+      {sharingProject && (
+        <ShareTemplateModal
+          isOpen={true}
+          project={sharingProject}
+          onClose={() => setSharingProject(null)}
+          onOpenPreview={(templateId) => setPreviewTemplateId(templateId)}
+        />
+      )}
+
+      {/* Template Preview Modal */}
+      {previewTemplateId && (
+        <TemplatePreviewModal
+          isOpen={true}
+          templateId={previewTemplateId}
+          onClose={() => setPreviewTemplateId(null)}
+          onProjectCreated={(newProj) => {
+            fetchProjects();
+            onSelectProject(newProj.id);
+            setSaveIndicator('"Saved" Template Cloned into Your Projects!');
+            setTimeout(() => setSaveIndicator(null), 3000);
+          }}
+        />
+      )}
     </div>
   );
 };
+

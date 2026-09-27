@@ -358,6 +358,10 @@ app.post('/api/projects', (req, res) => {
   try {
     const project = req.body;
     const saved = dbManager.saveUserProject(project, user.id);
+
+    // If this referred user performs their first creation action, qualify & reward referral
+    dbManager.qualifyAndRewardReferral(user.id, 25, (user as any).authToken).catch(() => {});
+
     return res.status(201).json({ project: saved, saved: true });
   } catch (err: any) {
     return res.status(400).json({ error: err.message || 'Failed saving project.' });
@@ -403,6 +407,150 @@ app.post('/api/projects/:id/duplicate', (req, res) => {
     return res.status(403).json({ error: err.message || 'Failed duplicating project.' });
   }
 });
+
+// -------------------------------------------------------------
+// SHAREABLE TEMPLATES ENDPOINTS
+// -------------------------------------------------------------
+
+// Create or update shareable template
+app.post('/api/templates', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  try {
+    const template = dbManager.createOrUpdateTemplate(user.id, req.body);
+    return res.status(201).json({
+      template,
+      shareableUrl: `/template/${template.id}`,
+      success: true,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'Failed creating template' });
+  }
+});
+
+// Public preview for template (NO auth required, strict privacy)
+app.get('/api/templates/public/:id', (req, res) => {
+  const template = dbManager.getPublicTemplate(req.params.id);
+  if (!template) {
+    return res.status(404).json({ error: 'TEMPLATE_NOT_FOUND', message: 'Template not found or has been disabled by creator.' });
+  }
+  return res.json({ template });
+});
+
+// List user's own created templates
+app.get('/api/templates/my-templates', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const templates = dbManager.getUserTemplates(user.id);
+  return res.json({ templates });
+});
+
+// Toggle template active status (disable/enable)
+app.put('/api/templates/:id/status', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const { isActive } = req.body;
+  const updated = dbManager.toggleTemplateActive(req.params.id, user.id, Boolean(isActive));
+  if (!updated) {
+    return res.status(404).json({ error: 'TEMPLATE_NOT_FOUND', message: 'Template not found or access denied.' });
+  }
+  return res.json({ template: updated, success: true });
+});
+
+// Delete template
+app.delete('/api/templates/:id', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const deleted = dbManager.deleteTemplate(req.params.id, user.id);
+  if (!deleted) {
+    return res.status(404).json({ error: 'TEMPLATE_NOT_FOUND', message: 'Template not found or access denied.' });
+  }
+  return res.json({ success: true });
+});
+
+// Use template to clone into recipient's projects
+app.post('/api/templates/:id/use', (req, res) => {
+  const user = getAuthenticatedUser(req);
+  if (!user) {
+    return res.status(401).json({
+      error: 'AUTH_REQUIRED',
+      message: 'Please sign in or create an account to copy this template into your workspace.',
+    });
+  }
+
+  try {
+    const project = dbManager.useTemplate(req.params.id, user.id);
+
+    // If user was referred, qualify & reward their referrer
+    dbManager.qualifyAndRewardReferral(user.id, 25, (user as any).authToken).catch(() => {});
+
+    return res.status(201).json({
+      project,
+      success: true,
+      message: 'Template successfully copied into your projects library.',
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'Failed using template' });
+  }
+});
+
+// -------------------------------------------------------------
+// REFERRAL FOUNDATION & ANTI-ABUSE ENDPOINTS
+// -------------------------------------------------------------
+
+// Get user's referral code and link
+app.get('/api/referrals/my-code', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const referralCode = dbManager.getUserReferralCode(user.id);
+  return res.json({
+    referralCode,
+    referralLink: `/ref/${referralCode}`,
+    rewardCredits: 25,
+  });
+});
+
+// Track referral link click (PUBLIC - NO credits awarded)
+app.post('/api/referrals/click', (req, res) => {
+  const { referralCode } = req.body;
+  if (!referralCode) {
+    return res.status(400).json({ error: 'Referral code is required' });
+  }
+
+  const result = dbManager.recordReferralClick(referralCode, req.ip);
+  return res.json(result);
+});
+
+// Track referral signup
+app.post('/api/referrals/signup', (req, res) => {
+  const user = getAuthenticatedUser(req);
+  const { referralCode } = req.body;
+
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  if (!referralCode) return res.status(400).json({ error: 'Referral code required' });
+
+  const result = dbManager.recordReferralSignup(referralCode, user.id);
+  if (!result.success) {
+    return res.status(400).json(result);
+  }
+
+  return res.json(result);
+});
+
+// Get user's referral stats and earned bonus credits
+app.get('/api/referrals/my-stats', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const stats = dbManager.getUserReferralStats(user.id);
+  return res.json(stats);
+});
+
 
 // -------------------------------------------------------------
 // CREDITS & USAGE DASHBOARD ENDPOINTS

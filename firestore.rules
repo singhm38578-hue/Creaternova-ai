@@ -108,5 +108,19 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
     }
+
+    // Public Templates: readable by anyone, writable by template creator or admin
+    match /publicTemplates/{templateId} {
+      allow get, list: if true;
+      allow create: if isAuthenticated() && (request.resource.data.creatorUserId == request.auth.uid || hasServerSecret());
+      allow update, delete: if isAuthenticated() && (resource.data.creatorUserId == request.auth.uid || isAdmin() || hasServerSecret());
+    }
+
+    // Referrals audit trail: readable by participants or admin; writable by authenticated or backend server
+    match /referrals/{referralId} {
+      allow read: if isAuthenticated() && (resource.data.referrerUserId == request.auth.uid || resource.data.referredUserId == request.auth.uid || isAdmin());
+      allow write: if isAuthenticated() || hasServerSecret();
+    }
   }
 }
+

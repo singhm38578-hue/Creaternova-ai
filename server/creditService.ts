@@ -634,6 +634,96 @@ export class CreditWalletService {
   }
 
   /**
+   * Securely awards referral bonus credits to the referrer's credit wallet.
+   * Emits a credit transaction of type 'bonus' and operation 'referral_bonus_reward'.
+   * Enforces server-authoritative wallet balance updates and Firestore transaction log.
+   */
+  public static async awardReferralBonus(params: {
+    referrerUserId: string;
+    referredUserId: string;
+    referralId: string;
+    amount: number;
+    authToken?: string;
+  }): Promise<{ success: boolean; balanceBefore: number; balanceAfter: number; transactionId: string }> {
+    const { referrerUserId, referredUserId, referralId, amount, authToken } = params;
+    const releaseLock = await this.acquireLock(referrerUserId);
+    try {
+      const wallet = await this.getWallet(referrerUserId, authToken);
+      const balanceBefore = wallet.creditBalance;
+      const balanceAfter = balanceBefore + amount;
+      const now = new Date().toISOString();
+      const txId = `tx_ref_bonus_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
+
+      const txRecord: CreditTransactionRecord = {
+        id: txId,
+        userId: referrerUserId,
+        type: 'bonus',
+        amount,
+        balanceBefore,
+        balanceAfter,
+        operation: `referral_bonus_reward`,
+        projectId: null,
+        status: 'completed',
+        createdAt: now,
+      };
+
+      if (authToken) {
+        try {
+          const updateUrl = `${FIRESTORE_BASE_URL}/users/${referrerUserId}?updateMask.fieldPaths=creditBalance&updateMask.fieldPaths=credits&updateMask.fieldPaths=updatedAt`;
+          await fetch(updateUrl, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              fields: toFirestoreFields({
+                creditBalance: balanceAfter,
+                credits: balanceAfter,
+                updatedAt: now,
+                serverSecret: SERVER_WALLET_SECRET,
+              }),
+            }),
+          });
+
+          const txUrl = `${FIRESTORE_BASE_URL}/users/${referrerUserId}/creditTransactions?documentId=${txId}`;
+          await fetch(txUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              fields: toFirestoreFields({
+                ...txRecord,
+                referralId,
+                referredUserId,
+                serverSecret: SERVER_WALLET_SECRET,
+              }),
+            }),
+          });
+        } catch (err) {
+          console.error('Error writing referral reward to Firestore:', err);
+        }
+      }
+
+      // Local mirror
+      const local = dbManager.getUserCredits(referrerUserId);
+      local.totalRemaining = balanceAfter;
+      (dbManager as any).persist();
+
+      return {
+        success: true,
+        balanceBefore,
+        balanceAfter,
+        transactionId: txId,
+      };
+    } finally {
+      releaseLock();
+    }
+  }
+
+  /**
    * Fetches recent transactions for a user
    */
   public static async getTransactions(userId: string, authToken?: string): Promise<CreditTransactionRecord[]> {

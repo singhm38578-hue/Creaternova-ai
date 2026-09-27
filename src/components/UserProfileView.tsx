@@ -31,14 +31,16 @@ import { UsageDashboard } from './UsageDashboard';
 import { PricingScreen } from './PricingScreen';
 import { AdminPanel } from './AdminPanel';
 import { AICostDashboard } from './AICostDashboard';
+import { ReferralEarnView } from './ReferralEarnView';
+import { Gift } from 'lucide-react';
 
 interface UserProfileViewProps {
-  initialSubTab?: 'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin' | 'ai_costs';
+  initialSubTab?: 'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin' | 'ai_costs' | 'referrals';
 }
 
 export const UserProfileView: React.FC<UserProfileViewProps> = ({ initialSubTab = 'profile' }) => {
   const { user, logout, updateProfile, openAuthModal } = useAuth();
-  const [subTab, setSubTab] = useState<'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin' | 'ai_costs'>(initialSubTab);
+  const [subTab, setSubTab] = useState<'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin' | 'ai_costs' | 'referrals'>(initialSubTab);
 
   // Edit Profile Form
   const [isEditing, setIsEditing] = useState(false);
@@ -109,6 +111,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({ initialSubTab 
 
   const navItems = [
     { id: 'profile' as const, label: 'Profile Overview', icon: UserIcon },
+    { id: 'referrals' as const, label: 'Invite & Earn Credits', icon: Gift },
     { id: 'brand_kit' as const, label: 'Brand Kit', icon: Palette },
     { id: 'usage' as const, label: 'Usage & Credits', icon: Coins },
     { id: 'billing' as const, label: 'Subscription & Billing', icon: CreditCard },
@@ -355,6 +358,8 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({ initialSubTab 
           )}
         </div>
       )}
+
+      {subTab === 'referrals' && <ReferralEarnView />}
 
       {subTab === 'brand_kit' && <BrandKitView />}
 

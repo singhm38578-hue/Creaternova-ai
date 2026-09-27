@@ -82,3 +82,4 @@ export const PLAN_DEFINITIONS: Record<'free' | 'pro' | 'creator' | 'business', P
 };
 
 export const INITIAL_FREE_PLAN_CREDITS = PLAN_DEFINITIONS.free.monthlyCredits; // 50
+export const REFERRAL_REWARD_CREDITS = 25; // Bonus credits awarded per qualified referral

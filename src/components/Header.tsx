@@ -31,6 +31,7 @@ interface HeaderProps {
   onSelectProject: (id: string) => void;
   onOpenNewProject: () => void;
   onOpenExportModal: () => void;
+  onOpenShareTemplateModal?: () => void;
   onToggleMobileSidebar?: () => void;
   onNavigate?: (tab: ActiveTab) => void;
 }
@@ -42,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectProject,
   onOpenNewProject,
   onOpenExportModal,
+  onOpenShareTemplateModal,
   onToggleMobileSidebar,
   onNavigate,
 }) => {
@@ -145,6 +147,18 @@ export const Header: React.FC<HeaderProps> = ({
           <Plus className="w-3.5 h-3.5 text-violet-400" />
           <span>New</span>
         </button>
+
+        {/* Share Project as Template Button */}
+        {onOpenShareTemplateModal && (
+          <button
+            onClick={onOpenShareTemplateModal}
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+            title="Share this project workflow as a template"
+          >
+            <Share2 className="w-3.5 h-3.5 text-violet-400" />
+            <span>Share Template</span>
+          </button>
+        )}
 
         {/* Project Selector Dropdown */}
         <div className="relative">

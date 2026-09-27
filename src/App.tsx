@@ -32,6 +32,8 @@ import { RepurposingAgentModal } from './components/RepurposingAgentModal';
 import { BottomNav } from './components/BottomNav';
 import { AuthModal } from './components/auth/AuthModal';
 import { InsufficientCreditModal } from './components/InsufficientCreditModal';
+import { ShareTemplateModal } from './components/ShareTemplateModal';
+import { TemplatePreviewModal } from './components/TemplatePreviewModal';
 import { useAuth } from './contexts/AuthContext';
 import { IdeaItem, Project, Character } from './types/content';
 import {
@@ -55,6 +57,10 @@ export default function App() {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isRepurposeModalOpen, setIsRepurposeModalOpen] = useState(false);
+  const [isShareTemplateModalOpen, setIsShareTemplateModalOpen] = useState(false);
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+  const [referralBanner, setReferralBanner] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [activeCharacterId, setActiveCharacterId] = useState<string>('');
 
@@ -65,6 +71,33 @@ export default function App() {
   // Ensure active project exists
   const activeProject =
     projects.find((p) => p.id === activeProjectId) || projects[0];
+
+  // Inspect URL for shareable template or referral link on mount
+  useEffect(() => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const templateParam = searchParams.get('template');
+      const refParam = searchParams.get('ref');
+
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      const pathTemplate = pathParts[0] === 'template' ? pathParts[1] : null;
+      const pathRef = pathParts[0] === 'ref' ? pathParts[1] : null;
+
+      const activeTemplate = templateParam || pathTemplate;
+      if (activeTemplate) {
+        setPreviewTemplateId(activeTemplate);
+      }
+
+      const activeRef = refParam || pathRef;
+      if (activeRef) {
+        localStorage.setItem('creatornova_referral_code', activeRef);
+        studioApi.referrals.recordClick(activeRef).catch(() => {});
+        setReferralBanner('Welcome to CreatorNova! You were invited by a creator. Sign up to get bonus credits!');
+      }
+    } catch (e) {
+      console.warn('URL parsing error:', e);
+    }
+  }, []);
 
   // Save changes to storage whenever projects update
   useEffect(() => {
@@ -236,9 +269,36 @@ export default function App() {
           onSelectProject={handleSelectProject}
           onOpenNewProject={handleOpenNewProject}
           onOpenExportModal={() => setIsExportModalOpen(true)}
+          onOpenShareTemplateModal={() => setIsShareTemplateModalOpen(true)}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           onNavigate={(tab) => setActiveTab(tab)}
         />
+
+        {/* Referral Invitation Banner */}
+        {referralBanner && (
+          <div className="bg-gradient-to-r from-violet-700 via-indigo-600 to-violet-800 px-4 py-2 text-white text-xs font-semibold flex items-center justify-between shadow-md shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">🎁</span>
+              <span>{referralBanner}</span>
+            </div>
+            <button
+              onClick={() => setReferralBanner(null)}
+              className="text-white/80 hover:text-white text-xs font-bold px-2 py-0.5 rounded bg-black/20 hover:bg-black/30 cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Global Toast Notification */}
+        {toastMessage && (
+          <div className="bg-emerald-600 px-4 py-2 text-white text-xs font-bold flex items-center justify-between shadow-lg shrink-0 animate-in fade-in">
+            <span>{toastMessage}</span>
+            <button onClick={() => setToastMessage(null)} className="text-white/80 hover:text-white cursor-pointer">
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Scrollable Tool Body with bottom padding on mobile for BottomNav */}
         <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 bg-slate-950 pb-20 md:pb-0">
@@ -459,6 +519,33 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Share as Template Modal */}
+      {isShareTemplateModalOpen && (
+        <ShareTemplateModal
+          isOpen={true}
+          project={activeProject}
+          onClose={() => setIsShareTemplateModalOpen(false)}
+          onOpenPreview={(id) => setPreviewTemplateId(id)}
+        />
+      )}
+
+      {/* Public Template Preview Modal */}
+      {previewTemplateId && (
+        <TemplatePreviewModal
+          isOpen={true}
+          templateId={previewTemplateId}
+          onClose={() => setPreviewTemplateId(null)}
+          onProjectCreated={(newProj) => {
+            setProjects((prev) => [newProj, ...prev]);
+            setActiveId(newProj.id);
+            setActiveTab('overview');
+            setToastMessage(`Template "${newProj.name}" copied into your workspace!`);
+            setTimeout(() => setToastMessage(null), 3500);
+          }}
+        />
+      )}
     </div>
   );
 }
+
