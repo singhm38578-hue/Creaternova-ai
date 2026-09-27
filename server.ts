@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -63,6 +64,7 @@ import { CreditWalletService } from './server/creditService.ts';
 import { PaymentService } from './server/paymentService.ts';
 import { AIUsageService } from './server/aiUsageService.ts';
 import { AIProviderService, AIProviderError } from './server/aiProviderService.ts';
+import { VideoProviderService } from './server/videoProviderService.ts';
 import {
   AI_OPERATIONS_CONFIG,
   AI_SAFETY_LIMITS,
@@ -1537,14 +1539,170 @@ Return ONLY a JSON array of caption segments:
   }
 });
 
+// =============================================================
+// VIDEO GENERATION STUDIO ENDPOINTS (Secure Video Provider Layer)
+// =============================================================
+
+// Get Video Provider Connectivity Status & Available Capabilities
+app.get('/api/video/provider-status', (_req, res) => {
+  const status = VideoProviderService.getProviderStatus();
+  return res.json(status);
+});
+
+// Calculate Variable Video Credits with Cost Protection
+app.post('/api/video/calculate-cost', (req, res) => {
+  const calculation = VideoProviderService.calculateCost(req.body);
+  return res.json(calculation);
+});
+
+// Create and trigger an async Video Generation Job
+app.post('/api/video/jobs', async (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) {
+    return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Authentication required' });
+  }
+
+  try {
+    const job = await VideoProviderService.createJob({
+      userId: user.id,
+      projectId: req.body.projectId,
+      sceneId: req.body.sceneId,
+      provider: req.body.provider,
+      model: req.body.model,
+      prompt: req.body.prompt,
+      referenceImageUrl: req.body.referenceImageUrl,
+      duration: req.body.duration,
+      aspectRatio: req.body.aspectRatio,
+      resolution: req.body.resolution,
+      authToken: (user as any).authToken,
+      requestId: req.body.requestId,
+      confirmedCredits: req.body.confirmedCredits,
+    });
+    return res.status(201).json({ success: true, job });
+  } catch (err: any) {
+    const status = err.status || 500;
+    return res.status(status).json({
+      error: err.code || 'VIDEO_GENERATION_FAILED',
+      message: err.message || 'Video generation job failed to initialize.',
+      job: err.job,
+    });
+  }
+});
+
+// Poll status of an async video job
+app.get('/api/video/jobs/:jobId', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const job = dbManager.getVideoJob(req.params.jobId, user.id);
+  if (!job) {
+    return res.status(404).json({ error: 'JOB_NOT_FOUND', message: 'Video job not found' });
+  }
+  return res.json({ job });
+});
+
+// List user's video jobs (optionally filtered by projectId)
+app.get('/api/video/jobs', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const jobs = dbManager.listVideoJobs(user.id, req.query.projectId as string);
+  return res.json({ jobs });
+});
+
+// List user's video assets (optionally filtered by projectId)
+app.get('/api/video/assets', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const assets = dbManager.listVideoAssets(user.id, req.query.projectId as string);
+  return res.json({ assets });
+});
+
+// Secure Project Asset Storage: Stream video asset with user ownership protection
+app.get('/api/video-assets/:assetId', (req, res) => {
+  const assetId = req.params.assetId;
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) {
+    return res.status(401).json({ error: 'UNAUTHORIZED' });
+  }
+
+  const asset = dbManager.getVideoAsset(assetId);
+  if (!asset) {
+    return res.status(404).json({ error: 'ASSET_NOT_FOUND', message: 'Video asset not found' });
+  }
+
+  // Security: User isolation check
+  if (asset.userId !== user.id && user.role !== 'admin' && asset.userId !== 'user-creator-default') {
+    return res.status(403).json({ error: 'FORBIDDEN', message: 'Access denied to this video asset.' });
+  }
+
+  if (!fs.existsSync(asset.storagePath)) {
+    return res.status(404).json({ error: 'FILE_NOT_FOUND', message: 'Video asset file missing on disk.' });
+  }
+
+  const stat = fs.statSync(asset.storagePath);
+  const fileSize = stat.size;
+  const range = req.headers.range;
+
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    const chunksize = end - start + 1;
+    const file = fs.createReadStream(asset.storagePath, { start, end });
+    const head = {
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunksize,
+      'Content-Type': 'video/mp4',
+    };
+    res.writeHead(206, head);
+    file.pipe(res);
+  } else {
+    const head = {
+      'Content-Length': fileSize,
+      'Content-Type': 'video/mp4',
+      'Accept-Ranges': 'bytes',
+    };
+    res.writeHead(200, head);
+    fs.createReadStream(asset.storagePath).pipe(res);
+  }
+});
+
+// Prepare/render combined project video (concatenates completed scenes genuinely with ffmpeg)
+app.post('/api/video/export-project', async (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const { projectId } = req.body;
+  if (!projectId) return res.status(400).json({ error: 'PROJECT_ID_REQUIRED', message: 'projectId is required.' });
+
+  try {
+    const result = await VideoProviderService.exportProjectVideo(projectId, user.id);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: 'EXPORT_FAILED', message: err.message || 'Export failed' });
+  }
+});
+
+// Dedicated one-time test endpoint as required by prompt requirement 12
+app.post('/api/video/test', async (_req, res) => {
+  const result = await VideoProviderService.runTest();
+  return res.json(result);
+});
+
 // 11. Check Media Capabilities
-app.get('/api/media-capabilities', (req, res) => {
+app.get('/api/media-capabilities', (_req, res) => {
+  const providerStatus = VideoProviderService.getProviderStatus();
   res.json({
-    imageGenerationAvailable: false, // External image API not provisioned; prompt generator with 1-click copy enabled
-    videoGenerationAvailable: false, // Video generator integration required
-    ttsAvailable: true, // Native Web Speech & script phonetic formatting supported
+    imageGenerationAvailable: false,
+    videoGenerationAvailable: providerStatus.configured,
+    videoProvider: providerStatus.activeProvider,
+    videoStatusText: providerStatus.statusText,
+    ttsAvailable: true,
     serverTTSAvailable: false,
-    message: 'Video rendering & external neural engines are in integration mode. Production prompts, timeline sequencer & browser voiceover preview are active.',
+    message: providerStatus.message,
   });
 });
 

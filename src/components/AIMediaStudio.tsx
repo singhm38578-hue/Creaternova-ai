@@ -34,7 +34,9 @@ import {
   ShieldCheck,
   Edit3,
   Flame,
-  Info
+  Info,
+  Video,
+  AlertTriangle
 } from 'lucide-react';
 import {
   Project,
@@ -54,6 +56,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { GENERATION_CREDIT_COSTS } from '../config/creditCosts';
 import { CREDIT_COSTS } from '../services/credits';
 import { ExpensiveVideoProtectionModal } from './ExpensiveVideoProtectionModal';
+import { VideoStudioView } from './VideoStudioView';
 
 interface AIMediaStudioProps {
   project: Project;
@@ -68,8 +71,9 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
 }) => {
   // Sub-modules inside AI Media Studio
   const [activeStudioSection, setActiveStudioSection] = useState<
-    'pipeline' | 'thumbnail' | 'voiceover' | 'scenes' | 'timeline' | 'captions' | 'music' | 'preview'
+    'pipeline' | 'video_studio' | 'thumbnail' | 'voiceover' | 'scenes' | 'timeline' | 'captions' | 'music' | 'preview'
   >('pipeline');
+  const [selectedSceneForVideo, setSelectedSceneForVideo] = useState<string | null>(null);
 
   // Credits state from authoritative backend context
   const { credits, creditConfig, openInsufficientCreditModal, refreshCredits } = useAuth();
@@ -173,6 +177,37 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
   const [currentScenePreviewIdx, setCurrentScenePreviewIdx] = useState(0);
   const [previewProgress, setPreviewProgress] = useState(0);
+
+  // Video Export state (Requirement 9)
+  const [isExportingVideo, setIsExportingVideo] = useState(false);
+  const [exportResult, setExportResult] = useState<any | null>(null);
+
+  const handleExportProjectVideo = async () => {
+    setIsExportingVideo(true);
+    setExportResult(null);
+    try {
+      const res = await studioApi.video.exportProject(project.id);
+      setExportResult(res);
+      if (res.success && res.exportedVideoUrl) {
+        onUpdateProject({
+          ...project,
+          renderedVideoUrl: res.exportedVideoUrl,
+          mediaStudio: {
+            ...project.mediaStudio,
+            renderedVideoUrl: res.exportedVideoUrl,
+          } as any,
+        });
+      }
+    } catch (err: any) {
+      setExportResult({
+        success: false,
+        status: 'Video Rendering Integration Required',
+        message: err.message || 'Video Rendering Integration Required',
+      });
+    } finally {
+      setIsExportingVideo(false);
+    }
+  };
 
   // Copy helper
   const handleCopy = (text: string, label: string) => {
@@ -770,6 +805,7 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
       <div className="flex items-center gap-1.5 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 overflow-x-auto scrollbar-none">
         {[
           { id: 'pipeline' as const, label: 'Video Pipeline', icon: Film },
+          { id: 'video_studio' as const, label: 'Video Studio', icon: Video },
           { id: 'thumbnail' as const, label: 'Thumbnail Studio', icon: ImageIcon },
           { id: 'voiceover' as const, label: 'AI Voiceover', icon: Mic },
           { id: 'scenes' as const, label: 'Scene Media', icon: Clapperboard },
@@ -798,6 +834,18 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
       </div>
 
       {/* =========================================================================
+       * 1b. AI VIDEO GENERATION STUDIO
+       * ========================================================================= */}
+      {activeStudioSection === 'video_studio' && (
+        <VideoStudioView
+          project={project}
+          onUpdateProject={onUpdateProject}
+          selectedSceneId={selectedSceneForVideo}
+          onNavigateToTab={(t: any) => setActiveStudioSection(t)}
+        />
+      )}
+
+      {/* =========================================================================
        * 1. VIDEO PRODUCTION PIPELINE ("Create Video" Button & Pipeline Flow)
        * ========================================================================= */}
       {activeStudioSection === 'pipeline' && (
@@ -814,9 +862,9 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
                 </p>
               </div>
 
-              {/* Main "Create Video" Button with Expensive Video Protection Check */}
+              {/* Main "Create Video" Button - Opens Video Studio */}
               <button
-                onClick={() => setShowVideoProtectionModal(true)}
+                onClick={() => setActiveStudioSection('video_studio')}
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white text-xs font-extrabold shadow-lg shadow-violet-600/30 transition-all cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
@@ -1284,15 +1332,39 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
                           {scene.mediaStatus || 'prompt_ready'}
                         </span>
 
-                        {/* Regenerate Consistent Prompt Button */}
-                        <button
-                          onClick={() => handleGenerateConsistentScenePrompt(scene.sceneNumber)}
-                          disabled={isGeneratingThis}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-bold border border-purple-500/40"
-                        >
-                          <Sparkles className={`w-3 h-3 ${isGeneratingThis ? 'animate-spin' : ''}`} />
-                          <span>{isGeneratingThis ? 'Generating...' : 'Regenerate Prompt'}</span>
-                        </button>
+                        {/* Workflow Actions: Generate Image, Generate Voice, Generate Video */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleGenerateConsistentScenePrompt(scene.sceneNumber)}
+                            disabled={isGeneratingThis}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-bold border border-purple-500/40 cursor-pointer"
+                            title="Generate Scene Image Prompt"
+                          >
+                            <ImageIcon className="w-3 h-3" />
+                            <span className="hidden sm:inline">Gen Image</span>
+                          </button>
+
+                          <button
+                            onClick={() => setActiveStudioSection('voiceover')}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 text-xs font-bold border border-cyan-500/40 cursor-pointer"
+                            title="Generate Scene Voiceover"
+                          >
+                            <Mic className="w-3 h-3" />
+                            <span className="hidden sm:inline">Gen Voice</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelectedSceneForVideo(scene.id);
+                              setActiveStudioSection('video_studio');
+                            }}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-pink-600/20 hover:bg-pink-600/30 text-pink-300 text-xs font-bold border border-pink-500/40 cursor-pointer"
+                            title="Generate Scene Video Clip"
+                          >
+                            <Video className="w-3 h-3" />
+                            <span className="font-extrabold">Gen Video</span>
+                          </button>
+                        </div>
 
                         <button
                           onClick={() => setExpandedSceneId(isExpanded ? null : (scene.id || `scene-${scene.sceneNumber}`))}
@@ -1378,105 +1450,258 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
               </div>
             </div>
 
-            {/* Timeline Strip */}
-            <div className="space-y-3">
-              {scenes.map((scene, idx) => (
-                <div
-                  key={scene.id || idx}
-                  className="bg-slate-950 p-4 rounded-xl border border-slate-800 hover:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors"
-                >
-                  {/* Left: Shot badge and thumbnail preview */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-7 h-7 rounded-lg bg-slate-800 text-slate-200 font-bold text-xs flex items-center justify-center shrink-0">
-                      #{scene.sceneNumber}
-                    </span>
-                    <div className="min-w-0">
-                      <div className="text-xs font-bold text-white truncate max-w-xs sm:max-w-md">
-                        {scene.captionText || scene.voiceover || scene.visualDescription}
+            {/* Timeline Strip - Scenes in Scene Order (Requirement 8) */}
+            <div className="space-y-4">
+              {scenes.map((scene, idx) => {
+                const hasVideo = !!scene.mediaUrl || scene.mediaType === 'video';
+
+                return (
+                  <div
+                    key={scene.id || idx}
+                    className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all space-y-3"
+                  >
+                    {/* Top Row: Scene number, duration, reordering, transition */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-900 pb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-xl bg-violet-600/30 text-violet-300 font-extrabold text-xs flex items-center justify-center border border-violet-500/40">
+                          #{scene.sceneNumber}
+                        </span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-white">Scene {scene.sceneNumber}</span>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">
+                              {scene.durationSeconds || 5}s sequence
+                            </span>
+                            <span
+                              className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
+                                hasVideo
+                                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+                                  : 'bg-amber-950/60 text-amber-300 border border-amber-500/30'
+                              }`}
+                            >
+                              {hasVideo ? 'Video Clip Ready' : 'Pending Clip'}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-[10px] text-slate-500 flex items-center gap-2 mt-0.5">
-                        <span>Duration: {scene.durationSeconds || 5}s</span>
-                        <span>&bull;</span>
-                        <span>Transition: {scene.transition || 'cut'}</span>
+
+                      {/* Controls: Duration +/- & Reorder & Transition selector */}
+                      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <div className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">
+                          <button
+                            onClick={() => handleChangeSceneDuration(idx, -1)}
+                            className="text-xs font-bold px-1.5 text-slate-400 hover:text-white cursor-pointer"
+                          >
+                            -
+                          </button>
+                          <span className="text-xs font-mono font-bold text-white px-1">
+                            {scene.durationSeconds || 5}s
+                          </span>
+                          <button
+                            onClick={() => handleChangeSceneDuration(idx, 1)}
+                            className="text-xs font-bold px-1.5 text-slate-400 hover:text-white cursor-pointer"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <select
+                          value={scene.transition || 'dissolve'}
+                          onChange={(e) => handleChangeTransition(idx, e.target.value as SceneTransition)}
+                          className="bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-slate-300 cursor-pointer"
+                        >
+                          <option value="cut">Cut</option>
+                          <option value="fade">Fade</option>
+                          <option value="dissolve">Dissolve</option>
+                          <option value="slide">Slide</option>
+                          <option value="zoom">Zoom</option>
+                        </select>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleMoveScene(idx, 'up')}
+                            disabled={idx === 0}
+                            className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleMoveScene(idx, 'down')}
+                            disabled={idx === scenes.length - 1}
+                            className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => handleDuplicateScene(idx)}
+                          className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-300 cursor-pointer"
+                          title="Duplicate Scene"
+                        >
+                          <DuplicateIcon className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteScene(idx)}
+                          disabled={scenes.length <= 1}
+                          className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-red-400 disabled:opacity-30 cursor-pointer"
+                          title="Delete Scene"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Associated Scene Assets: Video Clip, Voiceover, Caption/Script (Requirement 8) */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                      {/* 1. Video Clip Component */}
+                      <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-pink-400 flex items-center gap-1">
+                            <Video className="w-3 h-3" />
+                            <span>Video Clip</span>
+                          </span>
+                          {!hasVideo && (
+                            <button
+                              onClick={() => {
+                                setSelectedSceneForVideo(scene.id);
+                                setActiveStudioSection('video_studio');
+                              }}
+                              className="text-[10px] font-bold text-pink-400 hover:text-pink-300 underline cursor-pointer"
+                            >
+                              Generate Clip &rarr;
+                            </button>
+                          )}
+                        </div>
+
+                        {hasVideo && scene.mediaUrl ? (
+                          <div className="space-y-1.5">
+                            <div className="rounded-lg overflow-hidden bg-black aspect-video border border-slate-800">
+                              <video src={scene.mediaUrl} controls className="w-full h-full object-cover" />
+                            </div>
+                            {scene.videoMetadata && (
+                              <p className="text-[9px] font-mono text-slate-400 truncate">
+                                {scene.videoMetadata.resolution} &bull; {scene.videoMetadata.duration}s &bull; {scene.videoMetadata.model}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="p-3 bg-slate-950/70 border border-dashed border-slate-800 rounded-lg text-center space-y-1">
+                            <p className="text-[11px] text-slate-400">No clip rendered</p>
+                            <button
+                              onClick={() => {
+                                setSelectedSceneForVideo(scene.id);
+                                setActiveStudioSection('video_studio');
+                              }}
+                              className="px-2.5 py-1 rounded-md bg-pink-600/30 hover:bg-pink-600/40 text-pink-300 text-[10px] font-bold border border-pink-500/40 cursor-pointer"
+                            >
+                              Open in Video Studio
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 2. Voiceover Component */}
+                      <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1">
+                            <Mic className="w-3 h-3" />
+                            <span>Voiceover Line</span>
+                          </span>
+                          <span className="text-[9px] font-mono text-slate-500">Host Audio</span>
+                        </div>
+                        <p className="text-xs text-slate-200 italic bg-slate-950/60 p-2.5 rounded-lg border border-slate-850 leading-relaxed">
+                          "{scene.voiceover || scene.captionText || 'No voiceover line set'}"
+                        </p>
+                      </div>
+
+                      {/* 3. Caption / Script Component */}
+                      <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-400 flex items-center gap-1">
+                            <Tv className="w-3 h-3" />
+                            <span>Caption & Graphics</span>
+                          </span>
+                          <span className="text-[9px] font-mono text-slate-500">Overlay</span>
+                        </div>
+                        <p className="text-xs font-mono font-bold text-yellow-300 bg-yellow-950/20 p-2.5 rounded-lg border border-yellow-800/30">
+                          {scene.onScreenText || scene.captionText || `Scene ${scene.sceneNumber} Graphic`}
+                        </p>
                       </div>
                     </div>
                   </div>
+                );
+              })}
+            </div>
 
-                  {/* Right: Duration +/- & Reorder & Transition selector */}
-                  <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                    {/* Duration Controls */}
-                    <div className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">
-                      <button
-                        onClick={() => handleChangeSceneDuration(idx, -1)}
-                        className="text-xs font-bold px-1.5 text-slate-400 hover:text-white"
-                      >
-                        -
-                      </button>
-                      <span className="text-xs font-mono font-bold text-white px-1">
-                        {scene.durationSeconds || 5}s
-                      </span>
-                      <button
-                        onClick={() => handleChangeSceneDuration(idx, 1)}
-                        className="text-xs font-bold px-1.5 text-slate-400 hover:text-white"
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    {/* Transition Selector */}
-                    <select
-                      value={scene.transition || 'dissolve'}
-                      onChange={(e) => handleChangeTransition(idx, e.target.value as SceneTransition)}
-                      className="bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-slate-300"
-                    >
-                      <option value="cut">Cut</option>
-                      <option value="fade">Fade</option>
-                      <option value="dissolve">Dissolve</option>
-                      <option value="slide">Slide</option>
-                      <option value="zoom">Zoom</option>
-                    </select>
-
-                    {/* Up / Down Reorder */}
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleMoveScene(idx, 'up')}
-                        disabled={idx === 0}
-                        className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-30"
-                        title="Move Up"
-                      >
-                        <ArrowUp className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleMoveScene(idx, 'down')}
-                        disabled={idx === scenes.length - 1}
-                        className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-30"
-                        title="Move Down"
-                      >
-                        <ArrowDown className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Duplicate */}
-                    <button
-                      onClick={() => handleDuplicateScene(idx)}
-                      className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-300"
-                      title="Duplicate Scene"
-                    >
-                      <DuplicateIcon className="w-3.5 h-3.5" />
-                    </button>
-
-                    {/* Delete */}
-                    <button
-                      onClick={() => handleDeleteScene(idx)}
-                      disabled={scenes.length <= 1}
-                      className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-red-400 disabled:opacity-30"
-                      title="Delete Scene"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+            {/* Export Preparation Architecture (Requirement 9) */}
+            <div className="mt-8 pt-6 border-t border-slate-800 space-y-4">
+              <div className="bg-gradient-to-r from-violet-950/40 via-slate-950 to-indigo-950/40 p-5 sm:p-6 rounded-2xl border border-violet-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-violet-400" />
+                    <span>Project Video Export Preparation</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Concatenate completed scene clips, voiceover sync, and captions into a single export video.
+                  </p>
+                  <p className="text-[11px] font-mono text-slate-500 mt-1">
+                    Completed scenes: {scenes.filter((s) => !!s.mediaUrl).length} of {scenes.length} clips ready
+                  </p>
                 </div>
-              ))}
+
+                <button
+                  onClick={handleExportProjectVideo}
+                  disabled={isExportingVideo}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-black shadow-lg shadow-violet-600/30 transition-all flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-50"
+                >
+                  <Film className="w-4 h-4" />
+                  <span>{isExportingVideo ? 'Rendering Video Stream...' : 'Render & Export Master Video'}</span>
+                </button>
+              </div>
+
+              {/* Export Result Notice / Video Rendering Integration Required */}
+              {exportResult && (
+                <div
+                  className={`p-4 rounded-xl border text-xs space-y-2 animate-in fade-in ${
+                    exportResult.success
+                      ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-200'
+                      : 'bg-amber-950/40 border-amber-500/50 text-amber-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 font-bold">
+                    {exportResult.success ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <AlertTriangle className="w-4 h-4 text-amber-400" />
+                    )}
+                    <span className="uppercase tracking-wider">
+                      {exportResult.status || (exportResult.success ? 'Export Ready' : 'Video Rendering Integration Required')}
+                    </span>
+                  </div>
+
+                  <p className="text-slate-300">{exportResult.message}</p>
+
+                  {exportResult.exportedVideoUrl && (
+                    <div className="pt-2 space-y-2">
+                      <div className="rounded-xl overflow-hidden aspect-video bg-black max-w-md border border-slate-800">
+                        <video src={exportResult.exportedVideoUrl} controls className="w-full h-full" />
+                      </div>
+                      <a
+                        href={exportResult.exportedVideoUrl}
+                        download={`project_${project.name.replace(/\s+/g, '_')}.mp4`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download Master MP4</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

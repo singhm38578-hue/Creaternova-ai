@@ -119,6 +119,21 @@ export interface SceneItem {
   transition?: SceneTransition;
   captionText?: string;
   durationSeconds?: number;
+  videoMetadata?: {
+    jobId: string;
+    assetId?: string;
+    provider: string;
+    model: string;
+    prompt: string;
+    duration: number;
+    aspectRatio: string;
+    resolution: string;
+    status?: string;
+    creditsCharged: number;
+    requestId: string;
+    createdAt: string;
+    storagePath?: string;
+  };
 }
 
 export interface SEOTitleVariation {
@@ -378,6 +393,7 @@ export interface Project {
   translations: TranslationItem[];
   contentPack?: ContentPackResult;
   mediaStudio?: MediaStudioData;
+  renderedVideoUrl?: string;
 }
 
 // -------------------------------------------------------------
@@ -557,4 +573,76 @@ export interface StrategyRecommendation {
   metricsImpact: string;
   priority: 'High' | 'Medium' | 'Growth';
 }
+
+export interface VideoJob {
+  id: string;
+  userId: string;
+  projectId: string;
+  sceneId?: string | null;
+  provider: string;
+  model: string;
+  prompt: string;
+  referenceImageUrl?: string | null;
+  duration: number;
+  aspectRatio: '16:9' | '9:16' | '1:1';
+  resolution: '720p' | '1080p' | '4k';
+  status: 'Queued' | 'Generating' | 'Completed' | 'Failed';
+  storagePath?: string | null;
+  videoUrl?: string | null;
+  creditsCharged: number;
+  creditsReserved?: number;
+  requestId: string;
+  errorMessage?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string | null;
+}
+
+export interface VideoAsset {
+  id: string;
+  userId: string;
+  projectId: string;
+  sceneId?: string | null;
+  jobId: string;
+  provider: string;
+  model: string;
+  prompt: string;
+  duration: number;
+  aspectRatio: string;
+  resolution: string;
+  status: 'completed';
+  storagePath: string;
+  videoUrl: string;
+  creditsCharged: number;
+  requestId: string;
+  createdAt: string;
+}
+
+export interface VideoProviderStatus {
+  configured: boolean;
+  activeProvider: string | null;
+  statusText: 'Connected' | 'Video Provider Setup Required';
+  availableProviders: Array<{
+    id: string;
+    name: string;
+    configured: boolean;
+    models: any[];
+  }>;
+  supportedModels: Array<{
+    id: string;
+    name: string;
+    provider: string;
+    resolutions: string[];
+    aspectRatios: string[];
+    durations: number[];
+    supportsImageToVideo: boolean;
+    supportsTextToVideo: boolean;
+    tier: 'standard' | 'hd' | 'cinematic';
+  }>;
+  supportedAspectRatios: string[];
+  supportedResolutions: string[];
+  supportedDurations: number[];
+  message: string;
+}
+
 

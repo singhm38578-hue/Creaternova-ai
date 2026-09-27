@@ -493,4 +493,86 @@ export const studioApi = {
         method: 'DELETE',
       }),
   },
+
+  // AI Video Studio & Provider Layer
+  video: {
+    getProviderStatus: () =>
+      fetchApi<{
+        configured: boolean;
+        activeProvider: string | null;
+        statusText: 'Connected' | 'Video Provider Setup Required';
+        availableProviders: any[];
+        supportedModels: any[];
+        supportedAspectRatios: string[];
+        supportedResolutions: string[];
+        supportedDurations: number[];
+        message: string;
+      }>('/api/video/provider-status'),
+
+    calculateCost: (params: {
+      provider?: string;
+      model?: string;
+      durationSeconds?: number;
+      resolution?: '720p' | '1080p' | '4k';
+      numberOfVideos?: number;
+    }) =>
+      fetchApi<any>('/api/video/calculate-cost', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }),
+
+    createJob: (params: {
+      projectId: string;
+      sceneId?: string | null;
+      provider?: string;
+      model?: string;
+      prompt: string;
+      referenceImageUrl?: string | null;
+      duration?: number;
+      aspectRatio?: '16:9' | '9:16' | '1:1';
+      resolution?: '720p' | '1080p' | '4k';
+      confirmedCredits?: number;
+      requestId?: string;
+    }) =>
+      fetchApi<{ success: boolean; job: any }>('/api/video/jobs', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }),
+
+    getJob: (jobId: string) =>
+      fetchApi<{ job: any }>(`/api/video/jobs/${jobId}`),
+
+    listJobs: (projectId?: string) => {
+      const q = projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
+      return fetchApi<{ jobs: any[] }>(`/api/video/jobs${q}`);
+    },
+
+    listAssets: (projectId?: string) => {
+      const q = projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
+      return fetchApi<{ assets: any[] }>(`/api/video/assets${q}`);
+    },
+
+    exportProject: (projectId: string) =>
+      fetchApi<{
+        success: boolean;
+        status: 'Ready' | 'Video Rendering Integration Required';
+        exportedVideoUrl?: string;
+        message: string;
+        completedScenesCount?: number;
+        totalScenesCount?: number;
+      }>('/api/video/export-project', {
+        method: 'POST',
+        body: JSON.stringify({ projectId }),
+      }),
+
+    runTest: () =>
+      fetchApi<{
+        status: 'PASS' | 'FAIL' | 'PROVIDER REQUIRED';
+        message: string;
+        details?: any;
+      }>('/api/video/test', {
+        method: 'POST',
+      }),
+  },
 };
+

@@ -112,6 +112,16 @@
       "totalRemaining": 95,
       "monthlyAllocation": 200,
       "lastResetDate": "2026-09-27T09:27:02.752Z"
+    },
+    "test-user-1790501843064": {
+      "userId": "test-user-1790501843064",
+      "textCredits": 38,
+      "imageCredits": 28,
+      "voiceCredits": 19,
+      "videoCredits": 10,
+      "totalRemaining": 95,
+      "monthlyAllocation": 200,
+      "lastResetDate": "2026-09-27T09:37:23.064Z"
     }
   },
   "creditConfig": {
@@ -1107,6 +1117,19 @@
       "createdAt": "2026-09-27T09:27:02.754Z",
       "updatedAt": "2026-09-27T09:27:02.759Z",
       "testField": "Unit test mock data generator for pipeline logic verification"
+    },
+    "project-1790501843065": {
+      "name": "Pipeline Test Project",
+      "topic": "Artificial Intelligence in 2026",
+      "platform": "YouTube Shorts",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Tech Creators",
+      "id": "project-1790501843065",
+      "userId": "test-user-1790501843064",
+      "createdAt": "2026-09-27T09:37:23.065Z",
+      "updatedAt": "2026-09-27T09:37:23.071Z",
+      "testField": "Unit test mock data generator for pipeline logic verification"
     }
   },
   "resetTokens": {},
@@ -1926,6 +1949,70 @@
       "requestId": "req_1790501255907_1d2c70",
       "createdAt": "2026-09-27T09:27:36.195Z",
       "errorMessage": "AI service quota exceeded or rate limited. Please try again in a few moments."
+    },
+    "usage_req_1790501843066_e81225": {
+      "id": "usage_req_1790501843066_e81225",
+      "userId": "test-user-1790501843064",
+      "projectId": "project-1790501843065",
+      "operation": "test_failure_op",
+      "provider": "google",
+      "model": "gemini-3.8-flash",
+      "creditsCharged": 0,
+      "estimatedProviderCost": null,
+      "status": "failed",
+      "requestId": "req_1790501843066_e81225",
+      "createdAt": "2026-09-27T09:37:23.067Z",
+      "errorMessage": "Simulated upstream provider outage"
+    },
+    "usage_req_1790501843070_c03914be": {
+      "id": "usage_req_1790501843070_c03914be",
+      "userId": "test-user-1790501843064",
+      "projectId": "project-1790501843065",
+      "operation": "test_success_op",
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "creditsCharged": 5,
+      "estimatedProviderCost": null,
+      "status": "success",
+      "requestId": "req_1790501843070_c03914be",
+      "createdAt": "2026-09-27T09:37:23.070Z",
+      "metadata": {}
+    },
+    "usage_vjob_1790502892090_0e3bc5": {
+      "id": "usage_vjob_1790502892090_0e3bc5",
+      "userId": "user-creator-default",
+      "projectId": "proj_demo",
+      "operation": "video_generation",
+      "provider": "google-veo",
+      "model": "veo-3.1-lite-generate-preview",
+      "creditsCharged": 0,
+      "estimatedProviderCost": null,
+      "status": "failed",
+      "requestId": "req_test_1",
+      "createdAt": "2026-09-27T09:54:52.090Z",
+      "errorMessage": "Video Provider Setup Required. A supported video provider (Google Veo with paid quota via VEO_API_KEY, RunwayML, Luma, or Replicate) must be configured in your cloud environment."
     }
-  }
+  },
+  "videoJobs": {
+    "vjob_1790502892090_0e3bc5": {
+      "id": "vjob_1790502892090_0e3bc5",
+      "userId": "user-creator-default",
+      "projectId": "proj_demo",
+      "sceneId": "scene_1",
+      "provider": "google-veo",
+      "model": "veo-3.1-lite-generate-preview",
+      "prompt": "A friendly cartoon robot exploring a colorful futuristic city",
+      "referenceImageUrl": null,
+      "duration": 5,
+      "aspectRatio": "16:9",
+      "resolution": "720p",
+      "status": "Failed",
+      "creditsCharged": 0,
+      "requestId": "req_test_1",
+      "errorMessage": "Video Provider Setup Required. A supported video provider (Google Veo with paid quota via VEO_API_KEY, RunwayML, Luma, or Replicate) must be configured in your cloud environment.",
+      "createdAt": "2026-09-27T09:54:52.090Z",
+      "updatedAt": "2026-09-27T09:54:52.090Z"
+    }
+  },
+  "videoAssets": {}
 }

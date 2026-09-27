@@ -290,6 +290,52 @@ export interface AgentActivityRecord {
   creditsUsed?: number;
 }
 
+export interface VideoJobRecord {
+  id: string;
+  userId: string;
+  projectId: string;
+  sceneId?: string | null;
+  provider: string; // 'google-veo' | 'runway' | 'luma' | 'replicate'
+  model: string;
+  prompt: string;
+  referenceImageUrl?: string | null;
+  duration: number; // in seconds
+  aspectRatio: '16:9' | '9:16' | '1:1';
+  resolution: '720p' | '1080p' | '4k';
+  status: 'Queued' | 'Generating' | 'Completed' | 'Failed';
+  storagePath?: string | null;
+  videoUrl?: string | null;
+  creditsCharged: number;
+  creditsReserved?: number;
+  requestId: string;
+  operationName?: string | null;
+  providerJobId?: string | null;
+  errorMessage?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string | null;
+}
+
+export interface VideoAssetRecord {
+  id: string;
+  userId: string;
+  projectId: string;
+  sceneId?: string | null;
+  jobId: string;
+  provider: string;
+  model: string;
+  prompt: string;
+  duration: number;
+  aspectRatio: string;
+  resolution: string;
+  status: 'completed';
+  storagePath: string;
+  videoUrl: string;
+  creditsCharged: number;
+  requestId: string;
+  createdAt: string;
+}
+
 export interface DatabaseSchema {
   users: Record<string, UserRecord>;
   sessions: Record<string, { userId: string; expiresAt: number }>;
@@ -311,6 +357,8 @@ export interface DatabaseSchema {
   subscriptions: Record<string, SubscriptionRecord>;
   processedWebhookEvents: Record<string, { eventId: string; processedAt: string; status: string }>;
   aiUsageRecords: Record<string, AIUsageRecord>;
+  videoJobs: Record<string, VideoJobRecord>;
+  videoAssets: Record<string, VideoAssetRecord>;
 }
 
 function hashPassword(password: string): string {
@@ -369,6 +417,8 @@ class DatabaseManager {
       subscriptions: {},
       processedWebhookEvents: {},
       aiUsageRecords: {},
+      videoJobs: {},
+      videoAssets: {},
     };
   }
 
@@ -378,6 +428,11 @@ class DatabaseManager {
     try {
       if (!fs.existsSync(DATA_DIR)) {
         fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+
+      const assetsDir = path.join(DATA_DIR, 'assets');
+      if (!fs.existsSync(assetsDir)) {
+        fs.mkdirSync(assetsDir, { recursive: true });
       }
 
       if (fs.existsSync(DB_FILE)) {
@@ -392,6 +447,8 @@ class DatabaseManager {
         if (!this.db.subscriptions) this.db.subscriptions = {};
         if (!this.db.processedWebhookEvents) this.db.processedWebhookEvents = {};
         if (!this.db.aiUsageRecords) this.db.aiUsageRecords = {};
+        if (!this.db.videoJobs) this.db.videoJobs = {};
+        if (!this.db.videoAssets) this.db.videoAssets = {};
         if (!this.db.pricingPlans || Object.keys(this.db.pricingPlans).length === 0) {
           this.seedPricingPlans();
         }
@@ -1963,6 +2020,93 @@ class DatabaseManager {
     return records.sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
+  }
+
+  // ==========================================
+  // VIDEO GENERATION JOBS & ASSETS
+  // ==========================================
+
+  public createVideoJob(job: VideoJobRecord): VideoJobRecord {
+    this.ensureInitialized();
+    this.db.videoJobs[job.id] = job;
+    this.persist();
+    return job;
+  }
+
+  public getVideoJob(jobId: string, userId?: string): VideoJobRecord | null {
+    this.ensureInitialized();
+    const job = this.db.videoJobs[jobId] || null;
+    if (!job) return null;
+    if (userId && job.userId !== userId) return null;
+    return job;
+  }
+
+  public updateVideoJob(
+    jobId: string,
+    updates: Partial<VideoJobRecord>,
+    userId?: string
+  ): VideoJobRecord | null {
+    this.ensureInitialized();
+    const job = this.db.videoJobs[jobId];
+    if (!job) return null;
+    if (userId && job.userId !== userId) return null;
+
+    Object.assign(job, updates, { updatedAt: new Date().toISOString() });
+    this.persist();
+    return job;
+  }
+
+  public listVideoJobs(userId: string, projectId?: string): VideoJobRecord[] {
+    this.ensureInitialized();
+    let jobs = Object.values(this.db.videoJobs).filter((j) => j.userId === userId);
+    if (projectId) {
+      jobs = jobs.filter((j) => j.projectId === projectId);
+    }
+    return jobs.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  public createVideoAsset(asset: VideoAssetRecord): VideoAssetRecord {
+    this.ensureInitialized();
+    this.db.videoAssets[asset.id] = asset;
+    this.persist();
+    return asset;
+  }
+
+  public getVideoAsset(assetId: string, userId?: string): VideoAssetRecord | null {
+    this.ensureInitialized();
+    const asset = this.db.videoAssets[assetId] || null;
+    if (!asset) return null;
+    if (userId && asset.userId !== userId) return null;
+    return asset;
+  }
+
+  public listVideoAssets(userId: string, projectId?: string): VideoAssetRecord[] {
+    this.ensureInitialized();
+    let assets = Object.values(this.db.videoAssets).filter((a) => a.userId === userId);
+    if (projectId) {
+      assets = assets.filter((a) => a.projectId === projectId);
+    }
+    return assets.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  public deleteVideoAsset(assetId: string, userId: string): boolean {
+    this.ensureInitialized();
+    const asset = this.db.videoAssets[assetId];
+    if (!asset || asset.userId !== userId) return false;
+    delete this.db.videoAssets[assetId];
+    if (asset.storagePath && fs.existsSync(asset.storagePath)) {
+      try {
+        fs.unlinkSync(asset.storagePath);
+      } catch (e) {
+        console.warn('Failed unlinking asset file:', e);
+      }
+    }
+    this.persist();
+    return true;
   }
 }
 

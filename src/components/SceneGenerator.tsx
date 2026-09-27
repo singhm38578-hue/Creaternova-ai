@@ -14,7 +14,10 @@ import {
   Check,
   LayoutGrid,
   List,
-  Edit2
+  Edit2,
+  Image as ImageIcon,
+  Mic,
+  Video
 } from 'lucide-react';
 import { Project, SceneItem } from '../types/content';
 import { studioApi } from '../services/api';
@@ -23,12 +26,14 @@ interface SceneGeneratorProps {
   project: Project;
   onUpdateProject: (updated: Project) => void;
   initialScriptContext?: string;
+  onNavigateToMediaStudio?: (sceneId?: string, subTab?: string) => void;
 }
 
 export const SceneGenerator: React.FC<SceneGeneratorProps> = ({
   project,
   onUpdateProject,
   initialScriptContext,
+  onNavigateToMediaStudio,
 }) => {
   const [sceneCount, setSceneCount] = useState(6);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -307,8 +312,52 @@ export const SceneGenerator: React.FC<SceneGeneratorProps> = ({
                   )}
                 </div>
 
+                {/* Workflow Actions: Generate Image, Generate Voice, Generate Video (Requirement 3) */}
+                <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-1.5 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => {
+                        if (onNavigateToMediaStudio) {
+                          onNavigateToMediaStudio(scene.id, 'scenes');
+                        }
+                      }}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-[11px] font-bold border border-purple-500/30 cursor-pointer"
+                      title="Generate Image Prompt"
+                    >
+                      <ImageIcon className="w-3 h-3" />
+                      <span>Gen Image</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (onNavigateToMediaStudio) {
+                          onNavigateToMediaStudio(scene.id, 'voiceover');
+                        }
+                      }}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 text-[11px] font-bold border border-cyan-500/30 cursor-pointer"
+                      title="Generate Voiceover"
+                    >
+                      <Mic className="w-3 h-3" />
+                      <span>Gen Voice</span>
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      if (onNavigateToMediaStudio) {
+                        onNavigateToMediaStudio(scene.id, 'video_studio');
+                      }
+                    }}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white text-[11px] font-extrabold shadow-sm cursor-pointer"
+                    title="Generate Video Clip"
+                  >
+                    <Video className="w-3 h-3" />
+                    <span>Gen Video</span>
+                  </button>
+                </div>
+
                 {/* B-roll Tags */}
-                <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center gap-1.5 flex-wrap">
+                <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                   <Tag className="w-3 h-3 text-slate-500" />
                   {scene.brollKeywords.map((kw, i) => (
                     <span key={i} className="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
@@ -347,12 +396,48 @@ export const SceneGenerator: React.FC<SceneGeneratorProps> = ({
                     <td className="py-3 px-4 text-amber-300/90 italic">{scene.audioSfx}</td>
                     <td className="py-3 px-4 font-mono text-cyan-300 font-semibold">{scene.onScreenText}</td>
                     <td className="py-3 px-4 text-right">
-                      <button
-                        onClick={() => handleDeleteScene(scene.id)}
-                        className="text-slate-500 hover:text-red-400 p-1"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => {
+                            if (onNavigateToMediaStudio) {
+                              onNavigateToMediaStudio(scene.id, 'scenes');
+                            }
+                          }}
+                          className="p-1.5 rounded bg-purple-900/30 hover:bg-purple-800/40 text-purple-300 border border-purple-700/40 cursor-pointer"
+                          title="Generate Image Prompt"
+                        >
+                          <ImageIcon className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (onNavigateToMediaStudio) {
+                              onNavigateToMediaStudio(scene.id, 'voiceover');
+                            }
+                          }}
+                          className="p-1.5 rounded bg-cyan-900/30 hover:bg-cyan-800/40 text-cyan-300 border border-cyan-700/40 cursor-pointer"
+                          title="Generate Voiceover"
+                        >
+                          <Mic className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (onNavigateToMediaStudio) {
+                              onNavigateToMediaStudio(scene.id, 'video_studio');
+                            }
+                          }}
+                          className="p-1.5 rounded bg-pink-900/30 hover:bg-pink-800/40 text-pink-300 border border-pink-700/40 cursor-pointer"
+                          title="Generate Video Clip"
+                        >
+                          <Video className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteScene(scene.id)}
+                          className="text-slate-500 hover:text-red-400 p-1 cursor-pointer"
+                          title="Delete scene"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

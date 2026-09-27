@@ -347,6 +347,9 @@ export default function App() {
               project={activeProject}
               onUpdateProject={handleUpdateProject}
               initialScriptContext={scenePrefillScript}
+              onNavigateToMediaStudio={(_sceneId) => {
+                setActiveTab('media_studio');
+              }}
             />
           )}
 
