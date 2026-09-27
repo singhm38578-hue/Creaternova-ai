@@ -22,6 +22,7 @@ import {
   FileText,
   Clock,
   Zap,
+  DollarSign,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { studioApi } from '../services/api';
@@ -29,14 +30,15 @@ import { BrandKitView } from './BrandKitView';
 import { UsageDashboard } from './UsageDashboard';
 import { PricingScreen } from './PricingScreen';
 import { AdminPanel } from './AdminPanel';
+import { AICostDashboard } from './AICostDashboard';
 
 interface UserProfileViewProps {
-  initialSubTab?: 'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin';
+  initialSubTab?: 'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin' | 'ai_costs';
 }
 
 export const UserProfileView: React.FC<UserProfileViewProps> = ({ initialSubTab = 'profile' }) => {
   const { user, logout, updateProfile, openAuthModal } = useAuth();
-  const [subTab, setSubTab] = useState<'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin'>(initialSubTab);
+  const [subTab, setSubTab] = useState<'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin' | 'ai_costs'>(initialSubTab);
 
   // Edit Profile Form
   const [isEditing, setIsEditing] = useState(false);

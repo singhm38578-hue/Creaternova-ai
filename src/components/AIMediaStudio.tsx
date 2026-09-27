@@ -53,6 +53,7 @@ import { studioApi } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { GENERATION_CREDIT_COSTS } from '../config/creditCosts';
 import { CREDIT_COSTS } from '../services/credits';
+import { ExpensiveVideoProtectionModal } from './ExpensiveVideoProtectionModal';
 
 interface AIMediaStudioProps {
   project: Project;
@@ -152,6 +153,8 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
 
   // Video Pipeline & Modal state
   const [showIntegrationModal, setShowIntegrationModal] = useState(false);
+  const [showVideoProtectionModal, setShowVideoProtectionModal] = useState(false);
+  const [confirmedVideoCalculation, setConfirmedVideoCalculation] = useState<any>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // Auto Captions state
@@ -811,9 +814,9 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
                 </p>
               </div>
 
-              {/* Main "Create Video" Button */}
+              {/* Main "Create Video" Button with Expensive Video Protection Check */}
               <button
-                onClick={() => setShowIntegrationModal(true)}
+                onClick={() => setShowVideoProtectionModal(true)}
                 className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white text-xs font-extrabold shadow-lg shadow-violet-600/30 transition-all cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
@@ -1674,7 +1677,7 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
                 </button>
 
                 <button
-                  onClick={() => setShowIntegrationModal(true)}
+                  onClick={() => setShowVideoProtectionModal(true)}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold shadow-lg shadow-violet-600/30 transition-all cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -1819,6 +1822,17 @@ export const AIMediaStudio: React.FC<AIMediaStudioProps> = ({
           </div>
         </div>
       )}
+
+      {/* Expensive Video Protection Confirmation Modal */}
+      <ExpensiveVideoProtectionModal
+        isOpen={showVideoProtectionModal}
+        onClose={() => setShowVideoProtectionModal(false)}
+        onConfirm={(calc) => {
+          setConfirmedVideoCalculation(calc);
+          setShowIntegrationModal(true);
+        }}
+        projectName={project.name}
+      />
     </div>
   );
 };

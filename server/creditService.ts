@@ -329,6 +329,17 @@ export class CreditWalletService {
     }
   }
 
+  public static async refundCreditsAtomic(params: {
+    userId: string;
+    amount: number;
+    operation: string;
+    projectId?: string | null;
+    reason?: string;
+    authToken?: string;
+  }): Promise<{ success: boolean; newBalance: number }> {
+    return this.refundCredits(params);
+  }
+
   /**
    * Safe check for balance sufficiency
    */

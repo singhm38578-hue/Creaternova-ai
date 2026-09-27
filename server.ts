@@ -61,6 +61,13 @@ import { dbManager } from './server/db.ts';
 import agentRouter from './server/agentRoutes.ts';
 import { CreditWalletService } from './server/creditService.ts';
 import { PaymentService } from './server/paymentService.ts';
+import { AIUsageService } from './server/aiUsageService.ts';
+import {
+  AI_OPERATIONS_CONFIG,
+  AI_SAFETY_LIMITS,
+  calculateEstimatedVideoCost,
+  getClientSafeOperationsMeta,
+} from './server/aiCostConfig.ts';
 import { GENERATION_CREDIT_COSTS, PLAN_DEFINITIONS } from './src/config/creditCosts.ts';
 
 // Helper to extract authenticated user or null
@@ -698,6 +705,68 @@ app.put('/api/admin/credit-pack', requireAdmin, (req, res) => {
   }
 });
 
+// Admin AI Cost Dashboard (Protected by Admin Role)
+app.get('/api/admin/ai-cost-dashboard', requireAdmin, (req, res) => {
+  const timeframe = (req.query.timeframe as 'today' | '7d' | '30d') || '7d';
+  const data = AIUsageService.getAdminDashboardData(timeframe);
+  return res.json(data);
+});
+
+// Admin Plan Economics (Protected by Admin Role)
+app.get('/api/admin/plan-economics', requireAdmin, (req, res) => {
+  const planEconomics = AIUsageService.getPlanEconomics();
+  return res.json({ planEconomics });
+});
+
+// Admin AI Usage Audit Ledger (Protected by Admin Role)
+app.get('/api/admin/ai-usage-records', requireAdmin, (req, res) => {
+  const timeframe = (req.query.timeframe as 'today' | '7d' | '30d') || '7d';
+  const records = dbManager.getAIUsageRecords({ timeframe });
+  return res.json({ records });
+});
+
+// -------------------------------------------------------------
+// PUBLIC SAFE AI OPERATIONS & VIDEO COST ESTIMATION (NO SENSITIVE MARGINS)
+// -------------------------------------------------------------
+
+// Public safe operations metadata (credit costs, models, enabled status)
+app.get('/api/ai/operations-meta', (req, res) => {
+  return res.json(getClientSafeOperationsMeta());
+});
+
+// Variable Video Generation Cost Calculator
+app.post('/api/ai/calculate-video-cost', (req, res) => {
+  const { provider, model, durationSeconds, resolution, numberOfVideos } = req.body;
+  const calculation = calculateEstimatedVideoCost({
+    provider,
+    model,
+    durationSeconds: Number(durationSeconds) || 15,
+    resolution,
+    numberOfVideos: Number(numberOfVideos) || 1,
+  });
+  return res.json(calculation);
+});
+
+// Pre-check safety limits before expensive requests
+app.post('/api/ai/check-safety-limits', (req, res) => {
+  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+  const { operation = 'general', creditsToCharge = 0, videoDurationSeconds } = req.body;
+  const safetyCheck = AIUsageService.checkSafetyLimits({
+    userId: user.id,
+    operation,
+    creditsToCharge: Number(creditsToCharge) || 0,
+    videoDurationSeconds: videoDurationSeconds ? Number(videoDurationSeconds) : undefined,
+  });
+
+  if (!safetyCheck.allowed) {
+    return res.status(400).json({ allowed: false, error: safetyCheck.error });
+  }
+
+  return res.json({ allowed: true });
+});
+
 // -------------------------------------------------------------
 // AI GENERATION PIPELINE ENDPOINTS
 // -------------------------------------------------------------
@@ -1087,6 +1156,15 @@ app.post('/api/generate-ideas', async (req, res) => {
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
   const cost = GENERATION_CREDIT_COSTS.ideaGeneration;
   if (user) {
+    const safety = AIUsageService.checkSafetyLimits({
+      userId: user.id,
+      operation: 'idea_generation',
+      creditsToCharge: cost,
+    });
+    if (!safety.allowed) {
+      return res.status(400).json({ error: safety.error });
+    }
+
     const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
     if (wallet.creditBalance < cost) {
       return res.status(402).json({
@@ -1145,10 +1223,31 @@ Return ONLY valid JSON array with objects in this exact structure:
         operation: 'idea_generation',
         authToken: (user as any).authToken,
       });
+      AIUsageService.startUsageRecord({
+        userId: user.id,
+        operation: 'idea_generation',
+        creditsCharged: cost,
+      });
     }
     return res.json({ ideas: Array.isArray(parsed) ? parsed : [parsed] });
   } catch (error: any) {
     console.error('Error generating ideas:', error?.message || error);
+    if (user) {
+      dbManager.recordAIUsage({
+        id: `usage_err_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        userId: user.id,
+        projectId: null,
+        operation: 'idea_generation',
+        provider: 'google',
+        model: 'gemini-3.8-flash',
+        creditsCharged: 0,
+        estimatedProviderCost: null,
+        status: 'failed',
+        requestId: `err_${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        errorMessage: error?.message || 'Generation failed',
+      });
+    }
     // Fallback creative ideas so the creator never faces an empty screen
     return res.json({
       ideas: [
@@ -1194,6 +1293,15 @@ app.post('/api/generate-script', async (req, res) => {
   const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
   const cost = GENERATION_CREDIT_COSTS.scriptGeneration;
   if (user) {
+    const safety = AIUsageService.checkSafetyLimits({
+      userId: user.id,
+      operation: 'script_generation',
+      creditsToCharge: cost,
+    });
+    if (!safety.allowed) {
+      return res.status(400).json({ error: safety.error });
+    }
+
     const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
     if (wallet.creditBalance < cost) {
       return res.status(402).json({
@@ -1270,10 +1378,31 @@ Return ONLY valid JSON with this exact structure:
         operation: 'script_generation',
         authToken: (user as any).authToken,
       });
+      AIUsageService.startUsageRecord({
+        userId: user.id,
+        operation: 'script_generation',
+        creditsCharged: cost,
+      });
     }
     return res.json({ script: parsed });
   } catch (error: any) {
     console.error('Error generating script:', error?.message || error);
+    if (user) {
+      dbManager.recordAIUsage({
+        id: `usage_err_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        userId: user.id,
+        projectId: null,
+        operation: 'script_generation',
+        provider: 'google',
+        model: 'gemini-3.8-flash',
+        creditsCharged: 0,
+        estimatedProviderCost: null,
+        status: 'failed',
+        requestId: `err_${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        errorMessage: error?.message || 'Generation failed',
+      });
+    }
     // Intelligent fallback script
     const fallbackScript = {
       title: title,

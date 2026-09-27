@@ -137,6 +137,22 @@ export interface UsageLogRecord {
   billingPeriod: string;
 }
 
+export interface AIUsageRecord {
+  id: string;
+  userId: string;
+  projectId: string | null;
+  operation: string;
+  provider: string;
+  model: string;
+  creditsCharged: number;
+  estimatedProviderCost: number | null; // USD or INR
+  status: 'success' | 'failed' | 'refunded';
+  requestId: string;
+  createdAt: string;
+  metadata?: Record<string, any>;
+  errorMessage?: string;
+}
+
 export interface AgentTaskSummary {
   id: string;
   stepNumber: number;
@@ -294,6 +310,7 @@ export interface DatabaseSchema {
   paymentOrders: Record<string, PaymentOrderRecord>;
   subscriptions: Record<string, SubscriptionRecord>;
   processedWebhookEvents: Record<string, { eventId: string; processedAt: string; status: string }>;
+  aiUsageRecords: Record<string, AIUsageRecord>;
 }
 
 function hashPassword(password: string): string {
@@ -351,6 +368,7 @@ class DatabaseManager {
       paymentOrders: {},
       subscriptions: {},
       processedWebhookEvents: {},
+      aiUsageRecords: {},
     };
   }
 
@@ -373,6 +391,7 @@ class DatabaseManager {
         if (!this.db.agentActivity) this.db.agentActivity = [];
         if (!this.db.subscriptions) this.db.subscriptions = {};
         if (!this.db.processedWebhookEvents) this.db.processedWebhookEvents = {};
+        if (!this.db.aiUsageRecords) this.db.aiUsageRecords = {};
         if (!this.db.pricingPlans || Object.keys(this.db.pricingPlans).length === 0) {
           this.seedPricingPlans();
         }
@@ -1893,6 +1912,57 @@ class DatabaseManager {
       status,
     };
     this.persist();
+  }
+
+  public recordAIUsage(record: AIUsageRecord): void {
+    this.ensureInitialized();
+    this.db.aiUsageRecords[record.id] = record;
+    this.persist();
+  }
+
+  public updateAIUsageStatus(
+    requestId: string,
+    status: 'success' | 'failed' | 'refunded',
+    errorMessage?: string
+  ): void {
+    this.ensureInitialized();
+    const existing = Object.values(this.db.aiUsageRecords).find(
+      (r) => r.requestId === requestId || r.id === requestId
+    );
+    if (existing) {
+      existing.status = status;
+      if (errorMessage) existing.errorMessage = errorMessage;
+      this.persist();
+    }
+  }
+
+  public getAIUsageRecords(filter?: {
+    userId?: string;
+    timeframe?: 'today' | '7d' | '30d';
+  }): AIUsageRecord[] {
+    this.ensureInitialized();
+    let records = Object.values(this.db.aiUsageRecords);
+
+    if (filter?.userId) {
+      records = records.filter((r) => r.userId === filter.userId);
+    }
+
+    if (filter?.timeframe) {
+      const now = Date.now();
+      const timeframeMs =
+        filter.timeframe === 'today'
+          ? 24 * 60 * 60 * 1000
+          : filter.timeframe === '7d'
+          ? 7 * 24 * 60 * 60 * 1000
+          : 30 * 24 * 60 * 60 * 1000;
+
+      const threshold = now - timeframeMs;
+      records = records.filter((r) => new Date(r.createdAt).getTime() >= threshold);
+    }
+
+    return records.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 }
 

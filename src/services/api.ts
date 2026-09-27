@@ -305,6 +305,50 @@ export const studioApi = {
         method: 'PUT',
         body: JSON.stringify({ packId, ...updates }),
       }),
+    getAICostDashboard: (timeframe: 'today' | '7d' | '30d' = '7d') =>
+      fetchApi<any>(`/api/admin/ai-cost-dashboard?timeframe=${timeframe}`),
+    getPlanEconomics: () => fetchApi<{ planEconomics: any[] }>('/api/admin/plan-economics'),
+    getAIUsageRecords: (timeframe: 'today' | '7d' | '30d' = '7d') =>
+      fetchApi<{ records: any[] }>(`/api/admin/ai-usage-records?timeframe=${timeframe}`),
+  },
+
+  // AI Operations & Variable Cost Protection
+  ai: {
+    getOperationsMeta: () =>
+      fetchApi<{ operations: Record<string, any>; limits: any }>('/api/ai/operations-meta'),
+    calculateVideoCost: (params: {
+      provider?: string;
+      model?: string;
+      durationSeconds: number;
+      resolution?: '720p' | '1080p' | '4k';
+      numberOfVideos?: number;
+    }) =>
+      fetchApi<{
+        provider: string;
+        model: string;
+        durationSeconds: number;
+        resolution: string;
+        numberOfVideos: number;
+        blocksCount: number;
+        baseCredits: number;
+        blockCredits: number;
+        resolutionMultiplier: number;
+        modelMultiplier: number;
+        totalEstimatedCredits: number;
+        isExpensive: boolean;
+      }>('/api/ai/calculate-video-cost', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }),
+    checkSafetyLimits: (params: {
+      operation: string;
+      creditsToCharge: number;
+      videoDurationSeconds?: number;
+    }) =>
+      fetchApi<{ allowed: boolean; error?: string }>('/api/ai/check-safety-limits', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }),
   },
 
   // CreatorNova AI Agent Subsystem

@@ -16,10 +16,12 @@ import {
   Globe,
   Tag,
   Layers,
-  Crown
+  Crown,
+  DollarSign
 } from 'lucide-react';
 import { studioApi } from '../services/api';
 import { CreditConfig } from '../types/auth';
+import { AICostDashboard } from './AICostDashboard';
 
 export const AdminPanel: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -43,7 +45,7 @@ export const AdminPanel: React.FC = () => {
     maintenanceMode: false,
   });
 
-  const [activeAdminTab, setActiveAdminTab] = useState<'metrics' | 'pricing' | 'packs' | 'costs' | 'users'>('pricing');
+  const [activeAdminTab, setActiveAdminTab] = useState<'metrics' | 'pricing' | 'packs' | 'costs' | 'users' | 'ai_costs'>('ai_costs');
   const [isLoading, setIsLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -167,6 +169,7 @@ export const AdminPanel: React.FC = () => {
       {/* Admin Nav Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
         {[
+          { id: 'ai_costs', label: 'AI Cost Dashboard & Economics', icon: DollarSign },
           { id: 'pricing', label: 'Subscription Plans & Regional Prices', icon: Crown },
           { id: 'packs', label: 'Credit Packs Architecture', icon: Coins },
           { id: 'costs', label: 'Generation Credit Costs', icon: Sliders },
@@ -190,6 +193,9 @@ export const AdminPanel: React.FC = () => {
           );
         })}
       </div>
+
+      {/* TAB 0: AI COST DASHBOARD & ECONOMICS */}
+      {activeAdminTab === 'ai_costs' && <AICostDashboard />}
 
       {/* TAB 1: SUBSCRIPTION PLANS & REGIONAL PRICES */}
       {activeAdminTab === 'pricing' && (
