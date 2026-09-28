@@ -658,6 +658,66 @@ export const AdminPanel: React.FC = () => {
       {/* TAB 5: PLATFORM METRICS */}
       {activeAdminTab === 'metrics' && metrics && (
         <div className="space-y-6">
+          {/* Growth & Virality Metrics (Requirement 10: Admin-only, zero private user info) */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 space-y-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-400" />
+                  <span>Growth & Virality Tracking (Admin-Only)</span>
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Monitors template viral loop and referral acquisition without exposing private user data.
+                </p>
+              </div>
+              <span className="text-[10px] font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold uppercase w-fit">
+                Zero PII / Privacy Safe
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 pt-1">
+              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Templates Shared</span>
+                <div className="text-2xl font-black text-violet-400 font-mono">
+                  {metrics.growth?.templatesShared ?? 0}
+                </div>
+                <p className="text-[10px] text-slate-500">Public blueprints</p>
+              </div>
+
+              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Template Opens</span>
+                <div className="text-2xl font-black text-cyan-400 font-mono">
+                  {metrics.growth?.templateOpens ?? 0}
+                </div>
+                <p className="text-[10px] text-slate-500">Public preview visits</p>
+              </div>
+
+              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Template Uses</span>
+                <div className="text-2xl font-black text-pink-400 font-mono">
+                  {metrics.growth?.templateUses ?? 0}
+                </div>
+                <p className="text-[10px] text-slate-500">Cloned into projects</p>
+              </div>
+
+              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Referral Signups</span>
+                <div className="text-2xl font-black text-amber-400 font-mono">
+                  {metrics.growth?.referralSignups ?? 0}
+                </div>
+                <p className="text-[10px] text-slate-500">Accounts registered via ref</p>
+              </div>
+
+              <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Qualified Referrals</span>
+                <div className="text-2xl font-black text-emerald-400 font-mono">
+                  {metrics.growth?.qualifiedReferrals ?? 0}
+                </div>
+                <p className="text-[10px] text-slate-500">Backend validated & rewarded</p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-5 bg-slate-900 border border-slate-800 rounded-2xl space-y-1">
               <span className="text-[10px] uppercase font-bold text-slate-500">Total Users</span>

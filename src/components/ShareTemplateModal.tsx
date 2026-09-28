@@ -32,7 +32,7 @@ export const ShareTemplateModal: React.FC<ShareTemplateModalProps> = ({
   const { user } = useAuth();
   const [title, setTitle] = useState(project.name);
   const [description, setDescription] = useState(project.topic || '');
-  const [category, setCategory] = useState(project.contentType || 'Entertainment');
+  const [category, setCategory] = useState<string>(project.contentType || 'Entertainment');
   const [shareCreatorName, setShareCreatorName] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [existingTemplate, setExistingTemplate] = useState<ShareableTemplate | null>(null);
@@ -125,7 +125,21 @@ export const ShareTemplateModal: React.FC<ShareTemplateModalProps> = ({
 
   const handleCopyLink = async () => {
     if (!shareableUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareableUrl);
+      setCopied(true);
+      setStatusMessage('Template link copied to clipboard!');
+      setTimeout(() => {
+        setCopied(false);
+        setStatusMessage(null);
+      }, 2500);
+    } catch (err) {
+      console.error('Clipboard copy failed', err);
+    }
+  };
 
+  const handleDeviceShare = async () => {
+    if (!shareableUrl) return;
     if (navigator.share) {
       try {
         await navigator.share({
@@ -133,20 +147,13 @@ export const ShareTemplateModal: React.FC<ShareTemplateModalProps> = ({
           text: `Use this CreatorNova AI content template: ${title}`,
           url: shareableUrl,
         });
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
-        return;
+        setStatusMessage('Shared via device dialog!');
+        setTimeout(() => setStatusMessage(null), 2500);
       } catch (e) {
-        // Fallback to clipboard
+        // User cancelled or share error
       }
-    }
-
-    try {
-      await navigator.clipboard.writeText(shareableUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch (err) {
-      console.error('Clipboard copy failed', err);
+    } else {
+      handleCopyLink();
     }
   };
 
@@ -156,9 +163,26 @@ export const ShareTemplateModal: React.FC<ShareTemplateModalProps> = ({
     try {
       const res = await studioApi.templates.toggleStatus(existingTemplate.id, nextState);
       setExistingTemplate(res.template);
-      setStatusMessage(nextState ? 'Template re-enabled!' : 'Template disabled. Public link is now inactive.');
+      setStatusMessage(nextState ? 'Template sharing enabled! Public link is active.' : 'Template sharing disabled. Public link is now inactive.');
     } catch (err: any) {
       setStatusMessage('Failed to update template status.');
+    }
+  };
+
+  const handleDeleteTemplate = async () => {
+    if (!existingTemplate) return;
+    if (!window.confirm('Are you sure you want to delete this public template? Other creators will no longer be able to use it.')) {
+      return;
+    }
+
+    try {
+      await studioApi.templates.delete(existingTemplate.id);
+      setExistingTemplate(null);
+      setShareableUrl('');
+      setStatusMessage('Public template successfully deleted. Your private project is unaffected.');
+    } catch (err: any) {
+      console.error('Failed deleting template:', err);
+      setStatusMessage(err.message || 'Failed deleting template.');
     }
   };
 
@@ -338,36 +362,60 @@ export const ShareTemplateModal: React.FC<ShareTemplateModalProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 type="text"
                 readOnly
                 value={shareableUrl}
                 className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none"
               />
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-white text-xs font-bold border border-slate-700 transition-colors cursor-pointer shrink-0"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Copied!' : 'Copy Link'}</span>
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold shadow-md shadow-violet-600/30 transition-all cursor-pointer"
+                  title="Copy direct template link"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? 'Copied!' : 'Copy Template Link'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDeviceShare}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-bold border border-slate-700 transition-colors cursor-pointer"
+                  title="Device Share"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-violet-400" />
+                  <span>Share</span>
+                </button>
+              </div>
             </div>
 
-            {onOpenPreview && (
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
+              {onOpenPreview && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenPreview(existingTemplate.id);
+                  }}
+                  className="flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300 font-semibold cursor-pointer"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>View Public Page</span>
+                </button>
+              )}
+
               <button
                 type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenPreview(existingTemplate.id);
-                }}
-                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 text-xs font-bold border border-violet-500/30 transition-colors cursor-pointer"
+                onClick={handleDeleteTemplate}
+                className="text-xs text-red-400 hover:text-red-300 font-semibold cursor-pointer ml-auto"
+                title="Permanently remove public template page"
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>View Public Preview</span>
+                Delete Public Template
               </button>
-            )}
+            </div>
           </div>
         )}
       </div>

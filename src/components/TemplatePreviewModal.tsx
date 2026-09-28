@@ -92,7 +92,18 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   const handleCopyLink = async () => {
     if (!template) return;
     const url = `${window.location.origin}/?template=${template.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
+  const handleDeviceShare = async () => {
+    if (!template) return;
+    const url = `${window.location.origin}/?template=${template.id}`;
     if (navigator.share) {
       try {
         await navigator.share({
@@ -100,20 +111,11 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
           text: `Check out this creator template on CreatorNova: ${template.title}`,
           url,
         });
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
-        return;
       } catch (e) {
-        // Fallback
+        // Dismissed
       }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch (e) {
-      console.error(e);
+    } else {
+      handleCopyLink();
     }
   };
 
@@ -273,34 +275,53 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
 
             {/* Sign in prompt banner if not authenticated */}
             {!user && (
-              <div className="p-3 bg-amber-950/30 border border-amber-500/30 rounded-2xl text-xs text-amber-300 flex items-center justify-between gap-3">
-                <span>Sign in to create your personal copy in your CreatorNova workspace.</span>
+              <div className="p-3.5 bg-violet-950/40 border border-violet-500/30 rounded-2xl text-xs text-violet-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="font-bold text-white block">Sign in or create an account to use this template</span>
+                  <span className="text-slate-300 text-[11px]">You'll return right back to this template and receive your own independent copy.</span>
+                </div>
                 <button
                   type="button"
-                  onClick={() => openAuthModal('login')}
-                  className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 rounded-xl font-bold shrink-0 transition-colors cursor-pointer"
+                  onClick={() => {
+                    localStorage.setItem('pending_template_to_use', template.id);
+                    openAuthModal('register');
+                  }}
+                  className="px-4 py-1.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-bold shrink-0 transition-colors cursor-pointer text-xs"
                 >
-                  Sign In
+                  Sign In / Register
                 </button>
               </div>
             )}
 
             {/* Actions Bar */}
-            <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-bold border border-slate-700 transition-colors cursor-pointer"
-              >
-                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                <span>{copied ? 'Link Copied!' : 'Copy Template Link'}</span>
-              </button>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-slate-800">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-bold border border-slate-700 transition-colors cursor-pointer"
+                  title="Copy direct template URL"
+                >
+                  {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                  <span>{copied ? 'Link Copied!' : 'Copy Template Link'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDeviceShare}
+                  className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-bold border border-slate-700 transition-colors cursor-pointer"
+                  title="Device Share dialog"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-violet-400" />
+                  <span>Share</span>
+                </button>
+              </div>
 
               <button
                 type="button"
                 disabled={isCloning}
                 onClick={handleUseTemplate}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-black shadow-xl shadow-violet-600/30 transition-all cursor-pointer disabled:opacity-50"
+                className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-black shadow-xl shadow-violet-600/30 transition-all cursor-pointer disabled:opacity-50"
               >
                 <span>{isCloning ? 'Copying to Workspace...' : 'Use This Template'}</span>
                 <ArrowRight className="w-4 h-4" />

@@ -45,22 +45,6 @@ export const ReferralEarnView: React.FC = () => {
 
   const handleCopyLink = async () => {
     if (!fullReferralUrl) return;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'CreatorNova AI - Join & Create Viral Videos',
-          text: 'Join CreatorNova AI and build viral videos with AI scripts, storyboards, and video generators!',
-          url: fullReferralUrl,
-        });
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
-        return;
-      } catch (e) {
-        // Fallback to clipboard
-      }
-    }
-
     try {
       await navigator.clipboard.writeText(fullReferralUrl);
       setCopied(true);
@@ -71,6 +55,25 @@ export const ReferralEarnView: React.FC = () => {
       }, 2500);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleDeviceShare = async () => {
+    if (!fullReferralUrl) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'CreatorNova AI - Join & Create Viral Videos',
+          text: 'Join CreatorNova AI and build viral videos with AI scripts, storyboards, and video generators!',
+          url: fullReferralUrl,
+        });
+        setFeedback('Referral link shared!');
+        setTimeout(() => setFeedback(null), 2500);
+      } catch (e) {
+        // Dismissed
+      }
+    } else {
+      handleCopyLink();
     }
   };
 
@@ -133,9 +136,20 @@ export const ReferralEarnView: React.FC = () => {
               onClick={handleCopyLink}
               disabled={isLoading || !fullReferralUrl}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold shadow-lg shadow-violet-600/30 transition-all cursor-pointer disabled:opacity-50"
+              title="Copy referral link directly"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               <span>{copied ? 'Copied!' : 'Copy Link'}</span>
+            </button>
+
+            <button
+              onClick={handleDeviceShare}
+              disabled={isLoading || !fullReferralUrl}
+              className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-bold border border-slate-700 transition-colors cursor-pointer disabled:opacity-50"
+              title="Share via device options"
+            >
+              <Share2 className="w-4 h-4 text-violet-400" />
+              <span>Share</span>
             </button>
 
             <button
@@ -151,7 +165,7 @@ export const ReferralEarnView: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Cards Matrix */}
+      {/* Stats Cards Matrix (Requirement 5) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Successful Referrals */}
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-1 shadow-lg">
@@ -169,10 +183,10 @@ export const ReferralEarnView: React.FC = () => {
           </p>
         </div>
 
-        {/* Credits Earned */}
+        {/* Bonus Credits Earned */}
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-1 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Credits Earned</span>
+            <span className="text-xs font-semibold text-slate-400">Bonus Credits Earned</span>
             <div className="w-8 h-8 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center">
               <Coins className="w-4 h-4" />
             </div>
@@ -194,10 +208,10 @@ export const ReferralEarnView: React.FC = () => {
             </div>
           </div>
           <div className="text-2xl font-black text-emerald-400 pt-1">
-            {stats?.rewardPerReferral || 25} Credits
+            {stats?.rewardPerReferral || 20} Credits
           </div>
           <p className="text-[11px] text-slate-500">
-            Per qualified new creator
+            Configurable test reward
           </p>
         </div>
       </div>

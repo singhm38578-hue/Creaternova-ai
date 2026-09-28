@@ -703,6 +703,7 @@ export interface ShareableTemplate {
   createdAt: string;
   updatedAt: string;
   usesCount: number;
+  opensCount?: number;
 }
 
 /**
@@ -723,6 +724,7 @@ export interface PublicTemplatePreview {
   scenes: TemplateSceneStructure[];
   prompts: TemplatePromptStructure;
   usesCount: number;
+  opensCount?: number;
   createdAt: string;
 }
 
@@ -736,6 +738,7 @@ export interface ReferralRecord {
   createdAt: string;
   status: ReferralStatus;
   rewardCredits: number;
+  qualifiedAt?: string | null;
   rewardedAt?: string | null;
 }
 

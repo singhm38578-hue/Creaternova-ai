@@ -136,6 +136,27 @@ export default function App() {
       }
     };
     syncProjectsAndCharacters();
+
+    // Check if user was in middle of using a template before sign-in (Requirement 3)
+    if (user) {
+      const pendingTemplateId = localStorage.getItem('pending_template_to_use');
+      if (pendingTemplateId) {
+        setPreviewTemplateId(pendingTemplateId);
+        localStorage.removeItem('pending_template_to_use');
+      }
+
+      // Check if user signed up with a referral code (Requirement 6 & 8)
+      const storedRef = localStorage.getItem('creatornova_referral_code');
+      if (storedRef) {
+        studioApi.referrals.recordSignup(storedRef)
+          .then((res) => {
+            if (res.success) {
+              localStorage.removeItem('creatornova_referral_code');
+            }
+          })
+          .catch(() => {});
+      }
+    }
   }, [user]);
 
   // Project modification handler

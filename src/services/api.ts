@@ -212,6 +212,7 @@ export const studioApi = {
   // Shareable Templates
   templates: {
     createOrUpdate: (data: {
+      id?: string;
       originalProjectId: string;
       title: string;
       description: string;

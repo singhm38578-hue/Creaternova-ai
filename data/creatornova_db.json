@@ -209,6 +209,16 @@
       "totalRemaining": 100,
       "monthlyAllocation": 100,
       "lastResetDate": "2026-09-27T11:11:19.630Z"
+    },
+    "test-creator-user-b": {
+      "userId": "test-creator-user-b",
+      "textCredits": 100,
+      "imageCredits": 50,
+      "voiceCredits": 30,
+      "videoCredits": 10,
+      "totalRemaining": 270,
+      "monthlyAllocation": 200,
+      "lastResetDate": "2026-09-28T14:58:58.477Z"
     }
   },
   "creditConfig": {
@@ -1426,6 +1436,618 @@
         "aiConceptPrompt": "Surprised face with glowing holographic tools floating"
       },
       "translations": []
+    },
+    "proj_test_a_1790607538467": {
+      "id": "proj_test_a_1790607538467",
+      "name": "Masterclass YouTube Shorts Formula",
+      "topic": "How to Hook Viewers in 3 Seconds",
+      "format": "Shorts (60s)",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Content Creators",
+      "tone": "Energetic",
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k"
+        }
+      ],
+      "script": {
+        "hookSummary": "Stop scrolling if you want 10x more reach",
+        "beats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "visualCue": "Punch zoom",
+            "dialogue": "Stop scrolling right now!"
+          }
+        ]
+      },
+      "userId": "test-creator-user-a",
+      "createdAt": "2026-09-28T14:58:58.467Z",
+      "updatedAt": "2026-09-28T14:58:58.467Z"
+    },
+    "proj_1790607538472_89a721": {
+      "id": "proj_1790607538472_89a721",
+      "userId": "test-creator-user-b",
+      "name": "Viral Hook Masterclass Template (Template Copy)",
+      "topic": "Production-ready framework for short-form retention",
+      "format": "Shorts (60s)",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Content Creators",
+      "tone": "Energetic",
+      "createdAt": "2026-09-28T14:58:58.472Z",
+      "updatedAt": "2026-09-28T14:58:58.472Z",
+      "ideas": [
+        {
+          "id": "idea-1790607538472-0",
+          "title": "Viral Hook Masterclass Template Angle 1",
+          "hook": "3 Retention Secrets",
+          "viralityScore": 90,
+          "format": "Shorts (60s)",
+          "durationEstimate": "60 seconds",
+          "angle": "Curiosity angle",
+          "targetAudience": "Content Creators",
+          "coreTakeaway": "Production-ready framework for short-form retention",
+          "suggestedVisualHook": "Dynamic zoom",
+          "retentionTip": "Fast pacing",
+          "createdAt": "2026-09-28T14:58:58.472Z"
+        }
+      ],
+      "script": {
+        "title": "Viral Hook Masterclass Template Script",
+        "format": "Shorts (60s)",
+        "estimatedDuration": "60 seconds",
+        "wordCount": 25,
+        "hookSummary": "Pattern interrupt formula",
+        "beats": [
+          {
+            "id": "beat-1",
+            "timestamp": "0:00",
+            "speaker": "Host",
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "dialogue": "Stop scrolling right now!",
+            "visualCue": "Punch zoom",
+            "durationSec": 15
+          }
+        ],
+        "rawFullText": "Stop scrolling right now!",
+        "tone": "Energetic",
+        "callToAction": "Follow for more creator insights!",
+        "lastUpdated": "2026-09-28T14:58:58.472Z"
+      },
+      "scenes": [
+        {
+          "id": "scene-1790607538472-1",
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "characterAction": "",
+          "audioSfx": "",
+          "onScreenText": "",
+          "lightingMood": "Studio lighting",
+          "brollKeywords": [],
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k",
+          "mediaStatus": "prompt_ready"
+        }
+      ],
+      "seo": {
+        "titles": [
+          {
+            "title": "Viral Hook Masterclass Template",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 31
+          }
+        ],
+        "description": "Production-ready framework for short-form retention",
+        "primaryKeywords": [
+          "educational",
+          "youtube shorts"
+        ],
+        "longTailKeywords": [],
+        "tags": [
+          "Educational",
+          "YouTube Shorts"
+        ],
+        "hashtags": [
+          "#Educational",
+          "#YouTubeShorts"
+        ],
+        "seoHealthScore": 88,
+        "targetAudience": "Content Creators",
+        "category": "Educational"
+      },
+      "thumbnail": {
+        "headline": "STOP SCROLLING",
+        "subheadline": "CreatorNova Template",
+        "badgeText": "HOT",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8B5CF6",
+        "bgColor1": "#0B0F19",
+        "bgColor2": "#1E1B4B",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "⚡"
+        ],
+        "compositionAngle": "Eye Level",
+        "aiConceptPrompt": ""
+      },
+      "translations": []
+    },
+    "proj_test_a_1790607573784": {
+      "id": "proj_test_a_1790607573784",
+      "name": "Masterclass YouTube Shorts Formula",
+      "topic": "How to Hook Viewers in 3 Seconds",
+      "format": "Shorts (60s)",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Content Creators",
+      "tone": "Energetic",
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k"
+        }
+      ],
+      "script": {
+        "hookSummary": "Stop scrolling if you want 10x more reach",
+        "beats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "visualCue": "Punch zoom",
+            "dialogue": "Stop scrolling right now!"
+          }
+        ]
+      },
+      "userId": "test-creator-user-a",
+      "createdAt": "2026-09-28T14:59:33.784Z",
+      "updatedAt": "2026-09-28T14:59:33.784Z"
+    },
+    "proj_1790607573789_80e3f5": {
+      "id": "proj_1790607573789_80e3f5",
+      "userId": "test-creator-user-b",
+      "name": "Viral Hook Masterclass Template (Template Copy)",
+      "topic": "Production-ready framework for short-form retention",
+      "format": "Shorts (60s)",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Content Creators",
+      "tone": "Energetic",
+      "createdAt": "2026-09-28T14:59:33.789Z",
+      "updatedAt": "2026-09-28T14:59:33.789Z",
+      "ideas": [
+        {
+          "id": "idea-1790607573789-0",
+          "title": "Viral Hook Masterclass Template Angle 1",
+          "hook": "3 Retention Secrets",
+          "viralityScore": 90,
+          "format": "Shorts (60s)",
+          "durationEstimate": "60 seconds",
+          "angle": "Curiosity angle",
+          "targetAudience": "Content Creators",
+          "coreTakeaway": "Production-ready framework for short-form retention",
+          "suggestedVisualHook": "Dynamic zoom",
+          "retentionTip": "Fast pacing",
+          "createdAt": "2026-09-28T14:59:33.789Z"
+        }
+      ],
+      "script": {
+        "title": "Viral Hook Masterclass Template Script",
+        "format": "Shorts (60s)",
+        "estimatedDuration": "60 seconds",
+        "wordCount": 25,
+        "hookSummary": "Pattern interrupt formula",
+        "beats": [
+          {
+            "id": "beat-1",
+            "timestamp": "0:00",
+            "speaker": "Host",
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "dialogue": "Stop scrolling right now!",
+            "visualCue": "Punch zoom",
+            "durationSec": 15
+          }
+        ],
+        "rawFullText": "Stop scrolling right now!",
+        "tone": "Energetic",
+        "callToAction": "Follow for more creator insights!",
+        "lastUpdated": "2026-09-28T14:59:33.789Z"
+      },
+      "scenes": [
+        {
+          "id": "scene-1790607573789-1",
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "characterAction": "",
+          "audioSfx": "",
+          "onScreenText": "",
+          "lightingMood": "Studio lighting",
+          "brollKeywords": [],
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k",
+          "mediaStatus": "prompt_ready"
+        }
+      ],
+      "seo": {
+        "titles": [
+          {
+            "title": "Viral Hook Masterclass Template",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 31
+          }
+        ],
+        "description": "Production-ready framework for short-form retention",
+        "primaryKeywords": [
+          "educational",
+          "youtube shorts"
+        ],
+        "longTailKeywords": [],
+        "tags": [
+          "Educational",
+          "YouTube Shorts"
+        ],
+        "hashtags": [
+          "#Educational",
+          "#YouTubeShorts"
+        ],
+        "seoHealthScore": 88,
+        "targetAudience": "Content Creators",
+        "category": "Educational"
+      },
+      "thumbnail": {
+        "headline": "STOP SCROLLING",
+        "subheadline": "CreatorNova Template",
+        "badgeText": "HOT",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8B5CF6",
+        "bgColor1": "#0B0F19",
+        "bgColor2": "#1E1B4B",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "⚡"
+        ],
+        "compositionAngle": "Eye Level",
+        "aiConceptPrompt": ""
+      },
+      "translations": []
+    },
+    "proj_test_a_1790607610707": {
+      "id": "proj_test_a_1790607610707",
+      "name": "Masterclass YouTube Shorts Formula",
+      "topic": "How to Hook Viewers in 3 Seconds",
+      "format": "Shorts (60s)",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Content Creators",
+      "tone": "Energetic",
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k"
+        }
+      ],
+      "script": {
+        "hookSummary": "Stop scrolling if you want 10x more reach",
+        "beats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "visualCue": "Punch zoom",
+            "dialogue": "Stop scrolling right now!"
+          }
+        ]
+      },
+      "userId": "test-creator-user-a",
+      "createdAt": "2026-09-28T15:00:10.707Z",
+      "updatedAt": "2026-09-28T15:00:10.707Z"
+    },
+    "proj_1790607610712_7c3bcb": {
+      "id": "proj_1790607610712_7c3bcb",
+      "userId": "test-creator-user-b",
+      "name": "Viral Hook Masterclass Template (Template Copy)",
+      "topic": "Production-ready framework for short-form retention",
+      "format": "Shorts (60s)",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Content Creators",
+      "tone": "Energetic",
+      "createdAt": "2026-09-28T15:00:10.712Z",
+      "updatedAt": "2026-09-28T15:00:10.712Z",
+      "ideas": [
+        {
+          "id": "idea-1790607610712-0",
+          "title": "Viral Hook Masterclass Template Angle 1",
+          "hook": "3 Retention Secrets",
+          "viralityScore": 90,
+          "format": "Shorts (60s)",
+          "durationEstimate": "60 seconds",
+          "angle": "Curiosity angle",
+          "targetAudience": "Content Creators",
+          "coreTakeaway": "Production-ready framework for short-form retention",
+          "suggestedVisualHook": "Dynamic zoom",
+          "retentionTip": "Fast pacing",
+          "createdAt": "2026-09-28T15:00:10.712Z"
+        }
+      ],
+      "script": {
+        "title": "Viral Hook Masterclass Template Script",
+        "format": "Shorts (60s)",
+        "estimatedDuration": "60 seconds",
+        "wordCount": 25,
+        "hookSummary": "Pattern interrupt formula",
+        "beats": [
+          {
+            "id": "beat-1",
+            "timestamp": "0:00",
+            "speaker": "Host",
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "dialogue": "Stop scrolling right now!",
+            "visualCue": "Punch zoom",
+            "durationSec": 15
+          }
+        ],
+        "rawFullText": "Stop scrolling right now!",
+        "tone": "Energetic",
+        "callToAction": "Follow for more creator insights!",
+        "lastUpdated": "2026-09-28T15:00:10.712Z"
+      },
+      "scenes": [
+        {
+          "id": "scene-1790607610712-1",
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "characterAction": "",
+          "audioSfx": "",
+          "onScreenText": "",
+          "lightingMood": "Studio lighting",
+          "brollKeywords": [],
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k",
+          "mediaStatus": "prompt_ready"
+        }
+      ],
+      "seo": {
+        "titles": [
+          {
+            "title": "Viral Hook Masterclass Template",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 31
+          }
+        ],
+        "description": "Production-ready framework for short-form retention",
+        "primaryKeywords": [
+          "educational",
+          "youtube shorts"
+        ],
+        "longTailKeywords": [],
+        "tags": [
+          "Educational",
+          "YouTube Shorts"
+        ],
+        "hashtags": [
+          "#Educational",
+          "#YouTubeShorts"
+        ],
+        "seoHealthScore": 88,
+        "targetAudience": "Content Creators",
+        "category": "Educational"
+      },
+      "thumbnail": {
+        "headline": "STOP SCROLLING",
+        "subheadline": "CreatorNova Template",
+        "badgeText": "HOT",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8B5CF6",
+        "bgColor1": "#0B0F19",
+        "bgColor2": "#1E1B4B",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "⚡"
+        ],
+        "compositionAngle": "Eye Level",
+        "aiConceptPrompt": ""
+      },
+      "translations": []
+    },
+    "proj_test_a_1790607626671": {
+      "id": "proj_test_a_1790607626671",
+      "name": "Masterclass YouTube Shorts Formula",
+      "topic": "How to Hook Viewers in 3 Seconds",
+      "format": "Shorts (60s)",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Content Creators",
+      "tone": "Energetic",
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k"
+        }
+      ],
+      "script": {
+        "hookSummary": "Stop scrolling if you want 10x more reach",
+        "beats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "visualCue": "Punch zoom",
+            "dialogue": "Stop scrolling right now!"
+          }
+        ]
+      },
+      "userId": "test-creator-user-a",
+      "createdAt": "2026-09-28T15:00:26.671Z",
+      "updatedAt": "2026-09-28T15:00:26.671Z"
+    },
+    "proj_1790607626678_991e71": {
+      "id": "proj_1790607626678_991e71",
+      "userId": "test-creator-user-b",
+      "name": "Viral Hook Masterclass Template (Template Copy)",
+      "topic": "Production-ready framework for short-form retention",
+      "format": "Shorts (60s)",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Content Creators",
+      "tone": "Energetic",
+      "createdAt": "2026-09-28T15:00:26.678Z",
+      "updatedAt": "2026-09-28T15:00:26.678Z",
+      "ideas": [
+        {
+          "id": "idea-1790607626678-0",
+          "title": "Viral Hook Masterclass Template Angle 1",
+          "hook": "3 Retention Secrets",
+          "viralityScore": 90,
+          "format": "Shorts (60s)",
+          "durationEstimate": "60 seconds",
+          "angle": "Curiosity angle",
+          "targetAudience": "Content Creators",
+          "coreTakeaway": "Production-ready framework for short-form retention",
+          "suggestedVisualHook": "Dynamic zoom",
+          "retentionTip": "Fast pacing",
+          "createdAt": "2026-09-28T15:00:26.678Z"
+        }
+      ],
+      "script": {
+        "title": "Viral Hook Masterclass Template Script",
+        "format": "Shorts (60s)",
+        "estimatedDuration": "60 seconds",
+        "wordCount": 25,
+        "hookSummary": "Pattern interrupt formula",
+        "beats": [
+          {
+            "id": "beat-1",
+            "timestamp": "0:00",
+            "speaker": "Host",
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "dialogue": "Stop scrolling right now!",
+            "visualCue": "Punch zoom",
+            "durationSec": 15
+          }
+        ],
+        "rawFullText": "Stop scrolling right now!",
+        "tone": "Energetic",
+        "callToAction": "Follow for more creator insights!",
+        "lastUpdated": "2026-09-28T15:00:26.678Z"
+      },
+      "scenes": [
+        {
+          "id": "scene-1790607626678-1",
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "characterAction": "",
+          "audioSfx": "",
+          "onScreenText": "",
+          "lightingMood": "Studio lighting",
+          "brollKeywords": [],
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k",
+          "mediaStatus": "prompt_ready"
+        }
+      ],
+      "seo": {
+        "titles": [
+          {
+            "title": "Viral Hook Masterclass Template",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 31
+          }
+        ],
+        "description": "Production-ready framework for short-form retention",
+        "primaryKeywords": [
+          "educational",
+          "youtube shorts"
+        ],
+        "longTailKeywords": [],
+        "tags": [
+          "Educational",
+          "YouTube Shorts"
+        ],
+        "hashtags": [
+          "#Educational",
+          "#YouTubeShorts"
+        ],
+        "seoHealthScore": 88,
+        "targetAudience": "Content Creators",
+        "category": "Educational"
+      },
+      "thumbnail": {
+        "headline": "STOP SCROLLING",
+        "subheadline": "CreatorNova Template",
+        "badgeText": "HOT",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8B5CF6",
+        "bgColor1": "#0B0F19",
+        "bgColor2": "#1E1B4B",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "⚡"
+        ],
+        "compositionAngle": "Eye Level",
+        "aiConceptPrompt": ""
+      },
+      "translations": []
     }
   },
   "resetTokens": {},
@@ -2375,6 +2997,230 @@
       "createdAt": "2026-09-27T11:11:19.620Z",
       "updatedAt": "2026-09-27T11:11:19.623Z",
       "usesCount": 1
+    },
+    "tmpl_1790607538468_0a2c5a": {
+      "id": "tmpl_1790607538468_0a2c5a",
+      "creatorUserId": "test-creator-user-a",
+      "creatorDisplayName": "Creator",
+      "shareCreatorName": true,
+      "originalProjectId": "proj_test_a_1790607538467",
+      "title": "Viral Hook Masterclass Template",
+      "description": "Production-ready framework for short-form retention",
+      "category": "Educational",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "workflow": {
+        "format": "Shorts (60s)",
+        "tone": "Energetic",
+        "targetAudience": "Content Creators",
+        "duration": "60 seconds",
+        "estimatedDuration": "60 seconds"
+      },
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "characterAction": "",
+          "audioSfx": "",
+          "onScreenText": "",
+          "lightingMood": "Studio lighting",
+          "brollKeywords": [],
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k"
+        }
+      ],
+      "prompts": {
+        "ideaHooks": [
+          "3 Retention Secrets"
+        ],
+        "thumbnailPrompt": "",
+        "thumbnailHeadline": "STOP SCROLLING",
+        "scriptOutline": "Pattern interrupt formula",
+        "scriptBeats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "visualCue": "Punch zoom",
+            "dialogueOutline": "Stop scrolling right now!"
+          }
+        ]
+      },
+      "isActive": true,
+      "createdAt": "2026-09-28T14:58:58.468Z",
+      "updatedAt": "2026-09-28T14:58:58.468Z",
+      "usesCount": 1,
+      "opensCount": 2
+    },
+    "tmpl_1790607573785_f0f754": {
+      "id": "tmpl_1790607573785_f0f754",
+      "creatorUserId": "test-creator-user-a",
+      "creatorDisplayName": "Creator",
+      "shareCreatorName": true,
+      "originalProjectId": "proj_test_a_1790607573784",
+      "title": "Viral Hook Masterclass Template",
+      "description": "Production-ready framework for short-form retention",
+      "category": "Educational",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "workflow": {
+        "format": "Shorts (60s)",
+        "tone": "Energetic",
+        "targetAudience": "Content Creators",
+        "duration": "60 seconds",
+        "estimatedDuration": "60 seconds"
+      },
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "characterAction": "",
+          "audioSfx": "",
+          "onScreenText": "",
+          "lightingMood": "Studio lighting",
+          "brollKeywords": [],
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k"
+        }
+      ],
+      "prompts": {
+        "ideaHooks": [
+          "3 Retention Secrets"
+        ],
+        "thumbnailPrompt": "",
+        "thumbnailHeadline": "STOP SCROLLING",
+        "scriptOutline": "Pattern interrupt formula",
+        "scriptBeats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "visualCue": "Punch zoom",
+            "dialogueOutline": "Stop scrolling right now!"
+          }
+        ]
+      },
+      "isActive": true,
+      "createdAt": "2026-09-28T14:59:33.785Z",
+      "updatedAt": "2026-09-28T14:59:33.785Z",
+      "usesCount": 1,
+      "opensCount": 2
+    },
+    "tmpl_1790607610708_c0e05c": {
+      "id": "tmpl_1790607610708_c0e05c",
+      "creatorUserId": "test-creator-user-a",
+      "creatorDisplayName": "Creator",
+      "shareCreatorName": true,
+      "originalProjectId": "proj_test_a_1790607610707",
+      "title": "Viral Hook Masterclass Template",
+      "description": "Production-ready framework for short-form retention",
+      "category": "Educational",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "workflow": {
+        "format": "Shorts (60s)",
+        "tone": "Energetic",
+        "targetAudience": "Content Creators",
+        "duration": "60 seconds",
+        "estimatedDuration": "60 seconds"
+      },
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "characterAction": "",
+          "audioSfx": "",
+          "onScreenText": "",
+          "lightingMood": "Studio lighting",
+          "brollKeywords": [],
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k"
+        }
+      ],
+      "prompts": {
+        "ideaHooks": [
+          "3 Retention Secrets"
+        ],
+        "thumbnailPrompt": "",
+        "thumbnailHeadline": "STOP SCROLLING",
+        "scriptOutline": "Pattern interrupt formula",
+        "scriptBeats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "visualCue": "Punch zoom",
+            "dialogueOutline": "Stop scrolling right now!"
+          }
+        ]
+      },
+      "isActive": true,
+      "createdAt": "2026-09-28T15:00:10.708Z",
+      "updatedAt": "2026-09-28T15:00:10.708Z",
+      "usesCount": 1,
+      "opensCount": 2
+    },
+    "tmpl_1790607626673_f4acac": {
+      "id": "tmpl_1790607626673_f4acac",
+      "creatorUserId": "test-creator-user-a",
+      "creatorDisplayName": "Creator",
+      "shareCreatorName": true,
+      "originalProjectId": "proj_test_a_1790607626671",
+      "title": "Viral Hook Masterclass Template",
+      "description": "Production-ready framework for short-form retention",
+      "category": "Educational",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "workflow": {
+        "format": "Shorts (60s)",
+        "tone": "Energetic",
+        "targetAudience": "Content Creators",
+        "duration": "60 seconds",
+        "estimatedDuration": "60 seconds"
+      },
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00 - 0:05",
+          "shotType": "Medium Shot",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Extreme close up with dramatic lighting interrupt",
+          "characterAction": "",
+          "audioSfx": "",
+          "onScreenText": "",
+          "lightingMood": "Studio lighting",
+          "brollKeywords": [],
+          "aiVideoPrompt": "Cinematic creator speaking directly to camera, 4k"
+        }
+      ],
+      "prompts": {
+        "ideaHooks": [
+          "3 Retention Secrets"
+        ],
+        "thumbnailPrompt": "",
+        "thumbnailHeadline": "STOP SCROLLING",
+        "scriptOutline": "Pattern interrupt formula",
+        "scriptBeats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "Fast paced",
+            "visualCue": "Punch zoom",
+            "dialogueOutline": "Stop scrolling right now!"
+          }
+        ]
+      },
+      "isActive": true,
+      "createdAt": "2026-09-28T15:00:26.673Z",
+      "updatedAt": "2026-09-28T15:00:26.673Z",
+      "usesCount": 1,
+      "opensCount": 2
     }
   },
   "referrals": {
@@ -2387,9 +3233,55 @@
       "status": "rewarded",
       "rewardCredits": 25,
       "rewardedAt": "2026-09-27T11:11:19.635Z"
+    },
+    "ref_signup_1790607538476_5318ee": {
+      "id": "ref_signup_1790607538476_5318ee",
+      "referrerUserId": "test-creator-user-b",
+      "referredUserId": "test-user-c-1790607538475",
+      "referralCode": "NOVA-CCF7BE",
+      "createdAt": "2026-09-28T14:58:58.476Z",
+      "status": "rewarded",
+      "rewardCredits": 20,
+      "rewardedAt": "2026-09-28T14:58:58.481Z",
+      "qualifiedAt": "2026-09-28T14:58:58.478Z"
+    },
+    "ref_signup_1790607573792_031387": {
+      "id": "ref_signup_1790607573792_031387",
+      "referrerUserId": "test-creator-user-b",
+      "referredUserId": "test-user-c-1790607573792",
+      "referralCode": "NOVA-CCF7BE",
+      "createdAt": "2026-09-28T14:59:33.793Z",
+      "status": "rewarded",
+      "rewardCredits": 20,
+      "rewardedAt": "2026-09-28T14:59:33.796Z",
+      "qualifiedAt": "2026-09-28T14:59:33.794Z"
+    },
+    "ref_signup_1790607610714_e2cb2b": {
+      "id": "ref_signup_1790607610714_e2cb2b",
+      "referrerUserId": "test-creator-user-b",
+      "referredUserId": "test-user-c-1790607610714",
+      "referralCode": "NOVA-CCF7BE",
+      "createdAt": "2026-09-28T15:00:10.714Z",
+      "status": "rewarded",
+      "rewardCredits": 20,
+      "rewardedAt": "2026-09-28T15:00:10.717Z",
+      "qualifiedAt": "2026-09-28T15:00:10.716Z"
+    },
+    "ref_signup_1790607626681_317ef4": {
+      "id": "ref_signup_1790607626681_317ef4",
+      "referrerUserId": "test-creator-user-b",
+      "referredUserId": "test-user-c-1790607626681",
+      "referralCode": "NOVA-CCF7BE",
+      "createdAt": "2026-09-28T15:00:26.681Z",
+      "status": "rewarded",
+      "rewardCredits": 20,
+      "rewardedAt": "2026-09-28T15:00:26.685Z",
+      "qualifiedAt": "2026-09-28T15:00:26.682Z"
     }
   },
   "userReferralCodes": {
-    "user-creator-default": "NOVA-8E0B22"
+    "user-creator-default": "NOVA-8E0B22",
+    "test-creator-user-a": "NOVA-DADBCE",
+    "test-creator-user-b": "NOVA-CCF7BE"
   }
 }

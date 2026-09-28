@@ -58,7 +58,7 @@ function extractJsonFromText(rawText: string) {
   }
 }
 
-import { dbManager } from './server/db.ts';
+import { dbManager, QUALIFIED_REFERRAL_REWARD_CREDITS } from './server/db.ts';
 import agentRouter from './server/agentRoutes.ts';
 import { CreditWalletService } from './server/creditService.ts';
 import { PaymentService } from './server/paymentService.ts';
@@ -360,7 +360,7 @@ app.post('/api/projects', (req, res) => {
     const saved = dbManager.saveUserProject(project, user.id);
 
     // If this referred user performs their first creation action, qualify & reward referral
-    dbManager.qualifyAndRewardReferral(user.id, 25, (user as any).authToken).catch(() => {});
+    dbManager.qualifyAndRewardReferral(user.id, QUALIFIED_REFERRAL_REWARD_CREDITS, (user as any).authToken).catch(() => {});
 
     return res.status(201).json({ project: saved, saved: true });
   } catch (err: any) {
@@ -486,7 +486,7 @@ app.post('/api/templates/:id/use', (req, res) => {
     const project = dbManager.useTemplate(req.params.id, user.id);
 
     // If user was referred, qualify & reward their referrer
-    dbManager.qualifyAndRewardReferral(user.id, 25, (user as any).authToken).catch(() => {});
+    dbManager.qualifyAndRewardReferral(user.id, QUALIFIED_REFERRAL_REWARD_CREDITS, (user as any).authToken).catch(() => {});
 
     return res.status(201).json({
       project,
@@ -511,7 +511,7 @@ app.get('/api/referrals/my-code', (req, res) => {
   return res.json({
     referralCode,
     referralLink: `/ref/${referralCode}`,
-    rewardCredits: 25,
+    rewardCredits: QUALIFIED_REFERRAL_REWARD_CREDITS,
   });
 });
 
@@ -820,6 +820,192 @@ app.get('/api/admin/metrics', requireAdmin, (req, res) => {
   const metrics = dbManager.getPlatformMetrics(admin.id);
   return res.json({ metrics });
 });
+
+// Dedicated Automated Growth & Referral Verification Test Endpoint (Requirement 11)
+app.get('/api/test-growth-system', async (_req, res) => {
+  const results: Array<{ name: string; status: 'PASS' | 'FAIL'; details: string }> = [];
+
+  try {
+    // Setup test users
+    const userAId = 'test-creator-user-a';
+    const userBId = 'test-creator-user-b';
+
+    // 1. User A creates a project & template
+    const userAProject = dbManager.saveUserProject(
+      {
+        id: `proj_test_a_${Date.now()}`,
+        name: 'Masterclass YouTube Shorts Formula',
+        topic: 'How to Hook Viewers in 3 Seconds',
+        format: 'Shorts (60s)',
+        platform: 'YouTube Shorts',
+        contentType: 'Educational',
+        language: 'English',
+        duration: '60 seconds',
+        targetAudience: 'Content Creators',
+        tone: 'Energetic',
+        scenes: [
+          {
+            sceneNumber: 1,
+            timestampRange: '0:00 - 0:05',
+            visualDescription: 'Extreme close up with dramatic lighting interrupt',
+            aiVideoPrompt: 'Cinematic creator speaking directly to camera, 4k',
+          },
+        ],
+        script: {
+          hookSummary: 'Stop scrolling if you want 10x more reach',
+          beats: [
+            {
+              sectionType: 'hook',
+              directionCue: 'Fast paced',
+              visualCue: 'Punch zoom',
+              dialogue: 'Stop scrolling right now!',
+            },
+          ],
+        },
+      },
+      userAId
+    );
+
+    const templateA = dbManager.createOrUpdateTemplate(userAId, {
+      originalProjectId: userAProject.id,
+      title: 'Viral Hook Masterclass Template',
+      description: 'Production-ready framework for short-form retention',
+      category: 'Educational',
+      platform: 'YouTube Shorts',
+      contentType: 'Educational',
+      language: 'English',
+      shareCreatorName: true,
+      workflow: {
+        format: 'Shorts (60s)',
+        tone: 'Energetic',
+        targetAudience: 'Content Creators',
+      },
+      scenes: userAProject.scenes,
+      prompts: {
+        ideaHooks: ['3 Retention Secrets'],
+        thumbnailHeadline: 'STOP SCROLLING',
+        scriptOutline: 'Pattern interrupt formula',
+      },
+    });
+
+    results.push({
+      name: 'User A creates and shares template',
+      status: templateA && templateA.id ? 'PASS' : 'FAIL',
+      details: `Template ${templateA.id} published with scenes and workflow structure`,
+    });
+
+    // 2. Verify Privacy in Public Preview (No UID, No email, No media files)
+    const publicPreview = dbManager.getPublicTemplate(templateA.id);
+    const hasUid = JSON.stringify(publicPreview).includes(userAId);
+    const hasEmail = JSON.stringify(publicPreview).includes('@');
+    const hasPrivateStorage = JSON.stringify(publicPreview).includes('storagePath');
+
+    results.push({
+      name: 'Public Template Privacy Protection',
+      status: !hasUid && !hasEmail && !hasPrivateStorage ? 'PASS' : 'FAIL',
+      details: 'Strict privacy maintained: Zero UIDs, emails, or private disk assets exposed in preview',
+    });
+
+    // 3. User B opens template (increments opensCount)
+    const opensBefore = templateA.opensCount || 0;
+    dbManager.getPublicTemplate(templateA.id);
+    const opensAfter = templateA.opensCount || 0;
+    results.push({
+      name: 'User B opens template preview',
+      status: opensAfter > opensBefore ? 'PASS' : 'FAIL',
+      details: `Template opens tracked: ${opensBefore} -> ${opensAfter}`,
+    });
+
+    // 4. User B uses template -> receives independent project in User B account
+    const userBClonedProject = dbManager.useTemplate(templateA.id, userBId);
+    const isDistinctProject = userBClonedProject.id !== userAProject.id;
+    const isOwnedByUserB = userBClonedProject.userId === userBId;
+
+    results.push({
+      name: 'User B uses template into independent project',
+      status: isDistinctProject && isOwnedByUserB ? 'PASS' : 'FAIL',
+      details: `New project ${userBClonedProject.id} isolated in User B account without altering original`,
+    });
+
+    // 5. Verify User B cannot edit User A's original project
+    let userBCannotEditA = false;
+    try {
+      dbManager.saveUserProject(
+        {
+          id: userAProject.id,
+          name: 'Hacked Title Attempt',
+        },
+        userBId
+      );
+    } catch (authErr: any) {
+      userBCannotEditA = true;
+    }
+
+    results.push({
+      name: 'Cross-user project protection',
+      status: userBCannotEditA ? 'PASS' : 'FAIL',
+      details: 'User B strictly forbidden from editing User A original project',
+    });
+
+    // 6. Referral Anti-Abuse: Self-referral blocked
+    const userACode = dbManager.getUserReferralCode(userAId);
+    const selfReferralResult = dbManager.recordReferralSignup(userACode, userAId);
+    results.push({
+      name: 'Anti-Abuse: Self-referral blocked',
+      status: !selfReferralResult.success && selfReferralResult.error === 'SELF_REFERRAL_NOT_ALLOWED' ? 'PASS' : 'FAIL',
+      details: `Self-referral rejected with error: ${selfReferralResult.error}`,
+    });
+
+    // 7. Referral Signup: User B refers User C
+    const userCId = `test-user-c-${Date.now()}`;
+    const userBCode = dbManager.getUserReferralCode(userBId);
+    const signupResult = dbManager.recordReferralSignup(userBCode, userCId);
+
+    // 8. Referral Qualification & Secure Wallet Reward
+    const walletBefore = dbManager.getUserCredits(userBId).totalRemaining;
+    const rewardResult = await dbManager.qualifyAndRewardReferral(userCId, QUALIFIED_REFERRAL_REWARD_CREDITS);
+    const walletAfter = dbManager.getUserCredits(userBId).totalRemaining;
+
+    results.push({
+      name: 'Referral Qualification & Secure Credit Wallet Reward',
+      status: rewardResult.rewarded && walletAfter === walletBefore + QUALIFIED_REFERRAL_REWARD_CREDITS ? 'PASS' : 'FAIL',
+      details: `Wallet balance increased from ${walletBefore} to ${walletAfter} (+${QUALIFIED_REFERRAL_REWARD_CREDITS} credits)`,
+    });
+
+    // 9. Anti-Abuse: Duplicate referral reward blocked
+    const dupRewardResult = await dbManager.qualifyAndRewardReferral(userCId, QUALIFIED_REFERRAL_REWARD_CREDITS);
+    results.push({
+      name: 'Anti-Abuse: Duplicate referral reward blocked',
+      status: !dupRewardResult.rewarded && dupRewardResult.error === 'ALREADY_REWARDED' ? 'PASS' : 'FAIL',
+      details: `Duplicate attempt cleanly rejected with error: ${dupRewardResult.error}`,
+    });
+
+    // 10. Growth Metrics Tracking
+    const adminMetrics = dbManager.getPlatformMetrics('user-admin-default');
+    const hasGrowthMetrics =
+      adminMetrics.growth &&
+      typeof adminMetrics.growth.templatesShared === 'number' &&
+      typeof adminMetrics.growth.templateOpens === 'number' &&
+      typeof adminMetrics.growth.templateUses === 'number' &&
+      typeof adminMetrics.growth.referralSignups === 'number' &&
+      typeof adminMetrics.growth.qualifiedReferrals === 'number';
+
+    results.push({
+      name: 'Admin-only Growth Tracking Metrics',
+      status: hasGrowthMetrics ? 'PASS' : 'FAIL',
+      details: `Growth counts: ${JSON.stringify(adminMetrics.growth)}`,
+    });
+
+    const allPassed = results.every((r) => r.status === 'PASS');
+    return res.json({
+      allPassed,
+      results,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message, stack: err.stack, results });
+  }
+});
+
 
 app.put('/api/admin/credit-config', requireAdmin, (req, res) => {
   const admin = (req as any).user;
