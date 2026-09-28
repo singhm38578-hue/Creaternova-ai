@@ -298,6 +298,156 @@ app.post('/api/auth/logout', (req, res) => {
   return res.json({ success: true });
 });
 
+// Delete Account (Deliberate confirmation, authenticated user isolation, removes private data)
+app.delete('/api/auth/account', requireAuth, (req, res) => {
+  try {
+    const user = (req as any).user;
+    const { confirmation } = req.body || {};
+
+    if (confirmation !== 'DELETE' && confirmation !== 'CONFIRM_DELETE') {
+      return res.status(400).json({
+        error: 'CONFIRMATION_REQUIRED',
+        message: 'Deliberate confirmation required. Please confirm deletion by typing DELETE.',
+      });
+    }
+
+    // Authenticated user can ONLY delete their own account
+    const result = dbManager.deleteUserAccount(user.id);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'Failed to delete account.' });
+  }
+});
+
+// Download My Data (Authenticated export of user-owned profile, projects, calendar, and usage)
+app.get('/api/auth/export-data', requireAuth, (req, res) => {
+  try {
+    const user = (req as any).user;
+    const exportedData = dbManager.exportUserData(user.id);
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="creatornova-data-${user.id}.json"`);
+    return res.send(JSON.stringify(exportedData, null, 2));
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'Failed to export data.' });
+  }
+});
+
+// Contact & Support Ticket submission
+app.post('/api/support/ticket', (req, res) => {
+  try {
+    const user = getAuthenticatedUser(req);
+    const { category, subject, message, email } = req.body || {};
+
+    const validCategories = [
+      'Account',
+      'Projects',
+      'AI Generation',
+      'Credits',
+      'Billing',
+      'Technical Problem',
+      'Other',
+    ];
+
+    if (!category || !validCategories.includes(category)) {
+      return res.status(400).json({
+        error: 'INVALID_CATEGORY',
+        message: `Category must be one of: ${validCategories.join(', ')}`,
+      });
+    }
+
+    const contactEmail = (email || user?.email || '').trim();
+    if (!contactEmail || !contactEmail.includes('@')) {
+      return res.status(400).json({
+        error: 'VALID_EMAIL_REQUIRED',
+        message: 'A valid email address is required to receive support responses.',
+      });
+    }
+
+    if (!subject || !subject.trim()) {
+      return res.status(400).json({ error: 'SUBJECT_REQUIRED', message: 'Subject is required.' });
+    }
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'MESSAGE_REQUIRED', message: 'Message details are required.' });
+    }
+
+    const ticket = dbManager.createSupportTicket({
+      userId: user?.id,
+      userEmail: contactEmail,
+      category,
+      subject,
+      message,
+    });
+
+    return res.status(201).json({
+      success: true,
+      ticket: {
+        id: ticket.id,
+        category: ticket.category,
+        status: ticket.status,
+        createdAt: ticket.createdAt,
+      },
+      message: 'Support request received. A ticket has been created and logged for team review.',
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'Failed to submit support ticket.' });
+  }
+});
+
+// Content Reporting Foundation (For templates or public creator assets)
+app.post('/api/reports', (req, res) => {
+  try {
+    const user = getAuthenticatedUser(req);
+    const { targetType, targetId, targetTitle, category, details, email } = req.body || {};
+
+    const validCategories = ['Spam', 'Copyright concern', 'Privacy concern', 'Other'];
+    if (!category || !validCategories.includes(category)) {
+      return res.status(400).json({
+        error: 'INVALID_CATEGORY',
+        message: `Report category must be one of: ${validCategories.join(', ')}`,
+      });
+    }
+
+    if (!targetId || !targetType) {
+      return res.status(400).json({
+        error: 'TARGET_REQUIRED',
+        message: 'Target ID and type are required to submit a report.',
+      });
+    }
+
+    if (!details || !details.trim()) {
+      return res.status(400).json({
+        error: 'DETAILS_REQUIRED',
+        message: 'Please provide details explaining the concern.',
+      });
+    }
+
+    const report = dbManager.createContentReport({
+      reporterUserId: user?.id,
+      reporterEmail: email || user?.email,
+      targetType: targetType || 'template',
+      targetId,
+      targetTitle,
+      category,
+      details,
+    });
+
+    return res.status(201).json({
+      success: true,
+      report: {
+        id: report.id,
+        category: report.category,
+        status: report.status,
+        createdAt: report.createdAt,
+      },
+      message: 'Report received. Our moderation team will review this template. Thank you for protecting the creator community.',
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'Failed to submit content report.' });
+  }
+});
+
 // -------------------------------------------------------------
 // BRAND KIT ENDPOINTS
 // -------------------------------------------------------------

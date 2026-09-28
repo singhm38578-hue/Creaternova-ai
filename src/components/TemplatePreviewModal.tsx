@@ -14,11 +14,13 @@ import {
   Tag,
   Clock,
   ExternalLink,
-  Lock
+  Lock,
+  Flag,
 } from 'lucide-react';
 import { PublicTemplatePreview } from '../types/content';
 import { studioApi } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { ContentReportModal } from './support/ContentReportModal';
 
 interface TemplatePreviewModalProps {
   templateId: string | null;
@@ -39,6 +41,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   const [isCloning, setIsCloning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !templateId) {
@@ -134,12 +137,25 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
               </span>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {template && (
+              <button
+                type="button"
+                onClick={() => setIsReportModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-amber-950/60 text-slate-400 hover:text-amber-300 border border-slate-700/60 hover:border-amber-500/40 text-xs font-semibold transition-colors cursor-pointer"
+                title="Report template for spam, copyright or privacy concern"
+              >
+                <Flag className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Report</span>
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {isLoading ? (
@@ -330,6 +346,17 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
           </div>
         ) : null}
       </div>
+
+      {/* Content Report Modal for Template */}
+      {template && (
+        <ContentReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          targetType="template"
+          targetId={template.id}
+          targetTitle={template.title}
+        />
+      )}
     </div>
   );
 };

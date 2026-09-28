@@ -50,6 +50,9 @@ export type ActiveTab =
   | 'pricing'
   | 'usage'
   | 'landing'
+  | 'privacy'
+  | 'terms'
+  | 'contact'
   | 'admin';
 
 interface SidebarProps {
@@ -339,18 +342,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           {/* Quick links */}
-          <div className="grid grid-cols-2 gap-1 text-[10px] font-bold text-slate-400 text-center">
+          <div className="grid grid-cols-3 gap-1 text-[10px] font-bold text-slate-400 text-center">
             <button
               onClick={() => handleNavClick('pricing')}
-              className="py-1 px-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 hover:text-white transition-colors cursor-pointer"
+              className="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-850 hover:text-white transition-colors cursor-pointer truncate"
             >
-              Plans & Pricing
+              Plans
             </button>
             <button
               onClick={() => handleNavClick('usage')}
-              className="py-1 px-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 hover:text-white transition-colors cursor-pointer"
+              className="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-850 hover:text-white transition-colors cursor-pointer truncate"
             >
-              Usage Wallet
+              Wallet
+            </button>
+            <button
+              onClick={() => handleNavClick('contact')}
+              className="py-1 px-1 rounded-lg bg-slate-900 hover:bg-slate-850 hover:text-violet-300 transition-colors cursor-pointer truncate"
+            >
+              Support
             </button>
           </div>
         </div>

@@ -39,6 +39,9 @@ interface LandingPageViewProps {
   onSignIn?: () => void;
   onOpenPricing?: () => void;
   onOpenAgent?: () => void;
+  onOpenPrivacy?: () => void;
+  onOpenTerms?: () => void;
+  onOpenContact?: () => void;
 }
 
 export const LandingPageView: React.FC<LandingPageViewProps> = ({
@@ -46,6 +49,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   onSignIn,
   onOpenPricing,
   onOpenAgent,
+  onOpenPrivacy,
+  onOpenTerms,
+  onOpenContact,
 }) => {
   const { currency, setCurrency } = useLocale();
 
@@ -845,28 +851,28 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             <span>All-in-one AI creator workspace</span>
           </div>
 
-          {/* Placeholders for Privacy, Terms, Contact, Pricing */}
-          <div className="flex items-center gap-4 text-xs font-semibold">
+          {/* Connect: Privacy, Terms, Contact, Pricing (Requirement 9) */}
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
             <button
-              onClick={() => setActiveModal('privacy')}
+              onClick={() => (onOpenPrivacy ? onOpenPrivacy() : setActiveModal('privacy'))}
               className="hover:text-white transition-colors cursor-pointer"
             >
               Privacy Policy
             </button>
             <button
-              onClick={() => setActiveModal('terms')}
+              onClick={() => (onOpenTerms ? onOpenTerms() : setActiveModal('terms'))}
               className="hover:text-white transition-colors cursor-pointer"
             >
               Terms of Service
             </button>
             <button
-              onClick={() => setActiveModal('contact')}
+              onClick={() => (onOpenContact ? onOpenContact() : setActiveModal('contact'))}
               className="hover:text-white transition-colors cursor-pointer"
             >
               Contact Support
             </button>
             <button
-              onClick={() => setActiveModal('pricing')}
+              onClick={() => (onOpenPricing ? onOpenPricing() : setActiveModal('pricing'))}
               className="hover:text-white transition-colors cursor-pointer"
             >
               Pricing Details
@@ -887,9 +893,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 my-8">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-bold text-white capitalize">
-                {activeModal === 'privacy' && 'CreatorNova Privacy Policy'}
-                {activeModal === 'terms' && 'Terms of Service'}
-                {activeModal === 'contact' && 'Contact & Support'}
+                {activeModal === 'privacy' && 'CreatorNova Privacy Policy Overview'}
+                {activeModal === 'terms' && 'Terms of Service (Draft)'}
+                {activeModal === 'contact' && 'Contact & Help Desk'}
                 {activeModal === 'pricing' && 'Pricing & Credit Policy'}
               </h3>
               <button
@@ -903,6 +909,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             <div className="text-xs text-slate-300 space-y-3 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
               {activeModal === 'privacy' && (
                 <>
+                  <div className="p-2.5 bg-amber-950/40 border border-amber-500/30 rounded-xl text-[11px] text-amber-300">
+                    <strong>OWNER REVIEW REQUIRED:</strong> Complete 12-section privacy architecture is documented under /privacy.
+                  </div>
                   <p>
                     <strong>Data Isolation & Confidentiality:</strong> CreatorNova AI does not sell or distribute your private scripts, project concepts, or brand assets to third-party advertising networks.
                   </p>
@@ -912,11 +921,25 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   <p>
                     <strong>Analytics:</strong> All product lifecycle events are privacy-conscious and anonymized, tracking navigation counts without capturing prompt copy or user secrets.
                   </p>
+                  <div className="pt-2">
+                    <button
+                      onClick={() => {
+                        setActiveModal(null);
+                        if (onOpenPrivacy) onOpenPrivacy();
+                      }}
+                      className="w-full py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      View Full /privacy Document →
+                    </button>
+                  </div>
                 </>
               )}
 
               {activeModal === 'terms' && (
                 <>
+                  <div className="p-2.5 bg-amber-950/40 border border-amber-500/30 rounded-xl text-[11px] text-amber-300">
+                    <strong>DRAFT — OWNER/LEGAL REVIEW REQUIRED:</strong> These draft terms govern creator workspace usage.
+                  </div>
                   <p>
                     <strong>Creator Ownership:</strong> You retain complete intellectual ownership of all ideas, scripts, storyboard shotlists, and project assets formulated in your CreatorNova workspace.
                   </p>
@@ -926,6 +949,17 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   <p>
                     <strong>Neural Generation Disclaimer:</strong> Third-party video generation, voice synthesis, and neural image operations depend strictly on configured external providers.
                   </p>
+                  <div className="pt-2">
+                    <button
+                      onClick={() => {
+                        setActiveModal(null);
+                        if (onOpenTerms) onOpenTerms();
+                      }}
+                      className="w-full py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      View Full /terms Document →
+                    </button>
+                  </div>
                 </>
               )}
 
@@ -934,14 +968,25 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   <p>
                     <strong>Creator Support:</strong> Need assistance calibrating your Brand Kit, planning an episodic series, or configuring credit allowances?
                   </p>
-                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1 font-mono text-[11px]">
-                    <div>Support: support@creatornova.ai</div>
-                    <div>Developer Portal: https://creatornova.ai/help</div>
-                    <div>Status: Live Application Runtime Active</div>
+                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1.5 font-mono text-[11px]">
+                    <div>Support Email: <span className="text-amber-300 font-bold">Support contact setup required.</span></div>
+                    <div>Support Portal: In-App Help & Support Desk</div>
+                    <div>Desk Status: Live Ticket Queue Monitored</div>
                   </div>
                   <p className="text-[11px] text-slate-400">
-                    Our team responds to all creator inquiries within 1 business day.
+                    Submit tickets across: Account, Projects, AI Generation, Credits, Billing, Technical Problem, or Other.
                   </p>
+                  <div className="pt-2">
+                    <button
+                      onClick={() => {
+                        setActiveModal(null);
+                        if (onOpenContact) onOpenContact();
+                      }}
+                      className="w-full py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Open /contact Ticket Form →
+                    </button>
+                  </div>
                 </>
               )}
 

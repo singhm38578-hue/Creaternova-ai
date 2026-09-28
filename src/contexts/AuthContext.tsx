@@ -50,6 +50,7 @@ interface AuthContextType {
   }) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: (confirmation: string) => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
   updateBrandKit: (updates: Partial<BrandKit>) => Promise<void>;
   refreshCredits: () => Promise<void>;
@@ -315,6 +316,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const deleteAccount = async (confirmation: string) => {
+    try {
+      await studioApi.auth.deleteAccount(confirmation);
+      if (isFirebaseConfigured && auth.currentUser) {
+        try {
+          await auth.currentUser.delete();
+        } catch (e) {
+          // If requires recent login, sign out
+          await logoutUser().catch(() => {});
+        }
+      }
+    } finally {
+      localStorage.removeItem('creatornova_token');
+      setToken(null);
+      setUser(null);
+      setBrandKit(null);
+      setCredits(null);
+    }
+  };
+
   const updateProfile = async (updates: Partial<User>) => {
     setAutosaveStatus('saving');
     try {
@@ -442,6 +463,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         forgotPassword,
         logout,
+        deleteAccount,
         updateProfile,
         updateBrandKit,
         refreshCredits,

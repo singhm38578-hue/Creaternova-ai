@@ -23,6 +23,16 @@ import {
   Clock,
   Zap,
   DollarSign,
+  Download,
+  Trash2,
+  Lock,
+  Shield,
+  Languages,
+  FileDown,
+  CheckCircle2,
+  Key,
+  LifeBuoy,
+  MessageSquare,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { studioApi } from '../services/api';
@@ -32,6 +42,7 @@ import { PricingScreen } from './PricingScreen';
 import { AdminPanel } from './AdminPanel';
 import { AICostDashboard } from './AICostDashboard';
 import { ReferralEarnView } from './ReferralEarnView';
+import { ContactSupportView } from './support/ContactSupportView';
 import { Gift } from 'lucide-react';
 
 interface UserProfileViewProps {
@@ -39,8 +50,25 @@ interface UserProfileViewProps {
 }
 
 export const UserProfileView: React.FC<UserProfileViewProps> = ({ initialSubTab = 'profile' }) => {
-  const { user, logout, updateProfile, openAuthModal } = useAuth();
+  const { user, logout, updateProfile, deleteAccount, openAuthModal } = useAuth();
   const [subTab, setSubTab] = useState<'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin' | 'ai_costs' | 'referrals'>(initialSubTab);
+
+  // Settings sub-section state (Requirement 4 & 5)
+  const [settingsSection, setSettingsSection] = useState<'profile' | 'language' | 'privacy' | 'security' | 'delete_account'>('profile');
+
+  // Delete Account Confirmation States
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteAcknowledged, setDeleteAcknowledged] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Data Export States
+  const [isExportingData, setIsExportingData] = useState(false);
+  const [exportSuccessMessage, setExportSuccessMessage] = useState<string | null>(null);
+
+  // Password reset/update state
+  const [passwordChangeSent, setPasswordChangeSent] = useState(false);
+  const [passwordChangeLoading, setPasswordChangeLoading] = useState(false);
 
   // Edit Profile Form
   const [isEditing, setIsEditing] = useState(false);
@@ -626,45 +654,471 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({ initialSubTab 
       )}
 
       {subTab === 'settings' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-5 max-w-3xl shadow-xl animate-in fade-in">
-          <div className="space-y-1">
-            <h2 className="text-lg font-bold text-white">Account Settings & Security</h2>
-            <p className="text-xs text-slate-400">Configure notifications, security credentials, and workspace preferences.</p>
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl shadow-xl animate-in fade-in">
+          {/* Header */}
+          <div className="space-y-1 border-b border-slate-800 pb-4">
+            <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+              <Settings className="w-5 h-5 text-violet-400" />
+              <span>Account Settings & Privacy</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              Manage your creator profile, language defaults, privacy rights, security parameters, and account safety.
+            </p>
           </div>
 
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800">
-              <div>
-                <div className="text-xs font-bold text-white">Autosave Project Changes</div>
-                <div className="text-[11px] text-slate-400">Save edits to persistent storage automatically</div>
-              </div>
-              <span className="text-xs font-mono font-bold text-emerald-400">Enabled</span>
-            </div>
-
-            <div className="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800">
-              <div>
-                <div className="text-xs font-bold text-white">Two-Factor Authentication (2FA)</div>
-                <div className="text-[11px] text-slate-400">Secure sign-in with authenticator app</div>
-              </div>
-              <span className="text-xs font-mono text-slate-500">Integration Ready</span>
-            </div>
-
-            <div className="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800">
-              <div>
-                <div className="text-xs font-bold text-white">Export Format</div>
-                <div className="text-[11px] text-slate-400">Default production export file format</div>
-              </div>
-              <span className="text-xs font-mono text-slate-300">Markdown (.md) + JSON</span>
-            </div>
+          {/* Account Settings Sub-Navigation (Requirement 4) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none border-b border-slate-800/60">
+            {[
+              { id: 'profile' as const, label: 'Profile', icon: UserIcon },
+              { id: 'language' as const, label: 'Language', icon: Languages },
+              { id: 'privacy' as const, label: 'Privacy', icon: Shield },
+              { id: 'security' as const, label: 'Security', icon: Lock },
+              { id: 'delete_account' as const, label: 'Delete Account', icon: Trash2, danger: true },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = settingsSection === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setSettingsSection(tab.id)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? tab.danger
+                        ? 'bg-red-600 text-white shadow-md shadow-red-600/20'
+                        : 'bg-violet-600 text-white shadow-md shadow-violet-600/20'
+                      : tab.danger
+                      ? 'text-red-400 hover:bg-red-950/40 hover:text-red-300'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
+
+          {/* SECTION: Profile */}
+          {settingsSection === 'profile' && (
+            <div className="space-y-5 animate-in fade-in">
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">Creator Profile Details</h3>
+                <p className="text-xs text-slate-400">Public creator moniker, avatar display, and platform defaults.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 block">Creator Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-violet-500"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 block">Email Address (Read-only)</label>
+                  <input
+                    type="email"
+                    disabled
+                    value={user.email}
+                    className="w-full px-3.5 py-2.5 bg-slate-950/60 border border-slate-800/60 rounded-xl text-xs text-slate-400 cursor-not-allowed font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 block">Creator Niche</label>
+                  <input
+                    type="text"
+                    value={creatorNiche}
+                    onChange={(e) => setCreatorNiche(e.target.value)}
+                    placeholder="e.g. Space Science, Tech Reviews, Finance"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-violet-500"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 block">Default Target Platform</label>
+                  <select
+                    value={defaultPlatform}
+                    onChange={(e) => setDefaultPlatform(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-violet-500 cursor-pointer"
+                  >
+                    <option value="YouTube Shorts">YouTube Shorts (Vertical 9:16)</option>
+                    <option value="YouTube Long Video">YouTube Long Video (16:9)</option>
+                    <option value="TikTok">TikTok (Vertical 9:16)</option>
+                    <option value="Instagram Reels">Instagram Reels (Vertical 9:16)</option>
+                    <option value="Other">Other / Multi-Platform</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between">
+                <span className="text-xs text-slate-500 font-mono">
+                  Account Created: {new Date(user.createdAt).toLocaleDateString()}
+                </span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await updateProfile({ name, creatorNiche, defaultPlatform });
+                    setSaveSuccess(true);
+                    setTimeout(() => setSaveSuccess(false), 2500);
+                  }}
+                  className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/20 cursor-pointer flex items-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{saveSuccess ? 'Saved!' : 'Save Profile'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* SECTION: Language */}
+          {settingsSection === 'language' && (
+            <div className="space-y-5 animate-in fade-in">
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">Language & Translation Defaults</h3>
+                <p className="text-xs text-slate-400">Set the default language used for AI scripts, teleprompter cues, and studio interface.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 block">Studio Interface Language</label>
+                  <select
+                    value={preferredLanguage}
+                    onChange={(e) => setPreferredLanguage(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-violet-500 cursor-pointer"
+                  >
+                    <option value="English">English</option>
+                    <option value="Hindi">Hindi (हिंदी)</option>
+                    <option value="Spanish">Spanish (Español)</option>
+                    <option value="Portuguese">Portuguese (Português)</option>
+                    <option value="French">French (Français)</option>
+                    <option value="German">German (Deutsch)</option>
+                    <option value="Japanese">Japanese (日本語)</option>
+                    <option value="Korean">Korean (한국어)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 block">Default Script Generation Language</label>
+                  <select
+                    value={defaultContentLanguage}
+                    onChange={(e) => setDefaultContentLanguage(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-violet-500 cursor-pointer"
+                  >
+                    <option value="English">English</option>
+                    <option value="Hindi">Hindi (हिंदी)</option>
+                    <option value="Spanish">Spanish (Español)</option>
+                    <option value="Portuguese">Portuguese (Português)</option>
+                    <option value="French">French (Français)</option>
+                    <option value="German">German (Deutsch)</option>
+                    <option value="Japanese">Japanese (日本語)</option>
+                    <option value="Korean">Korean (한국어)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-[11px] text-slate-400">
+                CreatorNova supports multi-language teleprompter translation in 12+ regional and global languages.
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await updateProfile({ preferredLanguage, defaultContentLanguage });
+                    setSaveSuccess(true);
+                    setTimeout(() => setSaveSuccess(false), 2500);
+                  }}
+                  className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/20 cursor-pointer flex items-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{saveSuccess ? 'Language Saved!' : 'Save Preferences'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* SECTION: Privacy & Download My Data */}
+          {settingsSection === 'privacy' && (
+            <div className="space-y-5 animate-in fade-in">
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">Privacy & Data Governance</h3>
+                <p className="text-xs text-slate-400">Exercise your creator data rights, download workspace archives, and audit access.</p>
+              </div>
+
+              {/* Data Export Card (Requirement 6) */}
+              <div className="p-5 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+                      <FileDown className="w-4 h-4 text-violet-400" />
+                      <span>Download My Data</span>
+                    </h4>
+                    <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
+                      Generate an authenticated archive containing your creator profile, Brand Kit settings, project metadata, scripts, scenes, calendar entries, and credit usage logs.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={isExportingData}
+                    onClick={async () => {
+                      setIsExportingData(true);
+                      setExportSuccessMessage(null);
+                      try {
+                        const data = await studioApi.auth.exportData();
+                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `creatornova-data-export-${new Date().toISOString().split('T')[0]}.json`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        setExportSuccessMessage(
+                          `Data archive downloaded! Included ${data.projects?.length || 0} projects, ${data.contentCalendar?.length || 0} calendar items.`
+                        );
+                      } catch (err: any) {
+                        setExportSuccessMessage('Download failed: ' + (err.message || 'Unknown error'));
+                      } finally {
+                        setIsExportingData(false);
+                      }
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/20 cursor-pointer flex items-center justify-center gap-2 shrink-0 disabled:opacity-50"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>{isExportingData ? 'Generating Archive...' : 'Download My Data'}</span>
+                  </button>
+                </div>
+
+                {exportSuccessMessage && (
+                  <div className="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{exportSuccessMessage}</span>
+                  </div>
+                )}
+
+                <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-900 space-y-0.5">
+                  <div className="font-semibold text-slate-400">Strict Data Privacy Safeguard:</div>
+                  <div>Your export package excludes passwords, internal security tokens, API keys, or any other user's data.</div>
+                </div>
+              </div>
+
+              {/* Data Rights & Policies */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="p-4 bg-slate-950/60 rounded-xl border border-slate-800 space-y-1">
+                  <span className="text-white font-bold block">No Ad-Network Data Sales</span>
+                  <p className="text-slate-400 text-[11px]">
+                    Your script ideas, video concepts, and Brand Kit assets are strictly isolated and never distributed to advertising aggregators.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-slate-950/60 rounded-xl border border-slate-800 space-y-1">
+                  <span className="text-white font-bold block">Template Sharing Isolation</span>
+                  <p className="text-slate-400 text-[11px]">
+                    Public templates only display the structure you choose to share. Your email, credit balance, and private media remain hidden.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECTION: Security */}
+          {settingsSection === 'security' && (
+            <div className="space-y-5 animate-in fade-in">
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">Account Credentials & Security State</h3>
+                <p className="text-xs text-slate-400">Authentication protocol, encrypted token status, and session parameters.</p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <Lock className="w-4 h-4 text-emerald-400" />
+                    <div>
+                      <div className="text-xs font-bold text-white">Encrypted Transport & Token Security</div>
+                      <div className="text-[11px] text-slate-400">All creator communications authenticated via TLS/HTTPS</div>
+                    </div>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-emerald-400">Active</span>
+                </div>
+
+                <div className="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <Key className="w-4 h-4 text-violet-400" />
+                    <div>
+                      <div className="text-xs font-bold text-white">Password Authentication</div>
+                      <div className="text-[11px] text-slate-400">Protected using cryptographic hashing. Plain text is never stored.</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={passwordChangeLoading}
+                    onClick={async () => {
+                      setPasswordChangeLoading(true);
+                      try {
+                        await studioApi.auth.forgotPassword(user.email);
+                        setPasswordChangeSent(true);
+                      } catch (e) {
+                        setPasswordChangeSent(true);
+                      } finally {
+                        setPasswordChangeLoading(false);
+                      }
+                    }}
+                    className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-white text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    {passwordChangeLoading ? 'Sending...' : passwordChangeSent ? 'Reset Link Ready' : 'Change Password'}
+                  </button>
+                </div>
+
+                {passwordChangeSent && (
+                  <p className="text-[11px] text-emerald-400 text-right">
+                    Password update request registered. For security, follow the instructions sent to {user.email}.
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between p-3.5 bg-slate-950 rounded-xl border border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-4 h-4 text-slate-400" />
+                    <div>
+                      <div className="text-xs font-bold text-white">Two-Factor Authentication (2FA)</div>
+                      <div className="text-[11px] text-slate-400">Secondary authenticator app verification gate</div>
+                    </div>
+                  </div>
+                  <span className="text-xs font-mono text-slate-500">Integration Ready</span>
+                </div>
+
+                <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800/80 text-[11px] text-slate-500">
+                  <strong className="text-slate-400 block mb-0.5">Zero Secret Exposure:</strong>
+                  CreatorNova never exposes raw Firebase IDs, backend authorization secrets, or database connection strings to the client interface.
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECTION: Delete Account (Requirement 5) */}
+          {settingsSection === 'delete_account' && (
+            <div className="space-y-5 animate-in fade-in">
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-red-400 uppercase tracking-wider flex items-center gap-2">
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Creator Account</span>
+                </h3>
+                <p className="text-xs text-slate-400">Permanently terminate your CreatorNova account and purge your workspace data.</p>
+              </div>
+
+              {/* Explanatory Consequence Warning Card */}
+              <div className="p-5 bg-red-950/30 border border-red-500/40 rounded-2xl space-y-3">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                  <div className="space-y-2 text-xs text-slate-300">
+                    <strong className="text-red-300 block font-bold text-sm">
+                      Warning: This action is permanent and cannot be undone.
+                    </strong>
+                    <p className="leading-relaxed">
+                      Confirming account deletion will invoke authenticated backend deletion logic to permanently remove:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 text-slate-300 font-mono text-[11px]">
+                      <li>Your creator profile, name, and preferences</li>
+                      <li>All private projects, script drafts, and scene storyboards</li>
+                      <li>All scheduled content calendar releases</li>
+                      <li>All private generated media assets and video jobs</li>
+                      <li>Eligible account-related credits, logs, and brand kit records</li>
+                    </ul>
+                    <p className="text-[11px] text-red-400/90 font-medium">
+                      Accidental taps are prevented. You must deliberately acknowledge the consequences and confirm below.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {deleteError && (
+                <div className="p-3 bg-red-950/50 border border-red-500 rounded-xl text-xs text-red-300">
+                  {deleteError}
+                </div>
+              )}
+
+              {/* Multi-step deliberate confirmation safeguards */}
+              <div className="p-5 bg-slate-950 rounded-2xl border border-slate-800 space-y-4">
+                <label className="flex items-start gap-3 text-xs text-slate-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={deleteAcknowledged}
+                    onChange={(e) => setDeleteAcknowledged(e.target.checked)}
+                    className="mt-0.5 accent-red-600 rounded"
+                  />
+                  <span>
+                    I understand that deleting my account will permanently delete all my private projects, scripts, calendar data, and credit history.
+                  </span>
+                </label>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-300 block">
+                    Type <span className="font-mono text-red-400 font-black">DELETE</span> to confirm:
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    placeholder="Type DELETE in capital letters"
+                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-red-500 font-mono"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="button"
+                    disabled={deleteConfirmText.trim() !== 'DELETE' || !deleteAcknowledged || isDeleting}
+                    onClick={async () => {
+                      if (deleteConfirmText.trim() !== 'DELETE' || !deleteAcknowledged) return;
+                      setIsDeleting(true);
+                      setDeleteError(null);
+                      try {
+                        await deleteAccount('DELETE');
+                        // Successfully deleted; user will be logged out and state reset
+                      } catch (err: any) {
+                        setDeleteError(err.message || 'Failed to delete account. Please try again.');
+                        setIsDeleting(false);
+                      }
+                    }}
+                    className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-md shadow-red-600/30 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{isDeleting ? 'Deleting Account...' : 'Permanently Delete My Account'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {subTab === 'help' && (
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 max-w-4xl shadow-xl animate-in fade-in">
-          <div className="space-y-1">
-            <h2 className="text-lg font-bold text-white">CreatorNova AI Knowledge & Guides</h2>
-            <p className="text-xs text-slate-400">Master viral video retention, multi-beat storyboarding, and prompt formulas.</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-violet-400" />
+                <span>Help, Support & Creator Knowledge</span>
+              </h2>
+              <p className="text-xs text-slate-400">Master viral video retention, multi-beat storyboarding, and prompt formulas.</p>
+            </div>
+
+            <button
+              onClick={() => {
+                // Navigate to contact view
+                window.location.pathname = '/contact';
+              }}
+              className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/20 cursor-pointer flex items-center gap-2 shrink-0"
+            >
+              <LifeBuoy className="w-3.5 h-3.5" />
+              <span>Contact Support Desk</span>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

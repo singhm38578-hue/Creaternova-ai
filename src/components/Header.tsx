@@ -73,10 +73,18 @@ export const Header: React.FC<HeaderProps> = ({
       case 'usage': return { title: 'Usage & Credits', icon: '⚡', desc: 'Credit wallet and billing period monitoring' };
       case 'landing': return { title: 'Landing & Demo', icon: '🚀', desc: 'Interactive creator studio overview and showcase' };
       case 'admin': return { title: 'Admin Governance', icon: '🛡️', desc: 'Platform configuration, regional pricing and limits' };
+      case 'privacy': return { title: 'Privacy Policy', icon: '🔒', desc: 'Creator data isolation and governance' };
+      case 'terms': return { title: 'Terms of Service', icon: '⚖️', desc: 'Creator agreement and draft terms' };
+      case 'contact': return { title: 'Help & Support', icon: '🛟', desc: 'Creator support desk and assistance' };
+      default: return { title: 'CreatorNova AI', icon: '✨', desc: 'AI Creator Workspace' };
     }
   };
 
-  const currentTabInfo = getTabTitle(activeTab);
+  const currentTabInfo = getTabTitle(activeTab) || {
+    title: 'CreatorNova AI',
+    icon: '✨',
+    desc: 'AI Creator Workspace',
+  };
 
   return (
     <header className="h-16 bg-slate-900/90 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between shrink-0 backdrop-blur-md z-20">

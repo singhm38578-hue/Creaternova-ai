@@ -403,6 +403,30 @@ export interface ReferralRecord {
   ipHash?: string;
 }
 
+export interface SupportTicketRecord {
+  id: string;
+  userId?: string;
+  userEmail: string;
+  category: 'Account' | 'Projects' | 'AI Generation' | 'Credits' | 'Billing' | 'Technical Problem' | 'Other';
+  subject: string;
+  message: string;
+  status: 'open' | 'investigating' | 'resolved';
+  createdAt: string;
+}
+
+export interface ContentReportRecord {
+  id: string;
+  reporterUserId?: string;
+  reporterEmail?: string;
+  targetType: 'template' | 'project' | 'content';
+  targetId: string;
+  targetTitle?: string;
+  category: 'Spam' | 'Copyright concern' | 'Privacy concern' | 'Other';
+  details: string;
+  status: 'pending_review' | 'reviewed' | 'dismissed';
+  createdAt: string;
+}
+
 export interface DatabaseSchema {
   users: Record<string, UserRecord>;
   sessions: Record<string, { userId: string; expiresAt: number }>;
@@ -429,6 +453,8 @@ export interface DatabaseSchema {
   templates: Record<string, TemplateRecord>;
   referrals: Record<string, ReferralRecord>;
   userReferralCodes: Record<string, string>;
+  supportTickets?: Record<string, SupportTicketRecord>;
+  contentReports?: Record<string, ContentReportRecord>;
 }
 
 
@@ -493,6 +519,8 @@ class DatabaseManager {
       templates: {},
       referrals: {},
       userReferralCodes: {},
+      supportTickets: {},
+      contentReports: {},
     };
   }
 
@@ -526,6 +554,8 @@ class DatabaseManager {
         if (!this.db.templates) this.db.templates = {};
         if (!this.db.referrals) this.db.referrals = {};
         if (!this.db.userReferralCodes) this.db.userReferralCodes = {};
+        if (!this.db.supportTickets) this.db.supportTickets = {};
+        if (!this.db.contentReports) this.db.contentReports = {};
         if (!this.db.pricingPlans || Object.keys(this.db.pricingPlans).length === 0) {
           this.seedPricingPlans();
         }
@@ -2726,6 +2756,264 @@ class DatabaseManager {
       creditsEarned,
       rewardPerReferral: QUALIFIED_REFERRAL_REWARD_CREDITS,
       referrals,
+    };
+  }
+
+  // --- Trust, Safety, Support & Account Privacy Foundation ---
+
+  public createSupportTicket(ticket: {
+    userId?: string;
+    userEmail: string;
+    category: 'Account' | 'Projects' | 'AI Generation' | 'Credits' | 'Billing' | 'Technical Problem' | 'Other';
+    subject: string;
+    message: string;
+  }): SupportTicketRecord {
+    this.ensureInitialized();
+    if (!this.db.supportTickets) this.db.supportTickets = {};
+    const id = `ticket-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+    const record: SupportTicketRecord = {
+      id,
+      userId: ticket.userId,
+      userEmail: ticket.userEmail.trim(),
+      category: ticket.category,
+      subject: ticket.subject.trim(),
+      message: ticket.message.trim(),
+      status: 'open',
+      createdAt: new Date().toISOString(),
+    };
+    this.db.supportTickets[id] = record;
+    this.persist();
+    return record;
+  }
+
+  public createContentReport(report: {
+    reporterUserId?: string;
+    reporterEmail?: string;
+    targetType: 'template' | 'project' | 'content';
+    targetId: string;
+    targetTitle?: string;
+    category: 'Spam' | 'Copyright concern' | 'Privacy concern' | 'Other';
+    details: string;
+  }): ContentReportRecord {
+    this.ensureInitialized();
+    if (!this.db.contentReports) this.db.contentReports = {};
+    const id = `report-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+    const record: ContentReportRecord = {
+      id,
+      reporterUserId: report.reporterUserId,
+      reporterEmail: report.reporterEmail?.trim(),
+      targetType: report.targetType,
+      targetId: report.targetId,
+      targetTitle: report.targetTitle,
+      category: report.category,
+      details: report.details.trim(),
+      status: 'pending_review',
+      createdAt: new Date().toISOString(),
+    };
+    this.db.contentReports[id] = record;
+    this.persist();
+    return record;
+  }
+
+  public deleteUserAccount(userId: string): { success: boolean; message: string; deletedCounts: Record<string, number> } {
+    this.ensureInitialized();
+    const user = this.db.users[userId];
+    if (!user) {
+      throw new Error('User not found.');
+    }
+
+    let deletedProjects = 0;
+    let deletedCalendar = 0;
+    let deletedSeries = 0;
+    let deletedCharacters = 0;
+    let deletedSessions = 0;
+    let deletedVideoAssets = 0;
+
+    // 1. Delete user from users table
+    delete this.db.users[userId];
+
+    // 2. Invalidate all active sessions for this user
+    for (const [token, sess] of Object.entries(this.db.sessions)) {
+      if (sess.userId === userId) {
+        delete this.db.sessions[token];
+        deletedSessions++;
+      }
+    }
+
+    // 3. Delete user's private projects
+    for (const [projId, proj] of Object.entries(this.db.projects)) {
+      if (proj && proj.userId === userId) {
+        delete this.db.projects[projId];
+        deletedProjects++;
+      }
+    }
+
+    // 4. Delete user's content calendar entries
+    for (const [calId, calItem] of Object.entries(this.db.contentCalendar)) {
+      if (calItem && calItem.userId === userId) {
+        delete this.db.contentCalendar[calId];
+        deletedCalendar++;
+      }
+    }
+
+    // 5. Delete user's series
+    for (const [serId, serItem] of Object.entries(this.db.series)) {
+      if (serItem && serItem.userId === userId) {
+        delete this.db.series[serId];
+        deletedSeries++;
+      }
+    }
+
+    // 6. Delete user's character library
+    for (const [charId, charItem] of Object.entries(this.db.characters)) {
+      if (charItem && charItem.userId === userId) {
+        delete this.db.characters[charId];
+        deletedCharacters++;
+      }
+    }
+
+    // 7. Delete user's private video jobs & assets
+    for (const [jobId, job] of Object.entries(this.db.videoJobs)) {
+      if (job && job.userId === userId) {
+        delete this.db.videoJobs[jobId];
+      }
+    }
+    for (const [assetId, asset] of Object.entries(this.db.videoAssets)) {
+      if (asset && asset.userId === userId) {
+        delete this.db.videoAssets[assetId];
+        deletedVideoAssets++;
+      }
+    }
+
+    // 8. Delete user's agent plans & tasks
+    for (const [planId, plan] of Object.entries(this.db.agentPlans)) {
+      if (plan && plan.userId === userId) {
+        delete this.db.agentPlans[planId];
+      }
+    }
+    for (const [taskId, task] of Object.entries(this.db.agentTasks)) {
+      if (task && task.userId === userId) {
+        delete this.db.agentTasks[taskId];
+      }
+    }
+
+    // 9. Remove user credit wallet & brand kit
+    delete this.db.credits[userId];
+    delete this.db.brandKits[userId];
+
+    // Filter agent activity & usage logs
+    this.db.agentActivity = this.db.agentActivity.filter((a) => a.userId !== userId);
+    this.db.usageLogs = this.db.usageLogs.filter((u) => u.userId !== userId);
+
+    this.persist();
+
+    return {
+      success: true,
+      message: 'Account and associated creator data safely deleted.',
+      deletedCounts: {
+        projects: deletedProjects,
+        calendarItems: deletedCalendar,
+        series: deletedSeries,
+        characters: deletedCharacters,
+        sessions: deletedSessions,
+        videoAssets: deletedVideoAssets,
+      },
+    };
+  }
+
+  public exportUserData(userId: string): Record<string, any> {
+    this.ensureInitialized();
+    const user = this.db.users[userId];
+    if (!user) {
+      throw new Error('User not found.');
+    }
+
+    // Strictly exclude passwordHash, secrets, tokens, or other users' data
+    const { passwordHash, ...safeProfile } = user;
+    const brandKit = this.db.brandKits[userId] || null;
+    const credits = this.db.credits[userId] || null;
+
+    const userProjects = Object.values(this.db.projects)
+      .filter((p) => p && p.userId === userId)
+      .map((p) => {
+        // Return pure project metadata and content, without internal secrets
+        return {
+          id: p.id,
+          name: p.name,
+          topic: p.topic,
+          format: p.format,
+          platform: p.platform,
+          contentType: p.contentType,
+          language: p.language,
+          tone: p.tone,
+          targetAudience: p.targetAudience,
+          ideas: p.ideas || [],
+          script: p.script || null,
+          scenes: p.scenes || [],
+          seo: p.seo || null,
+          thumbnail: p.thumbnail || null,
+          translations: p.translations || [],
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+        };
+      });
+
+    const calendarEntries = Object.values(this.db.contentCalendar)
+      .filter((c) => c && c.userId === userId)
+      .map((c) => ({
+        id: c.id,
+        title: c.title,
+        platform: c.platform,
+        scheduledDate: c.scheduledDate,
+        scheduledTime: c.scheduledTime,
+        status: c.status,
+        language: c.language,
+        hook: c.hook,
+        notes: c.notes,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      }));
+
+    const usageHistory = this.db.usageLogs
+      .filter((u) => u.userId === userId)
+      .map((u) => ({
+        id: u.id,
+        type: u.type,
+        amount: u.amount,
+        description: u.description,
+        timestamp: u.timestamp,
+        billingPeriod: u.billingPeriod,
+      }));
+
+    const seriesList = Object.values(this.db.series)
+      .filter((s) => s && s.userId === userId);
+
+    const characterList = Object.values(this.db.characters)
+      .filter((ch) => ch && ch.userId === userId);
+
+    return {
+      exportMetadata: {
+        application: 'CreatorNova AI',
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        description: 'Complete user-owned data package (profile, brand kit, projects, calendar, and usage logs).',
+      },
+      profile: safeProfile,
+      brandKit,
+      credits: credits ? {
+        textCredits: credits.textCredits,
+        imageCredits: credits.imageCredits,
+        voiceCredits: credits.voiceCredits,
+        videoCredits: credits.videoCredits,
+        totalRemaining: credits.totalRemaining,
+        monthlyAllocation: credits.monthlyAllocation,
+        lastResetDate: credits.lastResetDate,
+      } : null,
+      projects: userProjects,
+      contentCalendar: calendarEntries,
+      series: seriesList,
+      characters: characterList,
+      usageHistory,
     };
   }
 }

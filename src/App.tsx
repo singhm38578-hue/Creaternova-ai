@@ -35,6 +35,10 @@ import { AuthModal } from './components/auth/AuthModal';
 import { InsufficientCreditModal } from './components/InsufficientCreditModal';
 import { ShareTemplateModal } from './components/ShareTemplateModal';
 import { TemplatePreviewModal } from './components/TemplatePreviewModal';
+import { PrivacyPolicyView } from './components/legal/PrivacyPolicyView';
+import { TermsOfServiceView } from './components/legal/TermsOfServiceView';
+import { ContactSupportView } from './components/support/ContactSupportView';
+import { SecurityNoticeModal } from './components/security/SecurityNoticeModal';
 import { useAuth } from './contexts/AuthContext';
 import {
   IdeaItem,
@@ -89,7 +93,7 @@ export default function App() {
   const activeProject =
     projects.find((p) => p.id === activeProjectId) || projects[0];
 
-  // Inspect URL for shareable template or referral link on mount
+  // Inspect URL for shareable template, referral link, or legal/support paths on mount
   useEffect(() => {
     try {
       const searchParams = new URLSearchParams(window.location.search);
@@ -99,6 +103,16 @@ export default function App() {
       const pathParts = window.location.pathname.split('/').filter(Boolean);
       const pathTemplate = pathParts[0] === 'template' ? pathParts[1] : null;
       const pathRef = pathParts[0] === 'ref' ? pathParts[1] : null;
+
+      if (pathParts[0] === 'privacy') {
+        setActiveTab('privacy');
+      } else if (pathParts[0] === 'terms') {
+        setActiveTab('terms');
+      } else if (pathParts[0] === 'contact') {
+        setActiveTab('contact');
+      } else if (pathParts[0] === 'pricing') {
+        setActiveTab('pricing');
+      }
 
       const activeTemplate = templateParam || pathTemplate;
       if (activeTemplate) {
@@ -111,6 +125,17 @@ export default function App() {
         studioApi.referrals.recordClick(activeRef).catch(() => {});
         setReferralBanner('Welcome to CreatorNova! You were invited by a creator. Sign up to get bonus credits!');
       }
+
+      const handlePopState = () => {
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        if (parts[0] === 'privacy') setActiveTab('privacy');
+        else if (parts[0] === 'terms') setActiveTab('terms');
+        else if (parts[0] === 'contact') setActiveTab('contact');
+        else if (parts[0] === 'pricing') setActiveTab('pricing');
+        else setActiveTab('overview');
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
     } catch (e) {
       console.warn('URL parsing error:', e);
     }
@@ -390,8 +415,50 @@ export default function App() {
     }
   };
 
-  // Public Landing Page for unauthenticated visitors (Requirement 1 & 12)
+  // Public Landing Page, Privacy, Terms, or Contact for unauthenticated visitors (Requirement 1, 2, 3, 9)
   if (!user) {
+    if (activeTab === 'privacy') {
+      return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-violet-600/30">
+          <PrivacyPolicyView
+            onBack={() => {
+              setActiveTab('landing');
+              window.history.pushState({}, '', '/');
+            }}
+          />
+          <SecurityNoticeModal />
+        </div>
+      );
+    }
+
+    if (activeTab === 'terms') {
+      return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-violet-600/30">
+          <TermsOfServiceView
+            onBack={() => {
+              setActiveTab('landing');
+              window.history.pushState({}, '', '/');
+            }}
+          />
+          <SecurityNoticeModal />
+        </div>
+      );
+    }
+
+    if (activeTab === 'contact') {
+      return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-violet-600/30">
+          <ContactSupportView
+            onBack={() => {
+              setActiveTab('landing');
+              window.history.pushState({}, '', '/');
+            }}
+          />
+          <SecurityNoticeModal />
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-violet-600/30">
         <LandingPageView
@@ -399,10 +466,23 @@ export default function App() {
           onSignIn={() => openAuthModal('login')}
           onOpenPricing={() => openPricingModal()}
           onOpenAgent={() => openAuthModal('register')}
+          onOpenPrivacy={() => {
+            setActiveTab('privacy');
+            window.history.pushState({}, '', '/privacy');
+          }}
+          onOpenTerms={() => {
+            setActiveTab('terms');
+            window.history.pushState({}, '', '/terms');
+          }}
+          onOpenContact={() => {
+            setActiveTab('contact');
+            window.history.pushState({}, '', '/contact');
+          }}
         />
 
         {/* Auth Modal triggered by CTAs */}
         <AuthModal />
+        <SecurityNoticeModal />
 
         {/* Pricing Modal */}
         {isPricingModalOpen && (
@@ -659,8 +739,38 @@ export default function App() {
           {activeTab === 'admin' && (
             <AdminPanel />
           )}
+
+          {activeTab === 'privacy' && (
+            <PrivacyPolicyView
+              onBack={() => {
+                setActiveTab('overview');
+                window.history.pushState({}, '', '/');
+              }}
+            />
+          )}
+
+          {activeTab === 'terms' && (
+            <TermsOfServiceView
+              onBack={() => {
+                setActiveTab('overview');
+                window.history.pushState({}, '', '/');
+              }}
+            />
+          )}
+
+          {activeTab === 'contact' && (
+            <ContactSupportView
+              onBack={() => {
+                setActiveTab('overview');
+                window.history.pushState({}, '', '/');
+              }}
+            />
+          )}
         </main>
       </div>
+
+      {/* Security UX Notices (Session expired, Auth required, Permission denied) */}
+      <SecurityNoticeModal />
 
       {/* Mobile Bottom Navigation */}
       <BottomNav

@@ -20,6 +20,30 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
     error.status = response.status;
     error.code = errorBody.error;
     error.details = errorBody;
+
+    if (typeof window !== 'undefined') {
+      if (response.status === 401) {
+        const hasToken = !!localStorage.getItem('creatornova_token');
+        window.dispatchEvent(
+          new CustomEvent('creatornova_security_notice', {
+            detail: {
+              type: hasToken ? 'session_expired' : 'auth_required',
+              message: errorBody.message || (hasToken ? 'Your session has expired. Please sign in again.' : 'Authentication required to perform this action.'),
+            },
+          })
+        );
+      } else if (response.status === 403) {
+        window.dispatchEvent(
+          new CustomEvent('creatornova_security_notice', {
+            detail: {
+              type: 'permission_denied',
+              message: errorBody.message || 'You do not have permission to access or modify this resource.',
+            },
+          })
+        );
+      }
+    }
+
     throw error;
   }
 
@@ -159,6 +183,53 @@ export const studioApi = {
     logout: () =>
       fetchApi<{ success: boolean }>('/api/auth/logout', {
         method: 'POST',
+      }),
+
+    deleteAccount: (confirmation: string = 'DELETE') =>
+      fetchApi<{ success: boolean; message: string; deletedCounts?: any }>('/api/auth/account', {
+        method: 'DELETE',
+        body: JSON.stringify({ confirmation }),
+      }),
+
+    exportData: async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('creatornova_token') : null;
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const response = await fetch('/api/auth/export-data', { headers });
+      if (!response.ok) {
+        throw new Error('Failed to export data');
+      }
+      return response.json();
+    },
+  },
+
+  // Support & Help Desk
+  support: {
+    submitTicket: (data: {
+      category: 'Account' | 'Projects' | 'AI Generation' | 'Credits' | 'Billing' | 'Technical Problem' | 'Other';
+      subject: string;
+      message: string;
+      email?: string;
+    }) =>
+      fetchApi<{ success: boolean; ticket: any; message: string }>('/api/support/ticket', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+  },
+
+  // Content Reporting
+  reports: {
+    submitReport: (data: {
+      targetType: 'template' | 'project' | 'content';
+      targetId: string;
+      targetTitle?: string;
+      category: 'Spam' | 'Copyright concern' | 'Privacy concern' | 'Other';
+      details: string;
+      email?: string;
+    }) =>
+      fetchApi<{ success: boolean; report: any; message: string }>('/api/reports', {
+        method: 'POST',
+        body: JSON.stringify(data),
       }),
   },
 
