@@ -63,6 +63,22 @@
       "billingCycle": "monthly",
       "createdAt": "2026-09-27T11:11:19.630Z",
       "onboardingCompleted": false
+    },
+    "user-1790608441462-c9bdd0": {
+      "id": "user-1790608441462-c9bdd0",
+      "name": "New Creator",
+      "email": "testcreator_1790608441462@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=testcreator_1790608441462%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "Shorts/Reels",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-28T15:14:01.463Z",
+      "onboardingCompleted": true
     }
   },
   "sessions": {
@@ -73,6 +89,14 @@
     "f75344583eeb0af14971352c07f35a2a24e3fec9f055e581c8d64505fdb89d4f": {
       "userId": "user-1790507479630-0c7137",
       "expiresAt": 1793099479630
+    },
+    "c73de4ac1de2e5aa933952ee20d46c35f1e9ff5aeae61c979da62dd95037daa6": {
+      "userId": "user-1790608441462-c9bdd0",
+      "expiresAt": 1793200441463
+    },
+    "8dbb6169d0ba331b7537aa898205fd9fe3ebaf47e82158433530f1233a80aea6": {
+      "userId": "user-1790608441462-c9bdd0",
+      "expiresAt": 1793200441466
     }
   },
   "brandKits": {
@@ -91,16 +115,16 @@
     },
     "YdycqvezkkY8ohf4Ja5avSO0Rwz1": {
       "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1",
-      "channelName": "My Channel",
-      "channelNiche": "General",
-      "targetAudience": "General Audience",
+      "channelName": "Mangal Singh's Studio",
+      "channelNiche": "General Content",
+      "targetAudience": "Global Audience",
       "preferredLanguage": "English",
-      "preferredVisualStyle": "Cinematic",
-      "defaultVideoStyle": "High Retention Shorts",
-      "toneOfVoice": "Energetic & Engaging",
-      "recurringCharacterDescription": "",
-      "preferredCta": "Subscribe for more videos!",
-      "updatedAt": "2026-09-27T07:45:52.021Z"
+      "preferredVisualStyle": "Cinematic High-Contrast",
+      "defaultVideoStyle": "High-Retention Shorts",
+      "toneOfVoice": "Energetic, Curious & Authoritative",
+      "recurringCharacterDescription": "Dr. Nova, an energetic robotic cosmic guide with deep violet plating and glowing cyan eyes",
+      "preferredCta": "Subscribe for daily insights!",
+      "updatedAt": "2026-09-28T15:12:01.157Z"
     },
     "user-1790507479617-930fcd": {
       "userId": "user-1790507479617-930fcd",
@@ -127,6 +151,19 @@
       "recurringCharacterDescription": "",
       "preferredCta": "Like and subscribe for more!",
       "updatedAt": "2026-09-27T11:11:19.630Z"
+    },
+    "user-1790608441462-c9bdd0": {
+      "userId": "user-1790608441462-c9bdd0",
+      "channelName": "New Creator's Studio",
+      "channelNiche": "Shorts/Reels",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-28T15:14:01.463Z"
     }
   },
   "credits": {
@@ -219,6 +256,26 @@
       "totalRemaining": 270,
       "monthlyAllocation": 200,
       "lastResetDate": "2026-09-28T14:58:58.477Z"
+    },
+    "YdycqvezkkY8ohf4Ja5avSO0Rwz1": {
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1",
+      "textCredits": 100,
+      "imageCredits": 50,
+      "voiceCredits": 30,
+      "videoCredits": 10,
+      "totalRemaining": 190,
+      "monthlyAllocation": 200,
+      "lastResetDate": "2026-09-28T15:06:16.455Z"
+    },
+    "user-1790608441462-c9bdd0": {
+      "userId": "user-1790608441462-c9bdd0",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-28T15:14:01.463Z"
     }
   },
   "creditConfig": {
@@ -2767,7 +2824,22 @@
     }
   },
   "paymentOrders": {},
-  "subscriptions": {},
+  "subscriptions": {
+    "YdycqvezkkY8ohf4Ja5avSO0Rwz1": {
+      "id": "sub_YdycqvezkkY8ohf4Ja5avSO0Rwz1_default",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1",
+      "planId": "free",
+      "billingCycle": "monthly",
+      "status": "active",
+      "currentPeriodStart": "2026-09-28T15:06:16.457Z",
+      "currentPeriodEnd": "2026-10-28T15:06:16.457Z",
+      "monthlyCredits": 50,
+      "paymentProvider": "system",
+      "cancelAtPeriodEnd": false,
+      "createdAt": "2026-09-28T15:06:16.457Z",
+      "updatedAt": "2026-09-28T15:06:16.457Z"
+    }
+  },
   "processedWebhookEvents": {},
   "aiUsageRecords": {
     "usage_req_1790496267733_5aaad3": {
@@ -3282,6 +3354,7 @@
   "userReferralCodes": {
     "user-creator-default": "NOVA-8E0B22",
     "test-creator-user-a": "NOVA-DADBCE",
-    "test-creator-user-b": "NOVA-CCF7BE"
+    "test-creator-user-b": "NOVA-CCF7BE",
+    "YdycqvezkkY8ohf4Ja5avSO0Rwz1": "NOVA-694D41"
   }
 }

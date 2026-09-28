@@ -162,6 +162,7 @@ export interface FirestoreUserProfile {
   defaultPlatform?: string;
   createdAt: string;
   updatedAt: string;
+  onboardingCompleted?: boolean;
 }
 
 export async function initUserProfile(uid: string, data: { name: string; email: string; photoURL?: string }) {
@@ -184,6 +185,7 @@ export async function initUserProfile(uid: string, data: { name: string; email: 
     defaultPlatform: 'YouTube Shorts',
     createdAt: now,
     updatedAt: now,
+    onboardingCompleted: false,
   };
   await setDoc(doc(db, 'users', uid), profile, { merge: true });
 

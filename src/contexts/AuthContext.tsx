@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, BrandKit, CreditWallet, CreditConfig } from '../types/auth';
 import { studioApi } from '../services/api';
+import { analytics } from '../services/analytics';
 import { GENERATION_CREDIT_COSTS, PLAN_DEFINITIONS, INITIAL_FREE_PLAN_CREDITS } from '../config/creditCosts';
 import {
   auth,
@@ -154,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             defaultPlatform: profile.defaultPlatform || 'YouTube Shorts',
             defaultContentLanguage: profile.preferredLanguage || 'English',
             createdAt: profile.createdAt,
-            onboardingCompleted: true,
+            onboardingCompleted: Boolean(profile.onboardingCompleted),
           };
 
           setUser(safeUser);
@@ -282,6 +283,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setToken(res.token);
         localStorage.setItem('creatornova_token', res.token);
       }
+      analytics.track('signup_completed', {
+        platform: data.defaultPlatform || 'YouTube Shorts',
+      });
       setIsAuthModalOpen(false);
     } finally {
       setIsLoading(false);
@@ -401,6 +405,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const openAuthModal = (tab: 'login' | 'register' = 'login') => {
     setAuthModalTab(tab);
+    if (tab === 'register') {
+      analytics.track('signup_started', { source: 'auth_trigger' });
+    }
     setIsAuthModalOpen(true);
   };
 

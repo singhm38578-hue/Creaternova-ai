@@ -22,6 +22,7 @@ import { UserProfileView } from './components/UserProfileView';
 import { PricingScreen } from './components/PricingScreen';
 import { UsageDashboard } from './components/UsageDashboard';
 import { LandingPageView } from './components/LandingPageView';
+import { OnboardingFlow } from './components/OnboardingFlow';
 import { AdminPanel } from './components/AdminPanel';
 import { CreatorNovaAgentView } from './components/CreatorNovaAgentView';
 import { ContentCalendarView } from './components/ContentCalendarView';
@@ -35,7 +36,15 @@ import { InsufficientCreditModal } from './components/InsufficientCreditModal';
 import { ShareTemplateModal } from './components/ShareTemplateModal';
 import { TemplatePreviewModal } from './components/TemplatePreviewModal';
 import { useAuth } from './contexts/AuthContext';
-import { IdeaItem, Project, Character } from './types/content';
+import {
+  IdeaItem,
+  Project,
+  Character,
+  ContentFormat,
+  PlatformOption,
+  ContentTypeOption,
+  ToneType,
+} from './types/content';
 import {
   getStoredProjects,
   saveProjects,
@@ -43,9 +52,17 @@ import {
   setActiveProjectId,
 } from './services/storage';
 import { studioApi } from './services/api';
+import { analytics } from './services/analytics';
 
 export default function App() {
-  const { user, isPricingModalOpen, closePricingModal } = useAuth();
+  const {
+    user,
+    openAuthModal,
+    openPricingModal,
+    isPricingModalOpen,
+    closePricingModal,
+    updateProfile,
+  } = useAuth();
   const [projects, setProjects] = useState<Project[]>(() => getStoredProjects());
   const [activeProjectId, setActiveId] = useState<string>(() =>
     getActiveProjectId(getStoredProjects())
@@ -265,6 +282,159 @@ export default function App() {
     setScenePrefillScript(scriptText);
     setActiveTab('scenes');
   };
+
+  // Handle Onboarding Completion (Requirement 7)
+  const handleOnboardingComplete = async (preferences: {
+    creationType: string;
+    language: string;
+    goals: string[];
+    topic: string;
+  }) => {
+    try {
+      const topicTitle = preferences.topic.trim() || 'My First Content Project';
+      const isShortFormat =
+        preferences.creationType === 'Shorts/Reels' ||
+        preferences.creationType.toLowerCase().includes('short') ||
+        preferences.creationType.toLowerCase().includes('reel');
+
+      const format: ContentFormat = isShortFormat ? 'youtube_short' : 'youtube_long';
+      const platform: PlatformOption =
+        preferences.creationType === 'Shorts/Reels'
+          ? 'YouTube Shorts'
+          : preferences.creationType === 'YouTube'
+          ? 'YouTube Long Video'
+          : 'Other';
+      const contentType: ContentTypeOption =
+        preferences.creationType === 'Business Content'
+          ? 'Business'
+          : preferences.creationType === 'Educational Content'
+          ? 'Educational'
+          : 'Entertainment';
+      const tone: ToneType = 'engaging_energetic';
+
+      const firstProject: Project = {
+        id: `proj-${Date.now()}`,
+        name: topicTitle.length > 45 ? `${topicTitle.substring(0, 42)}...` : topicTitle,
+        topic: topicTitle,
+        format,
+        targetAudience: 'General Audience',
+        tone,
+        platform,
+        contentType,
+        language: (preferences.language as any) || 'English',
+        ideas: [],
+        scenes: [],
+        seo: {
+          titles: [
+            {
+              title: topicTitle,
+              score: 92,
+              category: 'Curiosity Gap',
+              characterCount: topicTitle.length,
+            },
+          ],
+          description: `Discover everything about ${topicTitle}. Plan, script, and create with CreatorNova AI.`,
+          primaryKeywords: [topicTitle],
+          longTailKeywords: [`${topicTitle} breakdown`, `how to ${topicTitle}`],
+          tags: ['CreatorNova', 'ContentCreation'],
+          hashtags: ['#CreatorNova', '#Shorts', '#ViralContent'],
+          seoHealthScore: 90,
+          targetAudience: 'General Audience',
+          category: contentType,
+        },
+        thumbnail: {
+          headline: 'VIRAL HOOK',
+          subheadline: 'Watch Until The End',
+          badgeText: 'NEW',
+          templateTheme: 'bold_creator',
+          aspectRatio: isShortFormat ? '9:16' : '16:9',
+          textColor: '#FFFFFF',
+          accentColor: '#8b5cf6',
+          bgColor1: '#0f172a',
+          bgColor2: '#1e1b4b',
+          fontSize: 48,
+          showVignette: true,
+          showGlow: true,
+          emojis: ['🔥', '✨'],
+          compositionAngle: 'Eye-level dynamic',
+          thumbnailIdea: 'Bold typography with high contrast subject',
+        },
+        translations: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setProjects((prev) => [firstProject, ...prev]);
+      setActiveId(firstProject.id);
+      setActiveTab('overview');
+      studioApi.projects.save(firstProject).catch(console.error);
+
+      // Track first project created (Requirement 11)
+      analytics.track('first_project_created', {
+        format: firstProject.format,
+        platform: String(firstProject.platform || 'Other'),
+      });
+
+      setToastMessage(`Welcome to CreatorNova! Your first project "${firstProject.name}" is ready.`);
+      setTimeout(() => setToastMessage(null), 4000);
+    } catch (err) {
+      console.error('Error completing onboarding:', err);
+    }
+  };
+
+  const handleOnboardingSkip = async () => {
+    try {
+      await updateProfile({ onboardingCompleted: true });
+    } catch (err) {
+      console.error('Error skipping onboarding:', err);
+    }
+  };
+
+  // Public Landing Page for unauthenticated visitors (Requirement 1 & 12)
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-violet-600/30">
+        <LandingPageView
+          onStartCreating={() => openAuthModal('register')}
+          onSignIn={() => openAuthModal('login')}
+          onOpenPricing={() => openPricingModal()}
+          onOpenAgent={() => openAuthModal('register')}
+        />
+
+        {/* Auth Modal triggered by CTAs */}
+        <AuthModal />
+
+        {/* Pricing Modal */}
+        {isPricingModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm overflow-y-auto animate-in fade-in">
+            <div className="relative w-full max-w-5xl my-8">
+              <PricingScreen
+                onClose={closePricingModal}
+                onNavigateToUsage={() => {
+                  closePricingModal();
+                  openAuthModal('register');
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Public Template Preview Modal if visitor arrived via shared template link */}
+        {previewTemplateId && (
+          <TemplatePreviewModal
+            isOpen={true}
+            templateId={previewTemplateId}
+            onClose={() => setPreviewTemplateId(null)}
+            onProjectCreated={(newProj) => {
+              setProjects((prev) => [newProj, ...prev]);
+              setActiveId(newProj.id);
+              setActiveTab('overview');
+            }}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 font-sans">
@@ -564,6 +734,14 @@ export default function App() {
             setToastMessage(`Template "${newProj.name}" copied into your workspace!`);
             setTimeout(() => setToastMessage(null), 3500);
           }}
+        />
+      )}
+
+      {/* First-Time User Onboarding Flow (Requirement 7 & 8) */}
+      {user && !user.onboardingCompleted && (
+        <OnboardingFlow
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingSkip}
         />
       )}
     </div>
