@@ -31,9 +31,50 @@
       "billingCycle": "yearly",
       "createdAt": "2026-07-27T11:27:41.982Z",
       "onboardingCompleted": true
+    },
+    "user-1790507479617-930fcd": {
+      "id": "user-1790507479617-930fcd",
+      "name": "Taylor Jordan",
+      "email": "taylor_1790507479617@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=taylor_1790507479617%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "Gaming & Tech",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-27T11:11:19.618Z",
+      "onboardingCompleted": false
+    },
+    "user-1790507479630-0c7137": {
+      "id": "user-1790507479630-0c7137",
+      "name": "New Creator",
+      "email": "new_1790507479630@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=new_1790507479630%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "Education",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-27T11:11:19.630Z",
+      "onboardingCompleted": false
     }
   },
-  "sessions": {},
+  "sessions": {
+    "b14f7f6f5e77f79a8626fcb0c3f962ee302be77276fab1affab17d8847e4efef": {
+      "userId": "user-1790507479617-930fcd",
+      "expiresAt": 1793099479618
+    },
+    "f75344583eeb0af14971352c07f35a2a24e3fec9f055e581c8d64505fdb89d4f": {
+      "userId": "user-1790507479630-0c7137",
+      "expiresAt": 1793099479630
+    }
+  },
   "brandKits": {
     "user-creator-default": {
       "userId": "user-creator-default",
@@ -60,6 +101,32 @@
       "recurringCharacterDescription": "",
       "preferredCta": "Subscribe for more videos!",
       "updatedAt": "2026-09-27T07:45:52.021Z"
+    },
+    "user-1790507479617-930fcd": {
+      "userId": "user-1790507479617-930fcd",
+      "channelName": "Taylor Jordan's Studio",
+      "channelNiche": "Gaming & Tech",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-27T11:11:19.618Z"
+    },
+    "user-1790507479630-0c7137": {
+      "userId": "user-1790507479630-0c7137",
+      "channelName": "New Creator's Studio",
+      "channelNiche": "Education",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-27T11:11:19.630Z"
     }
   },
   "credits": {
@@ -69,7 +136,7 @@
       "imageCredits": 300,
       "voiceCredits": 200,
       "videoCredits": 100,
-      "totalRemaining": 1500,
+      "totalRemaining": 1525,
       "monthlyAllocation": 1000,
       "lastResetDate": "2026-10-26T09:13:43.301Z"
     },
@@ -122,6 +189,26 @@
       "totalRemaining": 95,
       "monthlyAllocation": 200,
       "lastResetDate": "2026-09-27T09:37:23.064Z"
+    },
+    "user-1790507479617-930fcd": {
+      "userId": "user-1790507479617-930fcd",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-27T11:11:19.618Z"
+    },
+    "user-1790507479630-0c7137": {
+      "userId": "user-1790507479630-0c7137",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-27T11:11:19.630Z"
     }
   },
   "creditConfig": {
@@ -1130,6 +1217,215 @@
       "createdAt": "2026-09-27T09:37:23.065Z",
       "updatedAt": "2026-09-27T09:37:23.071Z",
       "testField": "Unit test mock data generator for pipeline logic verification"
+    },
+    "proj_test_1790507479619": {
+      "id": "proj_test_1790507479619",
+      "userId": "user-creator-default",
+      "name": "Top 5 AI Tools of 2026",
+      "topic": "Showcasing the top 5 next-generation productivity tools",
+      "format": "youtube_short",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "targetAudience": "Tech enthusiasts and creators",
+      "tone": "engaging_energetic",
+      "createdAt": "2026-09-27T11:11:19.619Z",
+      "updatedAt": "2026-09-27T11:11:19.619Z",
+      "ideas": [
+        {
+          "id": "i-1",
+          "title": "5 AI Tools",
+          "hook": "Stop wasting 4 hours a day on video editing.",
+          "viralityScore": 94
+        }
+      ],
+      "script": {
+        "title": "Top 5 AI Tools",
+        "format": "youtube_short",
+        "estimatedDuration": "60 seconds",
+        "wordCount": 130,
+        "hookSummary": "Stop wasting hours on manual editing",
+        "beats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "[Energetic]",
+            "dialogue": "Stop wasting 4 hours on editing.",
+            "visualCue": "Fast zoom"
+          },
+          {
+            "sectionType": "core_beat",
+            "directionCue": "[Pointing]",
+            "dialogue": "Tool #1 replaces your whole timeline.",
+            "visualCue": "Screen demo"
+          }
+        ],
+        "rawFullText": "Stop wasting 4 hours on editing.",
+        "tone": "engaging_energetic",
+        "callToAction": "Follow for more",
+        "lastUpdated": "2026-09-27T11:11:19.619Z"
+      },
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00-0:15",
+          "shotType": "Close Up",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Creator looking surprised at screen",
+          "audioSfx": "Whoosh transition",
+          "onScreenText": "STOP DOING THIS!",
+          "lightingMood": "Cinematic rim lighting",
+          "brollKeywords": [
+            "laptop",
+            "code"
+          ],
+          "aiVideoPrompt": "Cinematic creator in studio with blue and violet neon backlight",
+          "mediaUrl": "https://private-storage.example.com/renders/private_video_001.mp4",
+          "videoMetadata": {
+            "jobId": "secret-job-999",
+            "assetId": "asset-888",
+            "storagePath": "/private/secret.mp4"
+          }
+        }
+      ],
+      "thumbnail": {
+        "headline": "NEVER USE THIS!",
+        "subheadline": "5 AI Tools",
+        "aiConceptPrompt": "Surprised face with glowing holographic tools floating",
+        "generatedAssetUrl": "https://private-storage.example.com/assets/private_thumb.jpg"
+      },
+      "renderedVideoUrl": "https://private-storage.example.com/exports/final_render_secret.mp4"
+    },
+    "proj_1790507479624_fd8bc3": {
+      "id": "proj_1790507479624_fd8bc3",
+      "userId": "user-1790507479617-930fcd",
+      "name": "Top 5 AI Tools Viral Workflow (Template Copy)",
+      "topic": "A proven 5-scene retention formula for tech tutorials",
+      "format": "youtube_short",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "duration": "60 seconds",
+      "targetAudience": "Tech enthusiasts and creators",
+      "tone": "engaging_energetic",
+      "createdAt": "2026-09-27T11:11:19.624Z",
+      "updatedAt": "2026-09-27T11:11:19.624Z",
+      "ideas": [
+        {
+          "id": "idea-1790507479624-0",
+          "title": "Top 5 AI Tools Viral Workflow Angle 1",
+          "hook": "Stop wasting 4 hours a day on video editing.",
+          "viralityScore": 90,
+          "format": "youtube_short",
+          "durationEstimate": "60 seconds",
+          "angle": "Curiosity angle",
+          "targetAudience": "Tech enthusiasts and creators",
+          "coreTakeaway": "A proven 5-scene retention formula for tech tutorials",
+          "suggestedVisualHook": "Dynamic zoom",
+          "retentionTip": "Fast pacing",
+          "createdAt": "2026-09-27T11:11:19.624Z"
+        }
+      ],
+      "script": {
+        "title": "Top 5 AI Tools Viral Workflow Script",
+        "format": "youtube_short",
+        "estimatedDuration": "60 seconds",
+        "wordCount": 50,
+        "hookSummary": "Stop wasting hours on manual editing",
+        "beats": [
+          {
+            "id": "beat-1",
+            "timestamp": "0:00",
+            "speaker": "Host",
+            "sectionType": "hook",
+            "directionCue": "[Energetic]",
+            "dialogue": "Stop wasting 4 hours on editing.",
+            "visualCue": "Fast zoom",
+            "durationSec": 15
+          },
+          {
+            "id": "beat-2",
+            "timestamp": "0:15",
+            "speaker": "Host",
+            "sectionType": "core_beat",
+            "directionCue": "[Pointing]",
+            "dialogue": "Tool #1 replaces your whole timeline.",
+            "visualCue": "Screen demo",
+            "durationSec": 15
+          }
+        ],
+        "rawFullText": "Stop wasting 4 hours on editing.\n\nTool #1 replaces your whole timeline.",
+        "tone": "engaging_energetic",
+        "callToAction": "Follow for more creator insights!",
+        "lastUpdated": "2026-09-27T11:11:19.624Z"
+      },
+      "scenes": [
+        {
+          "id": "scene-1790507479624-1",
+          "sceneNumber": 1,
+          "timestampRange": "0:00-0:15",
+          "shotType": "Close Up",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Creator looking surprised at screen",
+          "characterAction": "",
+          "audioSfx": "Whoosh transition",
+          "onScreenText": "STOP DOING THIS!",
+          "lightingMood": "Cinematic rim lighting",
+          "brollKeywords": [
+            "laptop",
+            "code"
+          ],
+          "aiVideoPrompt": "Cinematic creator in studio with blue and violet neon backlight",
+          "mediaStatus": "prompt_ready"
+        }
+      ],
+      "seo": {
+        "titles": [
+          {
+            "title": "Top 5 AI Tools Viral Workflow",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 29
+          }
+        ],
+        "description": "A proven 5-scene retention formula for tech tutorials",
+        "primaryKeywords": [
+          "tech & ai",
+          "youtube shorts"
+        ],
+        "longTailKeywords": [],
+        "tags": [
+          "Tech & AI",
+          "YouTube Shorts"
+        ],
+        "hashtags": [
+          "#Tech&AI",
+          "#YouTubeShorts"
+        ],
+        "seoHealthScore": 88,
+        "targetAudience": "Tech enthusiasts and creators",
+        "category": "Tech & AI"
+      },
+      "thumbnail": {
+        "headline": "NEVER USE THIS!",
+        "subheadline": "CreatorNova Template",
+        "badgeText": "HOT",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8B5CF6",
+        "bgColor1": "#0B0F19",
+        "bgColor2": "#1E1B4B",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "⚡"
+        ],
+        "compositionAngle": "Eye Level",
+        "aiConceptPrompt": "Surprised face with glowing holographic tools floating"
+      },
+      "translations": []
     }
   },
   "resetTokens": {},
@@ -2014,5 +2310,86 @@
       "updatedAt": "2026-09-27T09:54:52.090Z"
     }
   },
-  "videoAssets": {}
+  "videoAssets": {},
+  "templates": {
+    "tmpl_1790507479620_e38742": {
+      "id": "tmpl_1790507479620_e38742",
+      "creatorUserId": "user-creator-default",
+      "creatorDisplayName": "Alex Rivera",
+      "shareCreatorName": true,
+      "originalProjectId": "proj_test_1790507479619",
+      "title": "Top 5 AI Tools Viral Workflow",
+      "description": "A proven 5-scene retention formula for tech tutorials",
+      "category": "Tech & AI",
+      "platform": "YouTube Shorts",
+      "contentType": "Educational",
+      "language": "English",
+      "workflow": {
+        "format": "youtube_short",
+        "tone": "engaging_energetic",
+        "targetAudience": "Tech enthusiasts and creators",
+        "duration": "60 seconds",
+        "estimatedDuration": "60 seconds"
+      },
+      "scenes": [
+        {
+          "sceneNumber": 1,
+          "timestampRange": "0:00-0:15",
+          "shotType": "Close Up",
+          "cameraAngle": "Eye Level",
+          "visualDescription": "Creator looking surprised at screen",
+          "characterAction": "",
+          "audioSfx": "Whoosh transition",
+          "onScreenText": "STOP DOING THIS!",
+          "lightingMood": "Cinematic rim lighting",
+          "brollKeywords": [
+            "laptop",
+            "code"
+          ],
+          "aiVideoPrompt": "Cinematic creator in studio with blue and violet neon backlight"
+        }
+      ],
+      "prompts": {
+        "ideaHooks": [
+          "Stop wasting 4 hours a day on video editing."
+        ],
+        "thumbnailPrompt": "Surprised face with glowing holographic tools floating",
+        "thumbnailHeadline": "NEVER USE THIS!",
+        "scriptOutline": "Stop wasting hours on manual editing",
+        "scriptBeats": [
+          {
+            "sectionType": "hook",
+            "directionCue": "[Energetic]",
+            "visualCue": "Fast zoom",
+            "dialogueOutline": "Stop wasting 4 hours on editing."
+          },
+          {
+            "sectionType": "core_beat",
+            "directionCue": "[Pointing]",
+            "visualCue": "Screen demo",
+            "dialogueOutline": "Tool #1 replaces your whole timeline."
+          }
+        ]
+      },
+      "isActive": true,
+      "createdAt": "2026-09-27T11:11:19.620Z",
+      "updatedAt": "2026-09-27T11:11:19.623Z",
+      "usesCount": 1
+    }
+  },
+  "referrals": {
+    "ref_click_1790507479628_41c378": {
+      "id": "ref_click_1790507479628_41c378",
+      "referrerUserId": "user-creator-default",
+      "referredUserId": "user-1790507479630-0c7137",
+      "referralCode": "NOVA-8E0B22",
+      "createdAt": "2026-09-27T11:11:19.628Z",
+      "status": "rewarded",
+      "rewardCredits": 25,
+      "rewardedAt": "2026-09-27T11:11:19.635Z"
+    }
+  },
+  "userReferralCodes": {
+    "user-creator-default": "NOVA-8E0B22"
+  }
 }
