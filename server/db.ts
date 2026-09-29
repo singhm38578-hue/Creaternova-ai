@@ -6,6 +6,25 @@ import { STARTER_PROJECTS } from '../src/data/starterProjects.ts';
 // Configurable TEST DATA: Qualified referral reward (default: 20 CreatorNova credits as specified in test configuration)
 export const QUALIFIED_REFERRAL_REWARD_CREDITS = 20;
 
+// Server-side explicit admin allowlist
+export const TRUSTED_ADMIN_EMAILS = new Set([
+  'singhm38578@gmail.com',
+  'admin@creatornova.ai',
+  ...(process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',').map((e: string) => e.trim().toLowerCase()) : [])
+]);
+
+export function isExplicitAdmin(emailOrUser?: string | { email?: string; role?: string } | null): boolean {
+  if (!emailOrUser) return false;
+  if (typeof emailOrUser === 'string') {
+    return TRUSTED_ADMIN_EMAILS.has(emailOrUser.trim().toLowerCase());
+  }
+  if (emailOrUser.role === 'admin') return true;
+  if (emailOrUser.email) {
+    return TRUSTED_ADMIN_EMAILS.has(emailOrUser.email.trim().toLowerCase());
+  }
+  return false;
+}
+
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'creatornova_db.json');
 
@@ -1060,7 +1079,11 @@ class DatabaseManager {
       this.persist();
       return null;
     }
-    return this.db.users[session.userId] || null;
+    const user = this.db.users[session.userId];
+    if (user) {
+      user.role = isExplicitAdmin(user) ? 'admin' : 'user';
+    }
+    return user || null;
   }
 
   public registerUser(params: {
@@ -1081,12 +1104,13 @@ class DatabaseManager {
     }
 
     const userId = `user-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+    const userRole: 'user' | 'admin' = isExplicitAdmin(normalizedEmail) ? 'admin' : 'user';
     const user: UserRecord = {
       id: userId,
       name: params.name.trim(),
       email: normalizedEmail,
       passwordHash: hashPassword(params.password),
-      role: 'user',
+      role: userRole,
       profileImage: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(normalizedEmail)}`,
       preferredLanguage: params.preferredLanguage || 'English',
       creatorNiche: params.creatorNiche || 'General Creator',
@@ -1154,6 +1178,8 @@ class DatabaseManager {
       throw new Error('Invalid email or password.');
     }
 
+    matchedUser.role = isExplicitAdmin(matchedUser) ? 'admin' : 'user';
+
     const token = crypto.randomBytes(32).toString('hex');
     this.db.sessions[token] = {
       userId: matchedUser.id,
@@ -1214,7 +1240,11 @@ class DatabaseManager {
 
   public getUserById(userId: string): UserRecord | null {
     this.ensureInitialized();
-    return this.db.users[userId] || null;
+    const user = this.db.users[userId];
+    if (user) {
+      user.role = isExplicitAdmin(user) ? 'admin' : 'user';
+    }
+    return user || null;
   }
 
   public updateUserProfile(userId: string, updates: Partial<UserRecord>): UserRecord {
@@ -1394,8 +1424,9 @@ class DatabaseManager {
 
   public updateCreditConfig(adminUserId: string, updates: Partial<CreditConfigRecord>): CreditConfigRecord {
     this.ensureInitialized();
-    const admin = this.db.users[adminUserId];
-    if (!admin || admin.role !== 'admin') {
+    const admin = this.db.users[adminUserId] || Object.values(this.db.users).find((u) => u.id === adminUserId || u.email === adminUserId);
+    const isPrivileged = adminUserId === 'system' || adminUserId === 'user-admin-default' || isExplicitAdmin(admin) || isExplicitAdmin(adminUserId);
+    if (!isPrivileged) {
       throw new Error('Unauthorized: Admin privilege required.');
     }
 
@@ -1526,8 +1557,9 @@ class DatabaseManager {
 
   public getAllUsers(adminUserId: string): UserRecord[] {
     this.ensureInitialized();
-    const admin = this.db.users[adminUserId];
-    if (!admin || admin.role !== 'admin') {
+    const admin = this.db.users[adminUserId] || Object.values(this.db.users).find((u) => u.id === adminUserId || u.email === adminUserId);
+    const isPrivileged = adminUserId === 'system' || adminUserId === 'user-admin-default' || isExplicitAdmin(admin) || isExplicitAdmin(adminUserId);
+    if (!isPrivileged) {
       throw new Error('Unauthorized: Admin privilege required.');
     }
 
@@ -1539,8 +1571,9 @@ class DatabaseManager {
 
   public updateUserPlan(adminUserId: string, targetUserId: string, newPlan: 'free' | 'pro' | 'creator' | 'business') {
     this.ensureInitialized();
-    const admin = this.db.users[adminUserId];
-    if (!admin || admin.role !== 'admin') {
+    const admin = this.db.users[adminUserId] || Object.values(this.db.users).find((u) => u.id === adminUserId || u.email === adminUserId);
+    const isPrivileged = adminUserId === 'system' || adminUserId === 'user-admin-default' || isExplicitAdmin(admin) || isExplicitAdmin(adminUserId);
+    if (!isPrivileged) {
       throw new Error('Unauthorized: Admin privilege required.');
     }
 
@@ -1555,8 +1588,9 @@ class DatabaseManager {
 
   public getPlatformMetrics(adminUserId: string) {
     this.ensureInitialized();
-    const admin = this.db.users[adminUserId] || Object.values(this.db.users).find((u) => u.role === 'admin');
-    if (adminUserId !== 'system' && adminUserId !== 'user-admin-default' && (!admin || admin.role !== 'admin')) {
+    const admin = this.db.users[adminUserId] || Object.values(this.db.users).find((u) => u.id === adminUserId || u.email === adminUserId);
+    const isPrivileged = adminUserId === 'system' || adminUserId === 'user-admin-default' || isExplicitAdmin(admin) || isExplicitAdmin(adminUserId);
+    if (!isPrivileged) {
       throw new Error('Unauthorized: Admin privilege required.');
     }
 

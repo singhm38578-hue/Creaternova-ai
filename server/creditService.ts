@@ -2,8 +2,6 @@ import crypto from 'crypto';
 import { dbManager } from './db.ts';
 import { GENERATION_CREDIT_COSTS, calculateVideoCreditCost, PLAN_DEFINITIONS, INITIAL_FREE_PLAN_CREDITS } from '../src/config/creditCosts.ts';
 
-export const SERVER_WALLET_SECRET = process.env.WALLET_SERVER_SECRET || 'creatornova_backend_sec_key_2026';
-
 // Read Firebase config
 import cfg from '../firebase-applet-config.json' with { type: 'json' };
 
@@ -188,7 +186,7 @@ export class CreditWalletService {
       // 2. Write to Firestore if authToken provided
       if (authToken) {
         try {
-          // A. Update users/{userId} with serverSecret to satisfy rules
+          // A. Update users/{userId} in Firestore if token is authorized
           const updateUrl = `${FIRESTORE_BASE_URL}/users/${userId}?updateMask.fieldPaths=creditBalance&updateMask.fieldPaths=credits&updateMask.fieldPaths=updatedAt`;
           await fetch(updateUrl, {
             method: 'PATCH',
@@ -201,7 +199,6 @@ export class CreditWalletService {
                 creditBalance: balanceAfter,
                 credits: balanceAfter,
                 updatedAt: now,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });
@@ -217,7 +214,6 @@ export class CreditWalletService {
             body: JSON.stringify({
               fields: toFirestoreFields({
                 ...txRecord,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });
@@ -294,7 +290,6 @@ export class CreditWalletService {
                 creditBalance: balanceAfter,
                 credits: balanceAfter,
                 updatedAt: now,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });
@@ -309,7 +304,6 @@ export class CreditWalletService {
             body: JSON.stringify({
               fields: toFirestoreFields({
                 ...txRecord,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });
@@ -406,7 +400,6 @@ export class CreditWalletService {
                   credits: newBalance,
                   creditResetDate: nextResetDate,
                   updatedAt: nowIso,
-                  serverSecret: SERVER_WALLET_SECRET,
                 }),
               }),
             });
@@ -421,7 +414,6 @@ export class CreditWalletService {
               body: JSON.stringify({
                 fields: toFirestoreFields({
                   ...txRecord,
-                  serverSecret: SERVER_WALLET_SECRET,
                 }),
               }),
             });
@@ -503,7 +495,6 @@ export class CreditWalletService {
                 plan: planId,
                 creditResetDate: nextResetDate,
                 updatedAt: nowIso,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });
@@ -519,7 +510,6 @@ export class CreditWalletService {
             body: JSON.stringify({
               fields: toFirestoreFields({
                 ...txRecord,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });
@@ -593,7 +583,6 @@ export class CreditWalletService {
                 creditBalance: balanceAfter,
                 credits: balanceAfter,
                 updatedAt: now,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });
@@ -608,7 +597,6 @@ export class CreditWalletService {
             body: JSON.stringify({
               fields: toFirestoreFields({
                 ...txRecord,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });
@@ -681,7 +669,6 @@ export class CreditWalletService {
                 creditBalance: balanceAfter,
                 credits: balanceAfter,
                 updatedAt: now,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });
@@ -698,7 +685,6 @@ export class CreditWalletService {
                 ...txRecord,
                 referralId,
                 referredUserId,
-                serverSecret: SERVER_WALLET_SECRET,
               }),
             }),
           });

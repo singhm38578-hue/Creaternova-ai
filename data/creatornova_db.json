@@ -79,6 +79,214 @@
       "billingCycle": "monthly",
       "createdAt": "2026-09-28T15:14:01.463Z",
       "onboardingCompleted": true
+    },
+    "user-1790683265438-226c8d": {
+      "id": "user-1790683265438-226c8d",
+      "name": "User A",
+      "email": "usera_1790683265384@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=usera_1790683265384%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:01:05.438Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683265454-8135cd": {
+      "id": "user-1790683265454-8135cd",
+      "name": "User B",
+      "email": "userb_1790683265384@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=userb_1790683265384%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:01:05.454Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683265498-7cc717": {
+      "id": "user-1790683265498-7cc717",
+      "name": "Admin Impostor",
+      "email": "admin_impostor_1790683265384@admin-corp.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=admin_impostor_1790683265384%40admin-corp.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:01:05.498Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683265549-fba35f": {
+      "id": "user-1790683265549-fba35f",
+      "name": "Authorized Owner",
+      "email": "singhm38578@gmail.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "admin",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=singhm38578%40gmail.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:01:05.549Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683347817-1fbbf4": {
+      "id": "user-1790683347817-1fbbf4",
+      "name": "User A",
+      "email": "usera_1790683347787@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=usera_1790683347787%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:02:27.817Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683347828-779aef": {
+      "id": "user-1790683347828-779aef",
+      "name": "User B",
+      "email": "userb_1790683347787@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=userb_1790683347787%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:02:27.829Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683347869-0a7721": {
+      "id": "user-1790683347869-0a7721",
+      "name": "Admin Impostor",
+      "email": "admin_impostor_1790683347787@admin-corp.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=admin_impostor_1790683347787%40admin-corp.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:02:27.869Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683477788-aa8421": {
+      "id": "user-1790683477788-aa8421",
+      "name": "User A",
+      "email": "usera_1790683477742@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=usera_1790683477742%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:04:37.789Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683477806-2860c4": {
+      "id": "user-1790683477806-2860c4",
+      "name": "User B",
+      "email": "userb_1790683477742@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=userb_1790683477742%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:04:37.806Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683477842-500855": {
+      "id": "user-1790683477842-500855",
+      "name": "Admin Impostor",
+      "email": "admin_impostor_1790683477742@admin-corp.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=admin_impostor_1790683477742%40admin-corp.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:04:37.842Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683492063-fee72c": {
+      "id": "user-1790683492063-fee72c",
+      "name": "User A",
+      "email": "usera_1790683492030@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=usera_1790683492030%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:04:52.063Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683492076-0c9223": {
+      "id": "user-1790683492076-0c9223",
+      "name": "User B",
+      "email": "userb_1790683492030@example.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=userb_1790683492030%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:04:52.076Z",
+      "onboardingCompleted": false
+    },
+    "user-1790683492120-c9e151": {
+      "id": "user-1790683492120-c9e151",
+      "name": "Admin Impostor",
+      "email": "admin_impostor_1790683492030@admin-corp.com",
+      "passwordHash": "d76c7a445ec41b31299173cc54e349b327a7b852dc0a81a6489f2f6c12455d4e",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=admin_impostor_1790683492030%40admin-corp.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:04:52.120Z",
+      "onboardingCompleted": false
     }
   },
   "sessions": {
@@ -97,6 +305,66 @@
     "8dbb6169d0ba331b7537aa898205fd9fe3ebaf47e82158433530f1233a80aea6": {
       "userId": "user-1790608441462-c9bdd0",
       "expiresAt": 1793200441466
+    },
+    "a0cd0e4cf262791f7d6538dcef4efe924c337576d26a686b97327de9f5a0a9a9": {
+      "userId": "user-1790683265438-226c8d",
+      "expiresAt": 1793275265438
+    },
+    "1a6c55d130e8b0445883856e11d30483adf74da656219ad4bcd607e85960e0b5": {
+      "userId": "user-1790683265454-8135cd",
+      "expiresAt": 1793275265454
+    },
+    "84ee657eebaba75f44a71612b914ede9a485012fd99e33678082f3972cadaad0": {
+      "userId": "user-1790683265498-7cc717",
+      "expiresAt": 1793275265498
+    },
+    "70dd13e772907dbd506e2534a609b02395911abcf73cf9e00317c5b132013a5d": {
+      "userId": "user-1790683265549-fba35f",
+      "expiresAt": 1793275265549
+    },
+    "15b7a3a4aa51c53afccc8136e8fe5562484417aaf7bf7551dbeb1d8eb456bef7": {
+      "userId": "user-1790683347817-1fbbf4",
+      "expiresAt": 1793275347817
+    },
+    "840e495c8784e97771fa583d60d5e232ff3e484f3fc0cff8fcab418991385603": {
+      "userId": "user-1790683347828-779aef",
+      "expiresAt": 1793275347829
+    },
+    "2b51315af5bc025caec44d8286dbaf469babb4b5e09ffd7c51fc547f61ed664e": {
+      "userId": "user-1790683347869-0a7721",
+      "expiresAt": 1793275347869
+    },
+    "c4b4714de1f06527783df19147fe91dc41886d43fbd93edc34325c5ebf77975e": {
+      "userId": "user-1790683265549-fba35f",
+      "expiresAt": 1793275360922
+    },
+    "53ae00bc493a38d293cb26f2236d50277e6a43ec105d1303fe4b6e624a2dd286": {
+      "userId": "user-1790683477788-aa8421",
+      "expiresAt": 1793275477789
+    },
+    "95bec71512ff97de1f93336bba25db4d87dd5e57071cc0286212b33ec34dcc4c": {
+      "userId": "user-1790683477806-2860c4",
+      "expiresAt": 1793275477807
+    },
+    "eb24bab5e8fd8644151dd22ab91f50aeb1393744cae61aa9865898dc90838516": {
+      "userId": "user-1790683477842-500855",
+      "expiresAt": 1793275477843
+    },
+    "83aeca031abe699f23e373254e9e6205f31bd123801b745cf3ec2d34cb767736": {
+      "userId": "user-1790683492063-fee72c",
+      "expiresAt": 1793275492063
+    },
+    "dc8b3a9804fd583e2a5dbc300aefa98ae68cf4ab628545a87ffea8fa0421be32": {
+      "userId": "user-1790683492076-0c9223",
+      "expiresAt": 1793275492076
+    },
+    "1f254b998743ae32272c77db09ab21c478e4e7513b4159f57f402a3b7ae30b35": {
+      "userId": "user-1790683492120-c9e151",
+      "expiresAt": 1793275492120
+    },
+    "36aef8405fa78a11de2a0738bd661f74a48ff7a6e79efa4e96c029b1cb5e1ea2": {
+      "userId": "user-1790683265549-fba35f",
+      "expiresAt": 1793275492130
     }
   },
   "brandKits": {
@@ -116,7 +384,7 @@
     "YdycqvezkkY8ohf4Ja5avSO0Rwz1": {
       "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1",
       "channelName": "Mangal Singh's Studio",
-      "channelNiche": "General Content",
+      "channelNiche": "Shorts/Reels",
       "targetAudience": "Global Audience",
       "preferredLanguage": "English",
       "preferredVisualStyle": "Cinematic High-Contrast",
@@ -124,7 +392,7 @@
       "toneOfVoice": "Energetic, Curious & Authoritative",
       "recurringCharacterDescription": "Dr. Nova, an energetic robotic cosmic guide with deep violet plating and glowing cyan eyes",
       "preferredCta": "Subscribe for daily insights!",
-      "updatedAt": "2026-09-28T15:12:01.157Z"
+      "updatedAt": "2026-09-29T12:03:07.588Z"
     },
     "user-1790507479617-930fcd": {
       "userId": "user-1790507479617-930fcd",
@@ -164,6 +432,175 @@
       "recurringCharacterDescription": "",
       "preferredCta": "Like and subscribe for more!",
       "updatedAt": "2026-09-28T15:14:01.463Z"
+    },
+    "user-1790683265438-226c8d": {
+      "userId": "user-1790683265438-226c8d",
+      "channelName": "User A's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:01:05.438Z"
+    },
+    "user-1790683265454-8135cd": {
+      "userId": "user-1790683265454-8135cd",
+      "channelName": "User B's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:01:05.454Z"
+    },
+    "user-1790683265498-7cc717": {
+      "userId": "user-1790683265498-7cc717",
+      "channelName": "Admin Impostor's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:01:05.498Z"
+    },
+    "user-1790683265549-fba35f": {
+      "userId": "user-1790683265549-fba35f",
+      "channelName": "Authorized Owner's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:01:05.549Z"
+    },
+    "user-1790683347817-1fbbf4": {
+      "userId": "user-1790683347817-1fbbf4",
+      "channelName": "User A's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:02:27.817Z"
+    },
+    "user-1790683347828-779aef": {
+      "userId": "user-1790683347828-779aef",
+      "channelName": "User B's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:02:27.829Z"
+    },
+    "user-1790683347869-0a7721": {
+      "userId": "user-1790683347869-0a7721",
+      "channelName": "Admin Impostor's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:02:27.869Z"
+    },
+    "user-1790683477788-aa8421": {
+      "userId": "user-1790683477788-aa8421",
+      "channelName": "User A's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:04:37.789Z"
+    },
+    "user-1790683477806-2860c4": {
+      "userId": "user-1790683477806-2860c4",
+      "channelName": "User B's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:04:37.806Z"
+    },
+    "user-1790683477842-500855": {
+      "userId": "user-1790683477842-500855",
+      "channelName": "Admin Impostor's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:04:37.842Z"
+    },
+    "user-1790683492063-fee72c": {
+      "userId": "user-1790683492063-fee72c",
+      "channelName": "User A's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:04:52.063Z"
+    },
+    "user-1790683492076-0c9223": {
+      "userId": "user-1790683492076-0c9223",
+      "channelName": "User B's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:04:52.076Z"
+    },
+    "user-1790683492120-c9e151": {
+      "userId": "user-1790683492120-c9e151",
+      "channelName": "Admin Impostor's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:04:52.120Z"
     }
   },
   "credits": {
@@ -276,6 +713,136 @@
       "totalRemaining": 100,
       "monthlyAllocation": 100,
       "lastResetDate": "2026-09-28T15:14:01.463Z"
+    },
+    "user-1790683265438-226c8d": {
+      "userId": "user-1790683265438-226c8d",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:01:05.438Z"
+    },
+    "user-1790683265454-8135cd": {
+      "userId": "user-1790683265454-8135cd",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:01:05.454Z"
+    },
+    "user-1790683265498-7cc717": {
+      "userId": "user-1790683265498-7cc717",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:01:05.498Z"
+    },
+    "user-1790683265549-fba35f": {
+      "userId": "user-1790683265549-fba35f",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:01:05.549Z"
+    },
+    "user-1790683347817-1fbbf4": {
+      "userId": "user-1790683347817-1fbbf4",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:02:27.817Z"
+    },
+    "user-1790683347828-779aef": {
+      "userId": "user-1790683347828-779aef",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:02:27.829Z"
+    },
+    "user-1790683347869-0a7721": {
+      "userId": "user-1790683347869-0a7721",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:02:27.869Z"
+    },
+    "user-1790683477788-aa8421": {
+      "userId": "user-1790683477788-aa8421",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:04:37.789Z"
+    },
+    "user-1790683477806-2860c4": {
+      "userId": "user-1790683477806-2860c4",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:04:37.806Z"
+    },
+    "user-1790683477842-500855": {
+      "userId": "user-1790683477842-500855",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:04:37.842Z"
+    },
+    "user-1790683492063-fee72c": {
+      "userId": "user-1790683492063-fee72c",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:04:52.063Z"
+    },
+    "user-1790683492076-0c9223": {
+      "userId": "user-1790683492076-0c9223",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:04:52.076Z"
+    },
+    "user-1790683492120-c9e151": {
+      "userId": "user-1790683492120-c9e151",
+      "textCredits": 50,
+      "imageCredits": 30,
+      "voiceCredits": 20,
+      "videoCredits": 0,
+      "totalRemaining": 100,
+      "monthlyAllocation": 100,
+      "lastResetDate": "2026-09-29T12:04:52.120Z"
     }
   },
   "creditConfig": {
@@ -2105,6 +2672,641 @@
         "aiConceptPrompt": ""
       },
       "translations": []
+    },
+    "proj-1790682165690": {
+      "id": "proj-1790682165690",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "English",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T11:42:45.690Z",
+      "updatedAt": "2026-09-29T11:42:46.294Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790682173464": {
+      "id": "proj-1790682173464",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "English",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T11:42:53.464Z",
+      "updatedAt": "2026-09-29T11:42:54.125Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790682173775": {
+      "id": "proj-1790682173775",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "English",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T11:42:53.775Z",
+      "updatedAt": "2026-09-29T11:42:54.385Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790682225754": {
+      "id": "proj-1790682225754",
+      "name": "Top 3 Daily Productivity Habits for Creators",
+      "topic": "Top 3 Daily Productivity Habits for Creators",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "Top 3 Daily Productivity Habits for Creators",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 44
+          }
+        ],
+        "description": "Discover everything about Top 3 Daily Productivity Habits for Creators. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "Top 3 Daily Productivity Habits for Creators"
+        ],
+        "longTailKeywords": [
+          "Top 3 Daily Productivity Habits for Creators breakdown",
+          "how to Top 3 Daily Productivity Habits for Creators"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T11:43:45.754Z",
+      "updatedAt": "2026-09-29T11:43:46.353Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790682226043": {
+      "id": "proj-1790682226043",
+      "name": "Top 3 Daily Productivity Habits for Creators",
+      "topic": "Top 3 Daily Productivity Habits for Creators",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "Top 3 Daily Productivity Habits for Creators",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 44
+          }
+        ],
+        "description": "Discover everything about Top 3 Daily Productivity Habits for Creators. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "Top 3 Daily Productivity Habits for Creators"
+        ],
+        "longTailKeywords": [
+          "Top 3 Daily Productivity Habits for Creators breakdown",
+          "how to Top 3 Daily Productivity Habits for Creators"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T11:43:46.043Z",
+      "updatedAt": "2026-09-29T11:43:46.653Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790682229258": {
+      "id": "proj-1790682229258",
+      "name": "Top 3 Daily Productivity Habits for Creators",
+      "topic": "Top 3 Daily Productivity Habits for Creators",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "Top 3 Daily Productivity Habits for Creators",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 44
+          }
+        ],
+        "description": "Discover everything about Top 3 Daily Productivity Habits for Creators. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "Top 3 Daily Productivity Habits for Creators"
+        ],
+        "longTailKeywords": [
+          "Top 3 Daily Productivity Habits for Creators breakdown",
+          "how to Top 3 Daily Productivity Habits for Creators"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T11:43:49.259Z",
+      "updatedAt": "2026-09-29T11:43:49.854Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790682229662": {
+      "id": "proj-1790682229662",
+      "name": "Top 3 Daily Productivity Habits for Creators",
+      "topic": "Top 3 Daily Productivity Habits for Creators",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "Top 3 Daily Productivity Habits for Creators",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 44
+          }
+        ],
+        "description": "Discover everything about Top 3 Daily Productivity Habits for Creators. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "Top 3 Daily Productivity Habits for Creators"
+        ],
+        "longTailKeywords": [
+          "Top 3 Daily Productivity Habits for Creators breakdown",
+          "how to Top 3 Daily Productivity Habits for Creators"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T11:43:49.662Z",
+      "updatedAt": "2026-09-29T11:43:50.258Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "project-1790683265466": {
+      "name": "User A Secret Project",
+      "topic": "AI Architecture",
+      "id": "project-1790683265466",
+      "userId": "user-1790683265438-226c8d",
+      "createdAt": "2026-09-29T12:01:05.466Z",
+      "updatedAt": "2026-09-29T12:01:05.466Z"
+    },
+    "project-1790683347837": {
+      "name": "User A Secret Project",
+      "topic": "AI Architecture",
+      "id": "project-1790683347837",
+      "userId": "user-1790683347817-1fbbf4",
+      "createdAt": "2026-09-29T12:02:27.837Z",
+      "updatedAt": "2026-09-29T12:02:27.837Z"
+    },
+    "proj-1790683385971": {
+      "id": "proj-1790683385971",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "English",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:03:05.972Z",
+      "updatedAt": "2026-09-29T12:03:06.576Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790683387285": {
+      "id": "proj-1790683387285",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "English",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:03:07.285Z",
+      "updatedAt": "2026-09-29T12:03:07.894Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "project-1790683477818": {
+      "name": "User A Secret Project",
+      "topic": "AI Architecture",
+      "id": "project-1790683477818",
+      "userId": "user-1790683477788-aa8421",
+      "createdAt": "2026-09-29T12:04:37.818Z",
+      "updatedAt": "2026-09-29T12:04:37.818Z"
+    },
+    "project-1790683492087": {
+      "name": "User A Secret Project",
+      "topic": "AI Architecture",
+      "id": "project-1790683492087",
+      "userId": "user-1790683492063-fee72c",
+      "createdAt": "2026-09-29T12:04:52.087Z",
+      "updatedAt": "2026-09-29T12:04:52.087Z"
     }
   },
   "resetTokens": {},
@@ -3356,5 +4558,7 @@
     "test-creator-user-a": "NOVA-DADBCE",
     "test-creator-user-b": "NOVA-CCF7BE",
     "YdycqvezkkY8ohf4Ja5avSO0Rwz1": "NOVA-694D41"
-  }
+  },
+  "supportTickets": {},
+  "contentReports": {}
 }

@@ -173,7 +173,7 @@ export async function initUserProfile(uid: string, data: { name: string; email: 
     name: data.name,
     email: data.email,
     photoURL: data.photoURL,
-    role: data.email.includes('admin') ? 'admin' : 'user',
+    role: data.email && data.email.toLowerCase().trim() === 'singhm38578@gmail.com' ? 'admin' : 'user',
     plan: 'free',
     billingCycle: 'monthly',
     credits: 50,

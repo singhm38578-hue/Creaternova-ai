@@ -23,21 +23,16 @@ service cloud.firestore {
       return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    function hasServerSecret() {
-      return request.resource.data.serverSecret == 'creatornova_backend_sec_key_2026';
-    }
-
     // User profile document: users/{uid}
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
       allow create: if isOwner(userId) && isValidId(userId);
-      // Client cannot modify creditBalance, plan, credits, or creditResetDate directly
-      // Only server-authorized requests with serverSecret or admin can change wallet balance
+      // Client cannot modify creditBalance, plan, credits, creditResetDate, or role directly
+      // Only server-authorized requests by admin can change wallet balance or privileges
       allow update: if (isOwner(userId) || isAdmin()) && (
         isAdmin() ||
-        hasServerSecret() ||
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['creditBalance', 'plan', 'creditResetDate', 'credits', 'role'])
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['creditBalance', 'plan', 'creditResetDate', 'credits', 'role', 'isAdmin'])
       );
       allow delete: if isAdmin();
 
@@ -77,24 +72,24 @@ service cloud.firestore {
       }
 
       // User Credit Transactions subcollection: users/{userId}/creditTransactions/{transactionId}
-      // Users can only read their credit history; writes are restricted to server-side backend logic
+      // Read-only for user; write restricted exclusively to admin / trusted backend logic
       match /creditTransactions/{transactionId} {
-        allow read: if isOwner(userId);
-        allow write: if isOwner(userId) && hasServerSecret();
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if isAdmin();
       }
 
       // User Subscriptions subcollection: users/{userId}/subscriptions/{subscriptionId}
-      // Read-only for user; write restricted to server-side backend logic
+      // Read-only for user; write restricted exclusively to admin / trusted backend logic
       match /subscriptions/{subscriptionId} {
         allow read: if isOwner(userId) || isAdmin();
-        allow write: if (isOwner(userId) || isAdmin()) && hasServerSecret();
+        allow write: if isAdmin();
       }
 
       // User Payments & Invoices subcollection: users/{userId}/payments/{paymentId}
-      // Read-only for user; write restricted to server-side backend logic
+      // Read-only for user; write restricted exclusively to admin / trusted backend logic
       match /payments/{paymentId} {
         allow read: if isOwner(userId) || isAdmin();
-        allow write: if (isOwner(userId) || isAdmin()) && hasServerSecret();
+        allow write: if isAdmin();
       }
 
       // User Media Assets metadata: users/{userId}/media/{mediaId}
@@ -112,15 +107,14 @@ service cloud.firestore {
     // Public Templates: readable by anyone, writable by template creator or admin
     match /publicTemplates/{templateId} {
       allow get, list: if true;
-      allow create: if isAuthenticated() && (request.resource.data.creatorUserId == request.auth.uid || hasServerSecret());
-      allow update, delete: if isAuthenticated() && (resource.data.creatorUserId == request.auth.uid || isAdmin() || hasServerSecret());
+      allow create: if isAuthenticated() && (request.resource.data.creatorUserId == request.auth.uid || isAdmin());
+      allow update, delete: if isAuthenticated() && (resource.data.creatorUserId == request.auth.uid || isAdmin());
     }
 
-    // Referrals audit trail: readable by participants or admin; writable by authenticated or backend server
+    // Referrals audit trail: readable by participants or admin; writable by participants or admin
     match /referrals/{referralId} {
       allow read: if isAuthenticated() && (resource.data.referrerUserId == request.auth.uid || resource.data.referredUserId == request.auth.uid || isAdmin());
-      allow write: if isAuthenticated() || hasServerSecret();
+      allow write: if isAuthenticated() && (request.resource.data.referrerUserId == request.auth.uid || request.resource.data.referredUserId == request.auth.uid || isAdmin());
     }
   }
 }
-

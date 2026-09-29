@@ -40,6 +40,20 @@ function extractJsonFromText(rawText: string) {
   }
 }
 
+const TRUSTED_ADMIN_EMAILS = new Set([
+  'singhm38578@gmail.com',
+  ...(process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',').map((e: string) => e.trim().toLowerCase()) : [])
+]);
+
+function isAuthorizedAdmin(payload: { email?: string; admin?: boolean; role?: string } | null | undefined): boolean {
+  if (!payload) return false;
+  if (payload.admin === true || payload.role === 'admin') return true;
+  if (payload.email && typeof payload.email === 'string') {
+    return TRUSTED_ADMIN_EMAILS.has(payload.email.toLowerCase().trim());
+  }
+  return false;
+}
+
 function getRequestUser(req: express.Request) {
   const authHeader = req.headers.authorization;
   if (authHeader) {
@@ -50,12 +64,15 @@ function getRequestUser(req: express.Request) {
         const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
         const uid = payload.user_id || payload.sub;
         if (uid) {
+          const nowSeconds = Math.floor(Date.now() / 1000);
+          if (payload.exp && payload.exp < nowSeconds) return null;
+          const isAdmin = isAuthorizedAdmin(payload);
           return {
             id: uid,
             uid,
             name: payload.name || payload.email?.split('@')[0] || 'Creator',
             email: payload.email || '',
-            role: payload.email?.includes('admin') || payload.role === 'admin' ? 'admin' : 'user',
+            role: isAdmin ? 'admin' : 'user',
             plan: 'free',
             authToken: token,
           };
@@ -65,10 +82,13 @@ function getRequestUser(req: express.Request) {
       }
     }
     const user = dbManager.authenticateToken(token);
-    if (user) return { ...user, authToken: token };
+    if (user) {
+      const isAdmin = isAuthorizedAdmin(user);
+      return { ...user, role: isAdmin ? 'admin' : 'user', authToken: token };
+    }
   }
-  // Default to primary creator user for demo/testing
-  return dbManager.getUserById('user-creator-default');
+  // Require authentication - no silent fallback
+  return null;
 }
 
 // =============================================================

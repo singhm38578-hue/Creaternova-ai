@@ -5,7 +5,7 @@ import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { GoogleGenAI, GenerateVideosOperation } from '@google/genai';
 import { dbManager, type VideoJobRecord, type VideoAssetRecord } from './db.ts';
-import { CreditWalletService, SERVER_WALLET_SECRET } from './creditService.ts';
+import { CreditWalletService } from './creditService.ts';
 import { AIUsageService } from './aiUsageService.ts';
 import { calculateEstimatedVideoCost, AI_SAFETY_LIMITS } from './aiCostConfig.ts';
 import cfg from '../firebase-applet-config.json' with { type: 'json' };
@@ -972,10 +972,7 @@ export class VideoProviderService {
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
-          fields: toFirestoreFields({
-            ...job,
-            serverSecret: SERVER_WALLET_SECRET,
-          }),
+          fields: toFirestoreFields(job),
         }),
       });
     } catch (e) {
@@ -996,10 +993,7 @@ export class VideoProviderService {
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
-          fields: toFirestoreFields({
-            ...asset,
-            serverSecret: SERVER_WALLET_SECRET,
-          }),
+          fields: toFirestoreFields(asset),
         }),
       });
     } catch (e) {

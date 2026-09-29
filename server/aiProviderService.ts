@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { GoogleGenAI } from '@google/genai';
 import { dbManager } from './db.ts';
-import { CreditWalletService, SERVER_WALLET_SECRET } from './creditService.ts';
+import { CreditWalletService } from './creditService.ts';
 import { AIUsageService } from './aiUsageService.ts';
 import cfg from '../firebase-applet-config.json' with { type: 'json' };
 
@@ -775,10 +775,7 @@ Return ONLY valid JSON:
                   Authorization: `Bearer ${authToken}`,
                 },
                 body: JSON.stringify({
-                  fields: toFirestoreFields({
-                    ...updatedProj,
-                    serverSecret: SERVER_WALLET_SECRET,
-                  }),
+                  fields: toFirestoreFields(updatedProj),
                 }),
               });
             } catch (fsErr) {

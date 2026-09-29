@@ -73,7 +73,24 @@ import {
 } from './server/aiCostConfig.ts';
 import { GENERATION_CREDIT_COSTS, PLAN_DEFINITIONS } from './src/config/creditCosts.ts';
 
-// Helper to extract authenticated user or null
+// Server-side explicit admin allowlist
+const TRUSTED_ADMIN_EMAILS = new Set([
+  'singhm38578@gmail.com',
+  ...(process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',').map((e: string) => e.trim().toLowerCase()) : [])
+]);
+
+function isAuthorizedAdmin(payload: { email?: string; admin?: boolean; role?: string } | null | undefined): boolean {
+  if (!payload) return false;
+  // 1. Firebase custom claims or explicit role property
+  if (payload.admin === true || payload.role === 'admin') return true;
+  // 2. Explicit server-side admin allowlist
+  if (payload.email && typeof payload.email === 'string') {
+    return TRUSTED_ADMIN_EMAILS.has(payload.email.toLowerCase().trim());
+  }
+  return false;
+}
+
+// Helper to extract authenticated user or null - NEVER trusts client-supplied UIDs
 function getAuthenticatedUser(req: express.Request) {
   const authHeader = req.headers.authorization;
   const token = authHeader ? authHeader.replace(/^Bearer\s+/i, '').trim() : null;
@@ -84,14 +101,21 @@ function getAuthenticatedUser(req: express.Request) {
     if (parts.length === 3) {
       try {
         const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
-        if (payload.user_id || payload.sub) {
-          const uid = payload.user_id || payload.sub;
+        const uid = payload.user_id || payload.sub;
+        if (uid) {
+          // Verify expiration
+          const nowSeconds = Math.floor(Date.now() / 1000);
+          if (payload.exp && payload.exp < nowSeconds) {
+            return null; // Expired token
+          }
+
+          const isAdmin = isAuthorizedAdmin(payload);
           return {
             id: uid,
             uid,
             name: payload.name || payload.email?.split('@')[0] || 'Creator',
             email: payload.email || '',
-            role: payload.email?.includes('admin') || payload.role === 'admin' ? 'admin' : 'user',
+            role: isAdmin ? 'admin' : 'user',
             plan: 'free',
             authToken: token,
           };
@@ -104,16 +128,12 @@ function getAuthenticatedUser(req: express.Request) {
     // 2. Check local session token
     const sessionUser = dbManager.authenticateToken(token);
     if (sessionUser) {
-      return { ...sessionUser, authToken: token };
+      const isAdmin = isAuthorizedAdmin(sessionUser);
+      return { ...sessionUser, role: isAdmin ? 'admin' : 'user', authToken: token };
     }
   }
 
-  // 3. Check x-user-uid header if provided in demo/dev
-  const xUid = req.headers['x-user-uid'];
-  if (typeof xUid === 'string' && xUid) {
-    return { id: xUid, uid: xUid, name: 'Creator', email: '', role: 'user', plan: 'free', authToken: token || undefined };
-  }
-
+  // No unverified fallbacks. Never trust x-user-uid header or client-provided UIDs.
   return null;
 }
 
@@ -242,19 +262,7 @@ app.post('/api/auth/reset-password', (req, res) => {
 app.get('/api/auth/me', (req, res) => {
   const user = getAuthenticatedUser(req);
   if (!user) {
-    // If not authenticated, return demo creator info for testing convenience
-    const demoUser = dbManager.getUserById('user-creator-default');
-    if (demoUser) {
-      const { passwordHash, ...safe } = demoUser;
-      return res.json({
-        user: safe,
-        brandKit: dbManager.getBrandKit(demoUser.id),
-        credits: dbManager.getUserCredits(demoUser.id),
-        creditConfig: dbManager.getCreditConfig(),
-        isDemoGuest: true,
-      });
-    }
-    return res.status(401).json({ error: 'UNAUTHORIZED' });
+    return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Authentication required. Please log in.' });
   }
 
   const { passwordHash, ...safeUser } = user as any;
@@ -453,14 +461,14 @@ app.post('/api/reports', (req, res) => {
 // -------------------------------------------------------------
 
 app.get('/api/brand-kit', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
   const brandKit = dbManager.getBrandKit(user.id);
   return res.json({ brandKit });
 });
 
 app.put('/api/brand-kit', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
   const updated = dbManager.updateBrandKit(user.id, req.body);
   return res.json({ brandKit: updated });
@@ -472,7 +480,7 @@ app.put('/api/brand-kit', (req, res) => {
 
 // List Projects (With Search & Filters)
 app.get('/api/projects', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const { search, platform, language, contentType, sort } = req.query;
@@ -489,7 +497,7 @@ app.get('/api/projects', (req, res) => {
 
 // Get Single Project (Ownership Verified)
 app.get('/api/projects/:id', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const project = dbManager.getUserProjectById(req.params.id, user.id);
@@ -502,7 +510,7 @@ app.get('/api/projects/:id', (req, res) => {
 
 // Create Project
 app.post('/api/projects', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   try {
@@ -520,7 +528,7 @@ app.post('/api/projects', (req, res) => {
 
 // Update / Autosave Project
 app.put('/api/projects/:id', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   try {
@@ -534,7 +542,7 @@ app.put('/api/projects/:id', (req, res) => {
 
 // Delete Project
 app.delete('/api/projects/:id', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   try {
@@ -547,7 +555,7 @@ app.delete('/api/projects/:id', (req, res) => {
 
 // Duplicate Project
 app.post('/api/projects/:id/duplicate', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   try {
@@ -564,7 +572,7 @@ app.post('/api/projects/:id/duplicate', (req, res) => {
 
 // Create or update shareable template
 app.post('/api/templates', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   try {
@@ -590,7 +598,7 @@ app.get('/api/templates/public/:id', (req, res) => {
 
 // List user's own created templates
 app.get('/api/templates/my-templates', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const templates = dbManager.getUserTemplates(user.id);
@@ -599,7 +607,7 @@ app.get('/api/templates/my-templates', (req, res) => {
 
 // Toggle template active status (disable/enable)
 app.put('/api/templates/:id/status', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const { isActive } = req.body;
@@ -612,7 +620,7 @@ app.put('/api/templates/:id/status', (req, res) => {
 
 // Delete template
 app.delete('/api/templates/:id', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const deleted = dbManager.deleteTemplate(req.params.id, user.id);
@@ -654,7 +662,7 @@ app.post('/api/templates/:id/use', (req, res) => {
 
 // Get user's referral code and link
 app.get('/api/referrals/my-code', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const referralCode = dbManager.getUserReferralCode(user.id);
@@ -694,7 +702,7 @@ app.post('/api/referrals/signup', (req, res) => {
 
 // Get user's referral stats and earned bonus credits
 app.get('/api/referrals/my-stats', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const stats = dbManager.getUserReferralStats(user.id);
@@ -708,7 +716,7 @@ app.get('/api/referrals/my-stats', (req, res) => {
 
 // Credit Wallet (Firestore backed)
 app.get('/api/credits/wallet', async (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   // Perform monthly credit reset check (resets to plan's monthly allocation if 30-day period reached)
@@ -738,7 +746,7 @@ app.get('/api/credits/config', (req, res) => {
 
 // Credit Transactions Ledger (from Firestore)
 app.get('/api/credits/transactions', async (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const transactions = await CreditWalletService.getTransactions(user.id, (user as any).authToken);
@@ -780,7 +788,7 @@ app.post('/api/credits/debit', async (req, res) => {
 
 // Usage History (combined transactions + legacy logs)
 app.get('/api/credits/usage', async (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const walletData = await CreditWalletService.getWallet(user.id, (user as any).authToken);
@@ -799,7 +807,7 @@ app.get('/api/credits/usage', async (req, res) => {
 
 // Replenish Demo Credits
 app.post('/api/credits/replenish-demo', async (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const updatedWallet = await CreditWalletService.replenishDemoCredits(user.id, (user as any).authToken, 500);
@@ -843,7 +851,7 @@ app.get('/api/billing/credit-packs', (req, res) => {
 
 // 3. Subscription & Billing Profile Overview
 app.get('/api/billing/subscription', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const wallet = dbManager.getUserCredits(user.id);
@@ -866,7 +874,7 @@ app.get('/api/billing/subscription', (req, res) => {
 
 // 4. Secure Backend Checkout Initiation
 app.post('/api/billing/create-checkout-session', async (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const { planId, billingCycle = 'monthly', currency = 'INR', paymentMethod = 'upi' } = req.body;
@@ -893,7 +901,7 @@ app.post('/api/billing/create-checkout-session', async (req, res) => {
 
 // Legacy route alias for compatibility
 app.post('/api/billing/create-order', async (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const { planId, billingCycle = 'monthly', currency = 'INR', paymentMethod = 'upi' } = req.body;
@@ -944,7 +952,7 @@ app.post('/api/billing/webhook', async (req, res) => {
 
 // 7. Cancel Subscription Request
 app.post('/api/billing/cancel-request', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const updatedSub = PaymentService.cancelSubscription(user.id);
@@ -1236,7 +1244,7 @@ app.post('/api/ai/calculate-video-cost', (req, res) => {
 
 // Pre-check safety limits before expensive requests
 app.post('/api/ai/check-safety-limits', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const { operation = 'general', creditsToCharge = 0, videoDurationSeconds } = req.body;
@@ -1273,7 +1281,7 @@ app.post('/api/generate-content-pack', async (req, res) => {
     return res.status(400).json({ error: 'Topic is required' });
   }
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const cost = 10;
@@ -1442,7 +1450,7 @@ app.post('/api/generate-ideas', async (req, res) => {
     return res.status(400).json({ error: 'Topic is required' });
   }
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const cost = GENERATION_CREDIT_COSTS.ideaGeneration;
@@ -1485,7 +1493,7 @@ app.post('/api/generate-hooks', async (req, res) => {
     return res.status(400).json({ error: 'Topic is required' });
   }
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const cost = GENERATION_CREDIT_COSTS.ideaGeneration;
@@ -1522,7 +1530,7 @@ app.post('/api/generate-script', async (req, res) => {
     return res.status(400).json({ error: 'Title is required' });
   }
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const cost = GENERATION_CREDIT_COSTS.scriptGeneration;
@@ -1593,7 +1601,7 @@ app.post('/api/generate-scenes', async (req, res) => {
     return res.status(400).json({ error: 'Title or scriptText is required' });
   }
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const cost = GENERATION_CREDIT_COSTS.sceneGeneration;
@@ -1639,7 +1647,7 @@ app.post('/api/generate-seo', async (req, res) => {
   const { title, topic, scriptText, targetAudience, projectId } = req.body;
   const mainSubject = title || topic || 'Creative Content';
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const cost = GENERATION_CREDIT_COSTS.seoPack;
@@ -1687,7 +1695,7 @@ app.post('/api/translate-content', async (req, res) => {
     return res.status(400).json({ error: 'Text and targetLanguage are required' });
   }
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const cost = 2;
@@ -1736,7 +1744,7 @@ app.post('/api/translate-content', async (req, res) => {
 app.post('/api/generate-thumbnail-prompt', async (req, res) => {
   const { title, topic, tone } = req.body;
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   const cost = GENERATION_CREDIT_COSTS.thumbnailImage;
   if (user) {
     const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
@@ -1828,7 +1836,7 @@ Return ONLY valid JSON array:
 app.post('/api/generate-thumbnail-prompt-enhanced', async (req, res) => {
   const { topic, title, targetAudience, thumbnailConcept, visualStyle = 'Cinematic', aspectRatio = '16:9' } = req.body;
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   const cost = GENERATION_CREDIT_COSTS.thumbnailImage;
   if (user) {
     const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
@@ -1909,7 +1917,7 @@ Return ONLY valid JSON in this exact structure:
 app.post('/api/generate-scene-media-prompt', async (req, res) => {
   const { sceneNumber, visualDescription, characterAction, visualIdentity } = req.body;
 
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   const cost = GENERATION_CREDIT_COSTS.sceneGeneration;
   if (user) {
     const wallet = await CreditWalletService.getWallet(user.id, (user as any).authToken);
@@ -2041,7 +2049,7 @@ app.post('/api/video/calculate-cost', (req, res) => {
 
 // Create and trigger an async Video Generation Job
 app.post('/api/video/jobs', async (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) {
     return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Authentication required' });
   }
@@ -2075,7 +2083,7 @@ app.post('/api/video/jobs', async (req, res) => {
 
 // Poll status of an async video job
 app.get('/api/video/jobs/:jobId', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const job = dbManager.getVideoJob(req.params.jobId, user.id);
@@ -2087,7 +2095,7 @@ app.get('/api/video/jobs/:jobId', (req, res) => {
 
 // List user's video jobs (optionally filtered by projectId)
 app.get('/api/video/jobs', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const jobs = dbManager.listVideoJobs(user.id, req.query.projectId as string);
@@ -2096,7 +2104,7 @@ app.get('/api/video/jobs', (req, res) => {
 
 // List user's video assets (optionally filtered by projectId)
 app.get('/api/video/assets', (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const assets = dbManager.listVideoAssets(user.id, req.query.projectId as string);
@@ -2106,7 +2114,7 @@ app.get('/api/video/assets', (req, res) => {
 // Secure Project Asset Storage: Stream video asset with user ownership protection
 app.get('/api/video-assets/:assetId', (req, res) => {
   const assetId = req.params.assetId;
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) {
     return res.status(401).json({ error: 'UNAUTHORIZED' });
   }
@@ -2117,7 +2125,7 @@ app.get('/api/video-assets/:assetId', (req, res) => {
   }
 
   // Security: User isolation check
-  if (asset.userId !== user.id && user.role !== 'admin' && asset.userId !== 'user-creator-default') {
+  if (asset.userId !== user.id && user.role !== 'admin') {
     return res.status(403).json({ error: 'FORBIDDEN', message: 'Access denied to this video asset.' });
   }
 
@@ -2156,7 +2164,7 @@ app.get('/api/video-assets/:assetId', (req, res) => {
 
 // Prepare/render combined project video (concatenates completed scenes genuinely with ffmpeg)
 app.post('/api/video/export-project', async (req, res) => {
-  const user = getAuthenticatedUser(req) || dbManager.getUserById('user-creator-default');
+  const user = getAuthenticatedUser(req);
   if (!user) return res.status(401).json({ error: 'UNAUTHORIZED' });
 
   const { projectId } = req.body;
