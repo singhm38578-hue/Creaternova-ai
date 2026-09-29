@@ -338,25 +338,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = async (updates: Partial<User>) => {
     setAutosaveStatus('saving');
+    // Immediately update local state so in-memory UI never gets stuck
+    setUser((prev) => (prev ? { ...prev, ...updates } : null));
     try {
       if (user && isFirebaseConfigured) {
-        await updateFirestoreUserProfile(user.id, {
-          name: updates.name,
-          preferredLanguage: updates.preferredLanguage,
-          creatorNiche: updates.creatorNiche,
-          defaultPlatform: updates.defaultPlatform,
-          photoURL: updates.profileImage,
-        });
+        const fsUpdates: Partial<FirestoreUserProfile> = {};
+        if (updates.name !== undefined) fsUpdates.name = updates.name;
+        if (updates.preferredLanguage !== undefined) fsUpdates.preferredLanguage = updates.preferredLanguage;
+        if (updates.creatorNiche !== undefined) fsUpdates.creatorNiche = updates.creatorNiche;
+        if (updates.defaultPlatform !== undefined) fsUpdates.defaultPlatform = updates.defaultPlatform;
+        if (updates.profileImage !== undefined) fsUpdates.photoURL = updates.profileImage;
+        if (updates.onboardingCompleted !== undefined) fsUpdates.onboardingCompleted = updates.onboardingCompleted;
+
+        await updateFirestoreUserProfile(user.id, fsUpdates);
       }
-      const res = await studioApi.auth.updateProfile(updates);
-      if (res.user) {
-        setUser(res.user);
+      const res = await studioApi.auth.updateProfile(updates).catch(() => null);
+      if (res && res.user) {
+        setUser((prev) => (prev ? { ...prev, ...res.user } : res.user));
       }
       setAutosaveStatus('saved');
       setTimeout(() => setAutosaveStatus('idle'), 2000);
     } catch (e) {
+      console.error('Error updating user profile:', e);
       setAutosaveStatus('failed');
       setTimeout(() => setAutosaveStatus('idle'), 3000);
+      throw e;
     }
   };
 

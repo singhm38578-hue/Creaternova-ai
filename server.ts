@@ -279,15 +279,16 @@ app.put('/api/auth/profile', requireAuth, (req, res) => {
     const user = (req as any).user;
     const { name, profileImage, preferredLanguage, creatorNiche, defaultPlatform, defaultContentLanguage, onboardingCompleted } = req.body;
 
-    const updated = dbManager.updateUserProfile(user.id, {
-      name,
-      profileImage,
-      preferredLanguage,
-      creatorNiche,
-      defaultPlatform,
-      defaultContentLanguage,
-      onboardingCompleted: onboardingCompleted !== undefined ? onboardingCompleted : user.onboardingCompleted,
-    });
+    const updates: Record<string, any> = {};
+    if (name !== undefined) updates.name = name;
+    if (profileImage !== undefined) updates.profileImage = profileImage;
+    if (preferredLanguage !== undefined) updates.preferredLanguage = preferredLanguage;
+    if (creatorNiche !== undefined) updates.creatorNiche = creatorNiche;
+    if (defaultPlatform !== undefined) updates.defaultPlatform = defaultPlatform;
+    if (defaultContentLanguage !== undefined) updates.defaultContentLanguage = defaultContentLanguage;
+    if (onboardingCompleted !== undefined) updates.onboardingCompleted = onboardingCompleted;
+
+    const updated = dbManager.updateUserProfile(user.id, updates);
 
     const { passwordHash, ...safeUser } = updated;
     return res.json({ user: safeUser });

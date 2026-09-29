@@ -14,7 +14,8 @@ import {
   Calendar,
   Lightbulb,
   X,
-  FileText
+  FileText,
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { analytics } from '../services/analytics';
@@ -47,6 +48,12 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
 
   // Step 4: First project topic or idea
   const [topic, setTopic] = useState('5 Mind-Blowing Facts About Space');
+
+  // Loading & error states
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitAction, setSubmitAction] = useState<'launch' | 'skip' | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Track onboarding_started on mount
   useEffect(() => {
@@ -150,7 +157,19 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
   };
 
   const handleFinish = async () => {
-    const finalTopic = topic.trim() || 'My First Content Project';
+    if (isSubmitting) return;
+
+    const trimmedTopic = topic.trim();
+    if (!trimmedTopic) {
+      setValidationError('Please enter a topic or video idea to create your first project.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitAction('launch');
+    setErrorMessage(null);
+    setValidationError(null);
+
     try {
       if (user) {
         await updateProfile({
@@ -169,34 +188,45 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
         await updateBrandKit({
           preferredLanguage: language,
           channelNiche: creationType,
+        }).catch((e) => {
+          console.warn('BrandKit update non-critical warning:', e);
         });
       }
-    } catch (e) {
-      console.error('Error saving onboarding profile:', e);
+
+      analytics.track('onboarding_completed', {
+        creationType,
+        language,
+        goalsCount: selectedGoals.length,
+      });
+
+      await onComplete({
+        creationType,
+        language,
+        goals: selectedGoals,
+        topic: trimmedTopic,
+      });
+    } catch (err: any) {
+      console.error('Error completing onboarding and creating project:', err);
+      setErrorMessage(err?.message || 'Failed to complete project setup. Please tap Launch First Project again.');
+      setIsSubmitting(false);
+      setSubmitAction(null);
     }
-
-    analytics.track('onboarding_completed', {
-      creationType,
-      language,
-      goalsCount: selectedGoals.length,
-    });
-
-    onComplete({
-      creationType,
-      language,
-      goals: selectedGoals,
-      topic: finalTopic,
-    });
   };
 
   const handleSkip = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setSubmitAction('skip');
+    setErrorMessage(null);
+    setValidationError(null);
+
     try {
       if (user) {
         await updateProfile({
           onboardingCompleted: true,
         });
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error marking onboarding skipped:', e);
     }
 
@@ -204,15 +234,22 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
       skipped: true,
     });
 
-    if (onSkip) {
-      onSkip();
-    } else {
-      onComplete({
-        creationType,
-        language,
-        goals: selectedGoals,
-        topic: 'My First Content Project',
-      });
+    try {
+      if (onSkip) {
+        await onSkip();
+      } else {
+        onComplete({
+          creationType,
+          language,
+          goals: selectedGoals,
+          topic: 'My First Content Project',
+        });
+      }
+    } catch (navErr: any) {
+      console.error('Navigation error on skip:', navErr);
+      setErrorMessage('Could not open Studio Hub. Please try tapping Skip for now again.');
+      setIsSubmitting(false);
+      setSubmitAction(null);
     }
   };
 
@@ -232,10 +269,15 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
           </div>
 
           <button
+            type="button"
             onClick={handleSkip}
-            className="text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-slate-800"
+            disabled={isSubmitting}
+            className="text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 relative z-10 touch-manipulation"
           >
-            Skip for now
+            {isSubmitting && submitAction === 'skip' && (
+              <span className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+            )}
+            <span>Skip for now</span>
           </button>
         </div>
 
@@ -432,11 +474,31 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
               <input
                 type="text"
                 value={topic}
-                onChange={(e) => setTopic(e.target.value)}
+                disabled={isSubmitting}
+                onChange={(e) => {
+                  setTopic(e.target.value);
+                  if (validationError) setValidationError(null);
+                }}
                 placeholder="e.g., 5 Mind-Blowing Facts About Space"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
+                className={`w-full bg-slate-950 border ${
+                  validationError ? 'border-rose-500' : 'border-slate-700'
+                } rounded-xl px-4 py-3 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors disabled:opacity-60`}
               />
+              {validationError && (
+                <p className="text-xs text-rose-400 font-medium flex items-center gap-1.5 animate-in fade-in">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{validationError}</span>
+                </p>
+              )}
             </div>
+
+            {/* General Error Banner */}
+            {errorMessage && (
+              <div className="p-3 bg-rose-950/80 border border-rose-800 text-rose-200 rounded-xl text-xs flex items-center gap-2 animate-in fade-in">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
 
             {/* Quick Inspiration suggestions */}
             <div className="space-y-1.5 pt-1">
@@ -448,8 +510,12 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
                   <button
                     key={i}
                     type="button"
-                    onClick={() => setTopic(sug)}
-                    className="text-[11px] text-slate-300 hover:text-white bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-violet-500/50 px-2.5 py-1.5 rounded-lg transition-colors text-left cursor-pointer"
+                    disabled={isSubmitting}
+                    onClick={() => {
+                      setTopic(sug);
+                      if (validationError) setValidationError(null);
+                    }}
+                    className="text-[11px] text-slate-300 hover:text-white bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-violet-500/50 px-2.5 py-1.5 rounded-lg transition-colors text-left cursor-pointer disabled:opacity-50 touch-manipulation"
                   >
                     💡 {sug}
                   </button>
@@ -465,20 +531,48 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, onSk
               <span className="text-emerald-400 font-mono font-bold shrink-0">50 Credits Free</span>
             </div>
 
-            <div className="pt-3 flex items-center justify-between">
+            <div className="pt-3 flex items-center justify-between gap-2">
               <button
+                type="button"
                 onClick={() => setCurrentStep(3)}
-                className="text-xs text-slate-400 hover:text-white cursor-pointer px-2 py-1"
+                disabled={isSubmitting}
+                className="text-xs text-slate-400 hover:text-white cursor-pointer px-2 py-1 disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
               >
                 ← Back
               </button>
-              <button
-                onClick={handleFinish}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-pink-600 hover:from-violet-500 hover:to-pink-500 text-white text-xs sm:text-sm font-black shadow-xl shadow-violet-600/30 transition-all cursor-pointer"
-              >
-                <span>Launch First Project</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  disabled={isSubmitting}
+                  className="text-xs font-semibold text-slate-400 hover:text-white px-3 py-2.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation flex items-center gap-1.5"
+                >
+                  {isSubmitting && submitAction === 'skip' && (
+                    <span className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                  )}
+                  <span>Skip for now</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleFinish}
+                  disabled={isSubmitting}
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-pink-600 hover:from-violet-500 hover:to-pink-500 text-white text-xs sm:text-sm font-black shadow-xl shadow-violet-600/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation relative z-10"
+                >
+                  {isSubmitting && submitAction === 'launch' ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Setting up Studio...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Launch First Project</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

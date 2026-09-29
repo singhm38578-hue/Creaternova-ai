@@ -252,10 +252,14 @@ export function subscribeToUserWallet(uid: string, onUpdate: (profile: Firestore
 
 export async function updateUserProfile(uid: string, updates: Partial<FirestoreUserProfile>) {
   const ref = doc(db, 'users', uid);
-  await updateDoc(ref, {
-    ...updates,
-    updatedAt: new Date().toISOString(),
-  });
+  await setDoc(
+    ref,
+    {
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true }
+  );
 }
 
 // -------------------------------------------------------------

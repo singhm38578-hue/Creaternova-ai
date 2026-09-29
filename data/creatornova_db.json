@@ -303,6 +303,49 @@
       "billingCycle": "monthly",
       "createdAt": "2026-09-29T12:19:09.675Z",
       "onboardingCompleted": false
+    },
+    "user-1790684669975-fa4c4a": {
+      "id": "user-1790684669975-fa4c4a",
+      "name": "Audit User",
+      "email": "audit_1790684669@example.com",
+      "passwordHash": "5cbd5b55bd8082a1848d62d3dc8587e4b6828b882386147b513c326fe0727277",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=audit_1790684669%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "General Creator",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:24:29.975Z",
+      "onboardingCompleted": false
+    },
+    "user-1790686353759-724f55": {
+      "id": "user-1790686353759-724f55",
+      "email": "cosmic_1790686353671@example.com",
+      "passwordHash": "13ab1802146d4dca22304c3d2772dcbde94680b9ca7761e6fb2133021b40c9f7",
+      "role": "user",
+      "creatorNiche": "Shorts/Reels",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:52:33.759Z",
+      "onboardingCompleted": true
+    },
+    "user-1790686407580-35da04": {
+      "id": "user-1790686407580-35da04",
+      "name": "Cosmic Creator",
+      "email": "cosmic_1790686407479@example.com",
+      "passwordHash": "13ab1802146d4dca22304c3d2772dcbde94680b9ca7761e6fb2133021b40c9f7",
+      "role": "user",
+      "profileImage": "https://api.dicebear.com/7.x/bottts/svg?seed=cosmic_1790686407479%40example.com",
+      "preferredLanguage": "English",
+      "creatorNiche": "Shorts/Reels",
+      "defaultPlatform": "YouTube Shorts",
+      "defaultContentLanguage": "English",
+      "plan": "free",
+      "billingCycle": "monthly",
+      "createdAt": "2026-09-29T12:53:27.581Z",
+      "onboardingCompleted": true
     }
   },
   "sessions": {
@@ -385,6 +428,18 @@
     "80069e98d7973d0d1d45bee6b83ac1ef9ffaa49e7941f9b4a082300300dd660f": {
       "userId": "user-1790684349675-ab9ec8",
       "expiresAt": 1793276349675
+    },
+    "cf10a546eb5ad5b0bba77eb6662a5f4c48be144c502e84ac3737c3f989b06429": {
+      "userId": "user-1790684669975-fa4c4a",
+      "expiresAt": 1793276669975
+    },
+    "9f5bfd51846c0c7acd7bf05a9aaa312f2fcf65cd9f9caf92cc000e563e4957ce": {
+      "userId": "user-1790686353759-724f55",
+      "expiresAt": 1793278353759
+    },
+    "ef0536331b4e7c0c10e287f6078381991d4199ff32138ecb1863f88c23f3e470": {
+      "userId": "user-1790686407580-35da04",
+      "expiresAt": 1793278407581
     }
   },
   "brandKits": {
@@ -406,13 +461,13 @@
       "channelName": "Mangal Singh's Studio",
       "channelNiche": "Shorts/Reels",
       "targetAudience": "Global Audience",
-      "preferredLanguage": "English",
+      "preferredLanguage": "Hindi",
       "preferredVisualStyle": "Cinematic High-Contrast",
       "defaultVideoStyle": "High-Retention Shorts",
       "toneOfVoice": "Energetic, Curious & Authoritative",
       "recurringCharacterDescription": "Dr. Nova, an energetic robotic cosmic guide with deep violet plating and glowing cyan eyes",
       "preferredCta": "Subscribe for daily insights!",
-      "updatedAt": "2026-09-29T12:17:46.139Z"
+      "updatedAt": "2026-09-29T12:44:54.935Z"
     },
     "user-1790507479617-930fcd": {
       "userId": "user-1790507479617-930fcd",
@@ -634,6 +689,45 @@
       "recurringCharacterDescription": "",
       "preferredCta": "Like and subscribe for more!",
       "updatedAt": "2026-09-29T12:19:09.675Z"
+    },
+    "user-1790684669975-fa4c4a": {
+      "userId": "user-1790684669975-fa4c4a",
+      "channelName": "Audit User's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:24:29.975Z"
+    },
+    "user-1790686353759-724f55": {
+      "userId": "user-1790686353759-724f55",
+      "channelName": "Cosmic Creator's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:52:33.759Z"
+    },
+    "user-1790686407580-35da04": {
+      "userId": "user-1790686407580-35da04",
+      "channelName": "Cosmic Creator's Studio",
+      "channelNiche": "Content Creation",
+      "targetAudience": "General Audience",
+      "preferredLanguage": "English",
+      "preferredVisualStyle": "Cinematic",
+      "defaultVideoStyle": "High Pacing Shorts",
+      "toneOfVoice": "Energetic & Engaging",
+      "recurringCharacterDescription": "",
+      "preferredCta": "Like and subscribe for more!",
+      "updatedAt": "2026-09-29T12:53:27.581Z"
     }
   },
   "credits": {
@@ -886,6 +980,36 @@
       "totalRemaining": 50,
       "monthlyAllocation": 50,
       "lastResetDate": "2026-09-29T12:19:09.675Z"
+    },
+    "user-1790684669975-fa4c4a": {
+      "userId": "user-1790684669975-fa4c4a",
+      "textCredits": 20,
+      "imageCredits": 15,
+      "voiceCredits": 10,
+      "videoCredits": 5,
+      "totalRemaining": 50,
+      "monthlyAllocation": 50,
+      "lastResetDate": "2026-09-29T12:24:29.975Z"
+    },
+    "user-1790686353759-724f55": {
+      "userId": "user-1790686353759-724f55",
+      "textCredits": 20,
+      "imageCredits": 15,
+      "voiceCredits": 10,
+      "videoCredits": 5,
+      "totalRemaining": 50,
+      "monthlyAllocation": 50,
+      "lastResetDate": "2026-09-29T12:52:33.759Z"
+    },
+    "user-1790686407580-35da04": {
+      "userId": "user-1790686407580-35da04",
+      "textCredits": 20,
+      "imageCredits": 15,
+      "voiceCredits": 10,
+      "videoCredits": 5,
+      "totalRemaining": 50,
+      "monthlyAllocation": 50,
+      "lastResetDate": "2026-09-29T12:53:27.581Z"
     }
   },
   "creditConfig": {
@@ -4556,6 +4680,1370 @@
       "createdAt": "2026-09-29T12:17:45.701Z",
       "updatedAt": "2026-09-29T12:17:46.288Z",
       "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684462345": {
+      "id": "proj-1790684462345",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:21:02.346Z",
+      "updatedAt": "2026-09-29T12:21:02.956Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684465454": {
+      "id": "proj-1790684465454",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:21:05.454Z",
+      "updatedAt": "2026-09-29T12:21:06.075Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684589363": {
+      "id": "proj-1790684589363",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:09.363Z",
+      "updatedAt": "2026-09-29T12:23:09.967Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684589946": {
+      "id": "proj-1790684589946",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:09.946Z",
+      "updatedAt": "2026-09-29T12:23:10.547Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684592140": {
+      "id": "proj-1790684592140",
+      "name": "Top 3 Daily Productivity Habits for Creators",
+      "topic": "Top 3 Daily Productivity Habits for Creators",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "Top 3 Daily Productivity Habits for Creators",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 44
+          }
+        ],
+        "description": "Discover everything about Top 3 Daily Productivity Habits for Creators. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "Top 3 Daily Productivity Habits for Creators"
+        ],
+        "longTailKeywords": [
+          "Top 3 Daily Productivity Habits for Creators breakdown",
+          "how to Top 3 Daily Productivity Habits for Creators"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:12.140Z",
+      "updatedAt": "2026-09-29T12:23:12.722Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684592722": {
+      "id": "proj-1790684592722",
+      "name": "Top 3 Daily Productivity Habits for Creators",
+      "topic": "Top 3 Daily Productivity Habits for Creators",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "Top 3 Daily Productivity Habits for Creators",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 44
+          }
+        ],
+        "description": "Discover everything about Top 3 Daily Productivity Habits for Creators. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "Top 3 Daily Productivity Habits for Creators"
+        ],
+        "longTailKeywords": [
+          "Top 3 Daily Productivity Habits for Creators breakdown",
+          "how to Top 3 Daily Productivity Habits for Creators"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:12.722Z",
+      "updatedAt": "2026-09-29T12:23:13.314Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684601930": {
+      "id": "proj-1790684601930",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:21.930Z",
+      "updatedAt": "2026-09-29T12:23:22.534Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684602472": {
+      "id": "proj-1790684602472",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:22.472Z",
+      "updatedAt": "2026-09-29T12:23:23.071Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684609438": {
+      "id": "proj-1790684609438",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:29.438Z",
+      "updatedAt": "2026-09-29T12:23:30.030Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684613218": {
+      "id": "proj-1790684613218",
+      "name": "The Secret Science Behind Deep Ocean Creat...",
+      "topic": "The Secret Science Behind Deep Ocean Creatures",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "The Secret Science Behind Deep Ocean Creatures",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 46
+          }
+        ],
+        "description": "Discover everything about The Secret Science Behind Deep Ocean Creatures. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "The Secret Science Behind Deep Ocean Creatures"
+        ],
+        "longTailKeywords": [
+          "The Secret Science Behind Deep Ocean Creatures breakdown",
+          "how to The Secret Science Behind Deep Ocean Creatures"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:33.219Z",
+      "updatedAt": "2026-09-29T12:23:33.839Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684613942": {
+      "id": "proj-1790684613942",
+      "name": "The Secret Science Behind Deep Ocean Creat...",
+      "topic": "The Secret Science Behind Deep Ocean Creatures",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "The Secret Science Behind Deep Ocean Creatures",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 46
+          }
+        ],
+        "description": "Discover everything about The Secret Science Behind Deep Ocean Creatures. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "The Secret Science Behind Deep Ocean Creatures"
+        ],
+        "longTailKeywords": [
+          "The Secret Science Behind Deep Ocean Creatures breakdown",
+          "how to The Secret Science Behind Deep Ocean Creatures"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:33.942Z",
+      "updatedAt": "2026-09-29T12:23:34.535Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684615522": {
+      "id": "proj-1790684615522",
+      "name": "The Secret Science Behind Deep Ocean Creat...",
+      "topic": "The Secret Science Behind Deep Ocean Creatures",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "The Secret Science Behind Deep Ocean Creatures",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 46
+          }
+        ],
+        "description": "Discover everything about The Secret Science Behind Deep Ocean Creatures. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "The Secret Science Behind Deep Ocean Creatures"
+        ],
+        "longTailKeywords": [
+          "The Secret Science Behind Deep Ocean Creatures breakdown",
+          "how to The Secret Science Behind Deep Ocean Creatures"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:23:35.522Z",
+      "updatedAt": "2026-09-29T12:23:36.113Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684848303": {
+      "id": "proj-1790684848303",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:27:28.303Z",
+      "updatedAt": "2026-09-29T12:27:33.216Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684847430": {
+      "id": "proj-1790684847430",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:27:27.430Z",
+      "updatedAt": "2026-09-29T12:27:34.584Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790684847882": {
+      "id": "proj-1790684847882",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:27:27.882Z",
+      "updatedAt": "2026-09-29T12:27:34.589Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790685850928": {
+      "id": "proj-1790685850928",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:44:10.928Z",
+      "updatedAt": "2026-09-29T12:44:10.818Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790685865975": {
+      "id": "proj-1790685865975",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:44:25.975Z",
+      "updatedAt": "2026-09-29T12:44:25.881Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790685871223": {
+      "id": "proj-1790685871223",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:44:31.239Z",
+      "updatedAt": "2026-09-29T12:44:31.142Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790685895623": {
+      "id": "proj-1790685895623",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:44:55.623Z",
+      "updatedAt": "2026-09-29T12:44:55.521Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790685895646": {
+      "id": "proj-1790685895646",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "targetAudience": "General Audience",
+      "tone": "engaging_energetic",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "Hindi",
+      "ideas": [],
+      "scenes": [],
+      "seo": {
+        "titles": [
+          {
+            "title": "5 Mind-Blowing Facts About Space",
+            "score": 92,
+            "category": "Curiosity Gap",
+            "characterCount": 32
+          }
+        ],
+        "description": "Discover everything about 5 Mind-Blowing Facts About Space. Plan, script, and create with CreatorNova AI.",
+        "primaryKeywords": [
+          "5 Mind-Blowing Facts About Space"
+        ],
+        "longTailKeywords": [
+          "5 Mind-Blowing Facts About Space breakdown",
+          "how to 5 Mind-Blowing Facts About Space"
+        ],
+        "tags": [
+          "CreatorNova",
+          "ContentCreation"
+        ],
+        "hashtags": [
+          "#CreatorNova",
+          "#Shorts",
+          "#ViralContent"
+        ],
+        "seoHealthScore": 90,
+        "targetAudience": "General Audience",
+        "category": "Entertainment"
+      },
+      "thumbnail": {
+        "headline": "VIRAL HOOK",
+        "subheadline": "Watch Until The End",
+        "badgeText": "NEW",
+        "templateTheme": "bold_creator",
+        "aspectRatio": "9:16",
+        "textColor": "#FFFFFF",
+        "accentColor": "#8b5cf6",
+        "bgColor1": "#0f172a",
+        "bgColor2": "#1e1b4b",
+        "fontSize": 48,
+        "showVignette": true,
+        "showGlow": true,
+        "emojis": [
+          "🔥",
+          "✨"
+        ],
+        "compositionAngle": "Eye-level dynamic",
+        "thumbnailIdea": "Bold typography with high contrast subject"
+      },
+      "translations": [],
+      "createdAt": "2026-09-29T12:44:55.646Z",
+      "updatedAt": "2026-09-29T12:44:55.548Z",
+      "userId": "YdycqvezkkY8ohf4Ja5avSO0Rwz1"
+    },
+    "proj-1790686353782": {
+      "id": "proj-1790686353782",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "English",
+      "userId": "user-1790686353759-724f55",
+      "createdAt": "2026-09-29T12:52:33.786Z",
+      "updatedAt": "2026-09-29T12:52:33.786Z"
+    },
+    "proj-1790686407602": {
+      "id": "proj-1790686407602",
+      "name": "5 Mind-Blowing Facts About Space",
+      "topic": "5 Mind-Blowing Facts About Space",
+      "format": "youtube_short",
+      "platform": "YouTube Shorts",
+      "contentType": "Entertainment",
+      "language": "English",
+      "userId": "user-1790686407580-35da04",
+      "createdAt": "2026-09-29T12:53:27.606Z",
+      "updatedAt": "2026-09-29T12:53:27.606Z"
     }
   },
   "resetTokens": {},

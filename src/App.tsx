@@ -57,6 +57,7 @@ import {
 } from './services/storage';
 import { studioApi } from './services/api';
 import { analytics } from './services/analytics';
+import { saveFirestoreProject } from './services/firebase';
 
 export default function App() {
   const {
@@ -84,6 +85,7 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [activeCharacterId, setActiveCharacterId] = useState<string>('');
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
 
   // Cross-tool handoff states
   const [scriptPrefillTitle, setScriptPrefillTitle] = useState<string | undefined>();
@@ -308,13 +310,15 @@ export default function App() {
     setActiveTab('scenes');
   };
 
-  // Handle Onboarding Completion (Requirement 7)
+  // Handle Onboarding Completion (Requirement 7 & 8)
   const handleOnboardingComplete = async (preferences: {
     creationType: string;
     language: string;
     goals: string[];
     topic: string;
   }) => {
+    setOnboardingDismissed(true);
+    setActiveTab('overview');
     try {
       const topicTitle = preferences.topic.trim() || 'My First Content Project';
       const isShortFormat =
@@ -391,8 +395,19 @@ export default function App() {
 
       setProjects((prev) => [firstProject, ...prev]);
       setActiveId(firstProject.id);
-      setActiveTab('overview');
+
+      // Save to Firestore for authenticated user
+      if (user && user.id) {
+        saveFirestoreProject(user.id, firstProject).catch((err) =>
+          console.error('Error saving first project to Firestore:', err)
+        );
+      }
       studioApi.projects.save(firstProject).catch(console.error);
+
+      // Ensure profile onboarding state is persisted
+      updateProfile({ onboardingCompleted: true }).catch((err) =>
+        console.error('Error persisting onboardingCompleted state:', err)
+      );
 
       // Track first project created (Requirement 11)
       analytics.track('first_project_created', {
@@ -408,6 +423,8 @@ export default function App() {
   };
 
   const handleOnboardingSkip = async () => {
+    setOnboardingDismissed(true);
+    setActiveTab('overview');
     try {
       await updateProfile({ onboardingCompleted: true });
     } catch (err) {
@@ -848,7 +865,7 @@ export default function App() {
       )}
 
       {/* First-Time User Onboarding Flow (Requirement 7 & 8) */}
-      {user && !user.onboardingCompleted && (
+      {user && !user.onboardingCompleted && !onboardingDismissed && (
         <OnboardingFlow
           onComplete={handleOnboardingComplete}
           onSkip={handleOnboardingSkip}
