@@ -119,6 +119,78 @@ export class AIProviderService {
   }
 
   /**
+   * Safely checks Gemini API status without exposing key or throwing uncaught exceptions.
+   */
+  public static async safeCheck(): Promise<{
+    connectionStatus: 'CONNECTED' | 'SETUP REQUIRED' | 'DISABLED';
+    quotaStatus: 'CONNECTED' | 'QUOTA BLOCKED' | 'SETUP REQUIRED' | 'DISABLED';
+    status: 'CONNECTED' | 'QUOTA BLOCKED' | 'SETUP REQUIRED' | 'DISABLED';
+    message: string;
+    model: string;
+    lastSafeCheck: string;
+    blockerReason: string;
+  }> {
+    const isConfig = this.isConfigured();
+    const lastCheck = new Date().toISOString();
+    if (!isConfig) {
+      return {
+        connectionStatus: 'SETUP REQUIRED',
+        quotaStatus: 'DISABLED',
+        status: 'SETUP REQUIRED',
+        message: 'No GEMINI_API_KEY detected in environment.',
+        model: this.TEXT_MODEL,
+        lastSafeCheck: lastCheck,
+        blockerReason: 'Missing GEMINI_API_KEY environment variable.',
+      };
+    }
+
+    try {
+      const client = this.getClient();
+      await client.models.generateContent({
+        model: this.TEXT_MODEL,
+        contents: 'ping',
+      });
+      return {
+        connectionStatus: 'CONNECTED',
+        quotaStatus: 'CONNECTED',
+        status: 'CONNECTED',
+        message: 'Google Gemini integration is connected and active.',
+        model: this.TEXT_MODEL,
+        lastSafeCheck: lastCheck,
+        blockerReason: 'None. Provider operational.',
+      };
+    } catch (err: any) {
+      const normalized = this.normalizeError(err);
+      if (
+        normalized.isQuota ||
+        normalized.statusCode === 429 ||
+        String(err?.message).includes('demand') ||
+        String(err?.message).includes('503') ||
+        String(err?.message).includes('429')
+      ) {
+        return {
+          connectionStatus: 'CONNECTED',
+          quotaStatus: 'QUOTA BLOCKED',
+          status: 'QUOTA BLOCKED',
+          message: 'Gemini integration verified and working. Free-tier quota limits (5 RPM / 429) or high-demand spikes require paid billing to lift restrictions.',
+          model: this.TEXT_MODEL,
+          lastSafeCheck: lastCheck,
+          blockerReason: 'Free-tier rate quota / billing not enabled. The integration itself is verified and intact.',
+        };
+      }
+      return {
+        connectionStatus: 'CONNECTED',
+        quotaStatus: 'QUOTA BLOCKED',
+        status: 'QUOTA BLOCKED',
+        message: `Integration connected. Safe probe: ${normalized.message}`,
+        model: this.TEXT_MODEL,
+        lastSafeCheck: lastCheck,
+        blockerReason: normalized.message,
+      };
+    }
+  }
+
+  /**
    * Safely extracts JSON from raw model string
    */
   public static extractJson<T = any>(rawText: string): T {

@@ -1124,15 +1124,15 @@ class DatabaseManager {
 
     this.db.users[userId] = user;
 
-    // Free tier initial credit grant
+    // Free tier initial credit grant (consistent 50 credits)
     this.db.credits[userId] = {
       userId,
-      textCredits: 50,
-      imageCredits: 30,
-      voiceCredits: 20,
-      videoCredits: 0,
-      totalRemaining: 100,
-      monthlyAllocation: 100,
+      textCredits: 20,
+      imageCredits: 15,
+      voiceCredits: 10,
+      videoCredits: 5,
+      totalRemaining: 50,
+      monthlyAllocation: 50,
       lastResetDate: new Date().toISOString(),
     };
 
@@ -1310,12 +1310,12 @@ class DatabaseManager {
     if (!this.db.credits[userId]) {
       this.db.credits[userId] = {
         userId,
-        textCredits: 100,
-        imageCredits: 50,
-        voiceCredits: 30,
-        videoCredits: 10,
-        totalRemaining: 190,
-        monthlyAllocation: 200,
+        textCredits: 20,
+        imageCredits: 15,
+        voiceCredits: 10,
+        videoCredits: 5,
+        totalRemaining: 50,
+        monthlyAllocation: 50,
         lastResetDate: new Date().toISOString(),
       };
       this.persist();

@@ -454,6 +454,28 @@ export const studioApi = {
     getPlanEconomics: () => fetchApi<{ planEconomics: any[] }>('/api/admin/plan-economics'),
     getAIUsageRecords: (timeframe: 'today' | '7d' | '30d' = '7d') =>
       fetchApi<{ records: any[] }>(`/api/admin/ai-usage-records?timeframe=${timeframe}`),
+    getProviderStatus: () =>
+      fetchApi<{
+        providers: Array<{
+          id: string;
+          name: string;
+          provider: string;
+          capability: string;
+          connectionStatus: 'CONNECTED' | 'SETUP REQUIRED' | 'DISABLED';
+          quotaStatus: 'CONNECTED' | 'QUOTA BLOCKED' | 'SETUP REQUIRED' | 'DISABLED';
+          status: 'CONNECTED' | 'QUOTA BLOCKED' | 'SETUP REQUIRED' | 'DISABLED';
+          lastSafeCheck: string;
+          details: string;
+          blockerReason: string;
+          isIntegrationWorking: boolean;
+          setupChecklist: Array<{ item: string; status: string; done: boolean; blocker?: boolean }>;
+          nextAction: string;
+        }>;
+        freePlanCredits: number;
+        freePlanConsistent: boolean;
+        securityStatus: string;
+        lastSafeCheck: string;
+      }>('/api/admin/provider-status'),
   },
 
   // AI Operations & Variable Cost Protection

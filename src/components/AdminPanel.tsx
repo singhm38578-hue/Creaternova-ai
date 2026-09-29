@@ -17,11 +17,13 @@ import {
   Tag,
   Layers,
   Crown,
-  DollarSign
+  DollarSign,
+  Server
 } from 'lucide-react';
 import { studioApi } from '../services/api';
 import { CreditConfig } from '../types/auth';
 import { AICostDashboard } from './AICostDashboard';
+import { ProviderStatusView } from './admin/ProviderStatusView';
 
 export const AdminPanel: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -45,7 +47,7 @@ export const AdminPanel: React.FC = () => {
     maintenanceMode: false,
   });
 
-  const [activeAdminTab, setActiveAdminTab] = useState<'metrics' | 'pricing' | 'packs' | 'costs' | 'users' | 'ai_costs'>('ai_costs');
+  const [activeAdminTab, setActiveAdminTab] = useState<'provider_status' | 'ai_costs' | 'pricing' | 'packs' | 'costs' | 'users' | 'metrics'>('provider_status');
   const [isLoading, setIsLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -169,6 +171,7 @@ export const AdminPanel: React.FC = () => {
       {/* Admin Nav Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
         {[
+          { id: 'provider_status', label: 'Provider Setup & Status', icon: Server },
           { id: 'ai_costs', label: 'AI Cost Dashboard & Economics', icon: DollarSign },
           { id: 'pricing', label: 'Subscription Plans & Regional Prices', icon: Crown },
           { id: 'packs', label: 'Credit Packs Architecture', icon: Coins },
@@ -193,6 +196,9 @@ export const AdminPanel: React.FC = () => {
           );
         })}
       </div>
+
+      {/* TAB: PROVIDER STATUS & SETUP CHECKLIST */}
+      {activeAdminTab === 'provider_status' && <ProviderStatusView />}
 
       {/* TAB 0: AI COST DASHBOARD & ECONOMICS */}
       {activeAdminTab === 'ai_costs' && <AICostDashboard />}

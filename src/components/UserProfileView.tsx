@@ -33,6 +33,7 @@ import {
   Key,
   LifeBuoy,
   MessageSquare,
+  Server,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { studioApi } from '../services/api';
@@ -43,6 +44,7 @@ import { AdminPanel } from './AdminPanel';
 import { AICostDashboard } from './AICostDashboard';
 import { ReferralEarnView } from './ReferralEarnView';
 import { ContactSupportView } from './support/ContactSupportView';
+import { ProviderStatusView } from './admin/ProviderStatusView';
 import { Gift } from 'lucide-react';
 
 interface UserProfileViewProps {
@@ -54,7 +56,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({ initialSubTab 
   const [subTab, setSubTab] = useState<'profile' | 'brand_kit' | 'usage' | 'subscription' | 'billing' | 'settings' | 'help' | 'admin' | 'ai_costs' | 'referrals'>(initialSubTab);
 
   // Settings sub-section state (Requirement 4 & 5)
-  const [settingsSection, setSettingsSection] = useState<'profile' | 'language' | 'privacy' | 'security' | 'delete_account'>('profile');
+  const [settingsSection, setSettingsSection] = useState<'profile' | 'language' | 'privacy' | 'security' | 'delete_account' | 'provider_status'>('profile');
 
   // Delete Account Confirmation States
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -673,6 +675,7 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({ initialSubTab 
               { id: 'language' as const, label: 'Language', icon: Languages },
               { id: 'privacy' as const, label: 'Privacy', icon: Shield },
               { id: 'security' as const, label: 'Security', icon: Lock },
+              ...(user?.role === 'admin' ? [{ id: 'provider_status' as const, label: '🛡️ Provider Status', icon: Server }] : []),
               { id: 'delete_account' as const, label: 'Delete Account', icon: Trash2, danger: true },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -1093,6 +1096,13 @@ export const UserProfileView: React.FC<UserProfileViewProps> = ({ initialSubTab 
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* SECTION: Admin-only Provider Status (Settings → Provider Status) */}
+          {settingsSection === 'provider_status' && user?.role === 'admin' && (
+            <div className="space-y-5 animate-in fade-in pt-2">
+              <ProviderStatusView />
             </div>
           )}
         </div>
